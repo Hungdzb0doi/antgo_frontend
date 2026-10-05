@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng tin tuyển dụng · AntGo</title>
+    <!-- Bản đồ Leaflet giống trang findjob -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="/asset/css/createjob.css">
+</head>
+<body>
+
+<header class="app-header">
+    <a href="/interface/managejob" class="header-brand" title="AntGo - Về Quản lý việc làm">
+        <img src="/asset/antgo-icon.svg" alt="AntGo" class="header-brand-icon-img">
+        <span class="brand-text">Ant<span class="brand-highlight">Go</span></span>
+    </a>
+    <div class="header-nav">
+        <a href="/interface/managejob" class="nav-btn"><i class="ti ti-briefcase"></i> Quản lý việc làm</a>
+        <a href="/interface/createjob" class="nav-btn active"><i class="ti ti-plus"></i> Đăng tin việc</a>
+        <a href="/interface/profile" class="nav-btn"><i class="ti ti-user"></i> Hồ sơ</a>
+        <button onclick="logout()" class="nav-btn nav-btn-logout"><i class="ti ti-logout"></i> Đăng xuất</button>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Cột Form thông tin -->
+    <div class="form-col">
+        <h2 style="margin-top:0; color:var(--text-primary)">Tạo công việc mới</h2>
+
+        <div class="form-group">
+            <label>Tiêu đề công việc</label>
+            <input type="text" id="title" placeholder="VD: Cần 5 bạn phục vụ tiệc cưới cuối tuần">
+        </div>
+
+        <div style="display:flex; gap:15px;">
+            <div class="form-group" style="flex:1">
+                <label>Lương theo giờ (VNĐ)</label>
+                <input type="number" id="hourlyRate" placeholder="VD: 25000">
+            </div>
+            <div class="form-group" style="flex:1">
+                <label>Số người tuyển</label>
+                <input type="number" id="requiredWorkers" value="1" min="1">
+            </div>
+        </div>
+
+        <div style="display:flex; gap:15px;">
+            <div class="form-group" style="flex:1">
+                <label>Bắt đầu lúc</label>
+                <input type="datetime-local" id="startTime">
+            </div>
+            <div class="form-group" style="flex:1">
+                <label>Kết thúc lúc</label>
+                <input type="datetime-local" id="endTime">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Danh mục công việc</label>
+            <select id="categoryId">
+                <!-- Dữ liệu danh mục sẽ được tự động đổ động từ API backend -->
+                <option value="">Đang tải danh mục...</option>
+            </select>
+        </div>
+
+        <button class="btn-submit" onclick="submitJob()">Đăng việc làm</button>
+    </div>
+
+    <!-- Cột Bản đồ -->
+    <div class="map-col">
+        <div class="form-group" style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+            <label style="margin:0;">Vị trí làm việc</label>
+            <button type="button" class="btn-action" onclick="goToMyLocation()">
+                <i class="ti ti-current-location"></i> Vị trí của tôi
+            </button>
+        </div>
+
+        <!-- Ô TÌM KIẾM PHOTON & GỢI Ý TỰ ĐỘNG -->
+        <div class="form-group" style="display: flex; gap: 8px; margin-bottom: 12px; position: relative;">
+            <input type="text" id="customSearchInput" list="suggestions" placeholder="Nhập địa chỉ (VD: 123 Cầu Giấy)..." oninput="fetchSuggestions()" onkeypress="if(event.key === 'Enter') customSearch()">
+            <datalist id="suggestions"></datalist>
+            <button type="button" class="btn-action btn-search" onclick="customSearch()">Tìm kiếm</button>
+        </div>
+
+        <div id="map"></div>
+
+        <input type="hidden" id="lat">
+        <input type="hidden" id="lng">
+
+        <div id="loc-text" style="font-size:13px; color:var(--text-secondary); margin-top:12px;">
+            <i class="ti ti-map-pin"></i> Chưa chọn tọa độ. Hãy click trên bản đồ hoặc dùng ô tìm kiếm.
+        </div>
+    </div>
+</div>
+
+<script src="/asset/js/createjob.js"></script>
+<script src="/asset/js/notification.js"></script>
+<script src="/asset/js/chat.js"></script>
+</body>
+</html>

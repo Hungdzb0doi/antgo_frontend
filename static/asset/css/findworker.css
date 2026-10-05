@@ -1,0 +1,210 @@
+:root {
+            --primary-orange: #FF6600;
+            --primary-hover: #E55C00;
+            --primary-light: #FFF0E6;
+            --black-main: #18181B;
+            --black-sub: #3F3F46;
+            --bg-light: #F4F4F5;
+            --white-surface: #FFFFFF;
+            --border-line: #E4E4E7;
+
+            /* Ánh xạ biến thương hiệu AntGo */
+            --primary: var(--primary-orange);
+            --bg: var(--bg-light);
+            --surface: var(--white-surface);
+            --text-main: var(--black-main);
+            --text-sub: var(--black-sub);
+            --border: var(--border-line);
+        }
+        body {
+            margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg); color: var(--text-main); height: 100vh; display: flex; flex-direction: column;
+        }
+
+        /* Unified AntGo App Header */
+        .app-header {
+            background: var(--black-main);
+            padding: 12px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #ffffff;
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+        .header-brand-icon-img {
+            width: 32px;
+            height: 32px;
+            display: block;
+            filter: drop-shadow(0 2px 8px rgba(255, 102, 0, 0.45));
+        }
+        .brand-text {
+            color: #ffffff;
+            font-weight: 800;
+        }
+        .brand-highlight {
+            color: var(--primary-orange);
+        }
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            text-decoration: none;
+            color: #ffffff;
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.08);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .nav-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.28);
+            transform: translateY(-1px);
+        }
+        /* Duy nhất nút đang chọn (Active) mới mang màu cam chủ đạo */
+        .nav-btn.active {
+            background: var(--primary-orange) !important;
+            color: #ffffff !important;
+            border-color: var(--primary-orange) !important;
+            box-shadow: 0 2px 8px rgba(255, 102, 0, 0.35);
+        }
+        .nav-btn.active:hover {
+            background: var(--primary-hover) !important;
+        }
+        .nav-btn-logout:hover {
+            background: rgba(239, 68, 68, 0.22) !important;
+            color: #fca5a5 !important;
+            border-color: rgba(239, 68, 68, 0.4) !important;
+            transform: translateY(-1px);
+        }
+
+        .main-content { display: flex; flex: 1; overflow: hidden; }
+        .map-container { flex: 7; position: relative; }
+        #radar-map { width: 100%; height: 100%; z-index: 1; }
+
+        /* HIỆU ỨNG RADAR MÀU CAM TỐC ĐỘ */
+        .radar-scan-effect {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100px; height: 100px; border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(255, 102, 0, 0.6);
+            animation: pulse-radar 2s infinite; z-index: 1000; pointer-events: none;
+            display: none;
+        }
+        @keyframes pulse-radar {
+            0% { transform: translate(-50%, -50%) scale(0.95); box-shadow: 0 0 0 0 rgba(255, 102, 0, 0.7); }
+            70% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 300px rgba(255, 102, 0, 0); }
+            100% { transform: translate(-50%, -50%) scale(0.95); box-shadow: 0 0 0 0 rgba(255, 102, 0, 0); }
+        }
+
+        .btn-recenter {
+            position: absolute; bottom: 24px; right: 24px; z-index: 1000;
+            width: 50px; height: 50px; border-radius: 25px; background: var(--white-surface);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.18); border: 2px solid var(--primary-orange); cursor: pointer;
+            display: flex; align-items: center; justify-content: center; color: var(--primary-orange); font-size: 24px;
+            transition: all 0.2s ease;
+        }
+        .btn-recenter:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 18px rgba(255, 102, 0, 0.35);
+        }
+        .ti-star-filled { font-style: normal; }
+        .ti-star-filled::before { content: "★"; color: #f59e0b; }
+
+        .sidebar {
+            flex: 3; background: var(--surface); border-left: 1px solid var(--border);
+            display: flex; flex-direction: column; max-width: 450px; min-width: 320px;
+        }
+        .sidebar-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
+        .sidebar-header-top { display: flex; justify-content: space-between; font-weight: 700; font-size: 16px; align-items: center; color: var(--black-main); }
+        .radius-control { display: flex; gap: 8px; align-items: center; }
+        .radius-control input { width: 70px; padding: 6px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px;}
+
+        .worker-list { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: #f8fafc; }
+
+        .worker-card {
+            border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;
+            display: flex; align-items: center; gap: 12px; background: #fff;
+            transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;
+        }
+        .worker-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); border-color: var(--primary); }
+        .worker-avatar { width: 48px; height: 48px; border-radius: 50%; background: #e2e8f0; object-fit: cover; flex-shrink: 0; border: 2px solid var(--border); }
+        .worker-info { flex: 1; min-width: 0; }
+        .worker-info h4 { margin: 0 0 4px; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--black-main); }
+        .worker-info p { margin: 0; font-size: 13px; color: var(--text-sub); }
+        .card-actions { display: flex; flex-direction: column; gap: 6px; }
+        .btn-action {
+            background: var(--primary-orange); color: white; border: none; padding: 7px 12px;
+            border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-action:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.3);
+        }
+
+        /* MODAL CHI TIẾT */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 9999;
+            display: none; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: var(--surface); width: 450px; max-width: 90%;
+            border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            overflow: hidden; display: flex; flex-direction: column;
+        }
+        .modal-header {
+            padding: 16px 20px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; background: #f8fafc;
+        }
+        .modal-header h3 { margin: 0; font-size: 16px; color: var(--text-main); }
+        .btn-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-sub); }
+        .modal-body { padding: 20px; font-size: 14px; line-height: 1.6; color: var(--text-main); }
+        .modal-footer {
+            padding: 16px 20px; border-top: 1px solid var(--border);
+            display: flex; justify-content: flex-end; gap: 10px; background: #f8fafc;
+        }
+        .profile-header { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; }
+        .profile-avatar { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); flex-shrink: 0; }
+        .badge-verified {
+            background: #dcfce7; color: #166534; padding: 4px 8px;
+            border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;
+        }
+        .badge-unverified {
+            background: #fee2e2; color: #991b1b; padding: 4px 8px;
+            border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;
+        }
+        .detail-row { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
+        .detail-icon { color: var(--primary); font-size: 18px; width: 20px; text-align: center; margin-top: 2px; }
+
+        /* Responsive Mobile */
+        @media (max-width: 768px) {
+            .main-content { flex-direction: column; }
+            .sidebar { max-width: 100%; border-left: none; border-top: 1px solid var(--border); flex: 1; }
+            .map-container { flex: 1; min-height: 40vh; }
+        }

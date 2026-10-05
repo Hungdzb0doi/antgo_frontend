@@ -1,0 +1,124 @@
+:root {
+            --primary-orange: #FF6600;
+            --primary-hover: #E55C00;
+            --primary-light: #FFF0E6;
+            --black-main: #18181B;
+            --black-sub: #3F3F46;
+            --bg-light: #F4F4F5;
+            --white-surface: #FFFFFF;
+            --border-line: #E4E4E7;
+
+            --surface-1: #F4F4F5;
+            --surface-2: #ffffff;
+            --border: #E4E4E7;
+            --border-strong: #ced4da;
+            --border-accent: #FF6600;
+            --border-success: #81c784;
+            --bg-accent-muted: #FFF0E6;
+            --bg-success: #e8f5e9;
+            --text-primary: #18181B;
+            --text-secondary: #3F3F46;
+            --text-muted: #71717A;
+            --text-accent: #FF6600;
+            --text-danger: #dc3545;
+            --text-success: #198754;
+            --fill-primary: #FF6600;
+            --on-primary: #ffffff;
+            --radius: 8px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 40px;
+            margin: 0;
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .topnav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: var(--white-surface);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border-line);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .topnav a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 13.5px;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 12px;
+            transition: all 0.15s ease;
+        }
+        .topnav a:hover {
+            color: var(--black-main);
+            background: var(--bg-light);
+        }
+        .topnav a.active {
+            color: #ffffff;
+            background: var(--primary-orange);
+            font-weight: 600;
+        }
+        .page { width: 100%; max-width: 900px; padding-bottom: 40px; }
+
+        .btn-kyc-action {
+            width: 100%;
+            background: var(--primary-orange);
+            color: var(--on-primary);
+            border: none;
+            padding: 12px 0;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(255,102,0,0.25);
+        }
+        .btn-kyc-action:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255,102,0,0.35);
+        }
+
+        button:disabled { background-color: #cbd5e1 !important; cursor: not-allowed !important; opacity: 0.8 !important; box-shadow: none !important; transform: none !important; }
+
+        /* Khung chụp ảnh */
+        .camera-box, .face-box {
+            position: relative; cursor: pointer; background: var(--surface-1);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: all 0.2s; overflow: hidden;
+        }
+        .camera-box { height: 220px; border: 2px dashed var(--border-strong); border-radius: 12px; gap: 12px; }
+        .face-box { width: 240px; height: 240px; margin: 0 auto; border: 2px dashed var(--border-strong); border-radius: 50%; gap: 12px; }
+
+        .camera-box:hover, .face-box:hover { border-color: var(--text-accent); background: var(--bg-accent-muted); }
+
+        /* Video & Ảnh Preview phủ kín khung */
+        .vid-stream, .img-preview {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; border-radius: inherit; z-index: 1; display: none;
+        }
+        /* Đảo ngược video cho camera trước (bước 3) */
+        .mirror { transform: scaleX(-1); }
+
+        /* Content Overlay (Chữ nổi lên trên video) */
+        .cap-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .cap-content-bg { background: rgba(0,0,0,0.6); padding: 10px 20px; border-radius: 30px; color: white !important; }
+        .cap-content-bg * { color: white !important; }
+
+        /* 4 góc ngắm Camera */
+        .corners::before, .corners::after, .corners span::before, .corners span::after {
+            content: ''; position: absolute; width: 20px; height: 20px; border-color: var(--text-accent); border-style: solid; border-width: 0; z-index: 3;
+        }
+        .corners::before { top: 10px; left: 10px; border-top-width: 3px; border-left-width: 3px; border-top-left-radius: 4px; }
+        .corners::after { top: 10px; right: 10px; border-top-width: 3px; border-right-width: 3px; border-top-right-radius: 4px; }
+        .corners span::before { bottom: 10px; left: 10px; border-bottom-width: 3px; border-left-width: 3px; border-bottom-left-radius: 4px; }
+        .corners span::after { bottom: 10px; right: 10px; border-bottom-width: 3px; border-right-width: 3px; border-bottom-right-radius: 4px; }

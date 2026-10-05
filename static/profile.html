@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ cá nhân · AntGo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="/asset/css/profile.css">
+</head>
+<body>
+
+<!-- Thanh điều hướng đầu trang (Unified Menu) -->
+<header class="app-header" id="profile-topnav">
+    <a href="/interface/profile" class="header-brand">
+        <span class="header-brand-icon"><i class="ti ti-bolt"></i></span>
+        <span>AntGo</span>
+    </a>
+</header>
+
+<div class="page">
+    <div class="profile-container">
+
+        <!-- 1. Header tóm tắt thông tin người dùng -->
+        <div class="user-header">
+            <div class="avatar-wrapper" onclick="openEditModal('avatar')" title="Nhấp để thay đổi ảnh đại diện">
+                <img id="user-avatar-img" class="avatar-image" src="" alt="Avatar" style="display: none;" onerror="onAvatarLoadError()">
+                <div class="avatar-circle" id="user-avatar-text">U</div>
+                <div class="avatar-edit-badge" title="Đổi ảnh đại diện">
+                    <i class="ti ti-camera"></i>
+                </div>
+            </div>
+            <div class="user-main-info">
+                <div class="user-fullname">
+                    <span id="display-fullname">Đang tải thông tin...</span>
+                    <span id="display-role-badge" class="role-badge">Ứng viên</span>
+                </div>
+                <div class="user-contacts">
+                    <span id="display-phone"><i class="ti ti-phone"></i> ---</span>
+                    <span style="color:#cbd5e1;">•</span>
+                    <span id="display-email"><i class="ti ti-mail"></i> ---</span>
+                    <span style="color:#cbd5e1;">•</span>
+                    <a href="#reviews-section" style="text-decoration:none;">
+                        <span id="display-rating" class="user-rating-chip" title="Xem chi tiết đánh giá từ đối tác">
+                            <i class="ti ti-star-filled" style="color: #f59e0b;"></i>
+                            <strong id="header-rating-val">--</strong> / 5.0
+                            <span id="header-review-count" style="font-size: 12px; opacity: 0.85;">(0 đánh giá)</span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Nút hành động nhanh trên Header (Chỉ giữ chức năng chỉnh sửa) -->
+            <div class="user-header-actions">
+                <button onclick="openEditModal('all')" class="btn-header-action btn-edit-primary">
+                    <i class="ti ti-edit"></i> Chỉnh sửa hồ sơ
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. Khối Trạng thái Xác thực CCCD / eKYC -->
+        <div id="ekyc-banner" class="ekyc-status-banner unverified">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i id="ekyc-banner-icon" class="ti ti-shield-alert" style="font-size: 20px;"></i>
+                <span id="ekyc-banner-text">Tài khoản chưa định danh CCCD. Vui lòng xác thực để tăng độ tin cậy khi làm việc.</span>
+            </div>
+            <a href="/interface/identify" id="btn-go-ekyc" class="btn-ekyc-now">
+                <i class="ti ti-id"></i> Xác thực eKYC ngay
+            </a>
+        </div>
+
+        <!-- 3. Khu vực chuyển đổi vai trò (Mode Switcher) -->
+        <div class="mode-section">
+            <div>
+                <div class="mode-title">Chế độ hoạt động hiện tại</div>
+                <div class="mode-subtitle">Chuyển đổi vai trò để sử dụng các tính năng tương ứng trên hệ thống</div>
+            </div>
+            <div class="mode-segmented-ctrl">
+                <button onclick="setMode('worker')" id="mode-worker" class="mode-btn">
+                    <i class="ti ti-user"></i> Người lao động
+                </button>
+                <button onclick="setMode('employer')" id="mode-employer" class="mode-btn">
+                    <i class="ti ti-building-store"></i> Nhà tuyển dụng
+                </button>
+            </div>
+        </div>
+
+        <!-- 4. Chi tiết 2 Card Hồ Sơ (Không còn chữ 'ĐANG CHỌN') -->
+        <div class="cards-grid">
+            <!-- Card Ứng viên (Worker) -->
+            <div id="card-worker" class="profile-card active">
+                <div class="card-header-line">
+                    <div class="card-title">
+                        <i class="ti ti-user-star" style="color: var(--text-accent);"></i> Hồ sơ Ứng viên
+                    </div>
+                    <button onclick="openEditModal('worker')" class="btn-card-edit" title="Chỉnh sửa kỹ năng ứng viên">
+                        <i class="ti ti-edit"></i> Sửa kỹ năng
+                    </button>
+                </div>
+
+                <div class="score-row">
+                    <div id="worker-score" class="score-value">---</div>
+                    <div class="score-label">/ 100 điểm uy tín</div>
+                </div>
+                <div class="progress-bar-container">
+                    <div id="worker-score-bar" class="progress-bar-fill"></div>
+                </div>
+                <div class="rating-sub-row">
+                    <i class="ti ti-star-filled" style="color: #f59e0b; font-size: 15px;"></i>
+                    <span>Đánh giá từ NTD: <strong id="worker-card-rating">--</strong> / 5.0 (<span id="worker-card-count">0</span> đánh giá)</span>
+                </div>
+
+                <div class="skills-section-title">Kỹ năng chuyên môn</div>
+                <div id="display-worker-skills" class="skills-tags-wrap">
+                    <!-- Danh sách tag kỹ năng -->
+                </div>
+
+                <!-- Bật/Tắt tìm việc qua GPS -->
+                <div class="switch-box">
+                    <div>
+                        <div class="switch-title">Bật tìm việc làm</div>
+                        <div class="switch-desc" id="status-availability-desc">Cho phép nhà tuyển dụng gần bạn nhìn thấy vị trí</div>
+                    </div>
+                    <label class="switch" title="Gạt công tắc để bật hoặc tắt tìm việc">
+                        <input type="checkbox" id="toggle-available" onchange="toggleAvailability(this)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Card Nhà tuyển dụng (Employer) -->
+            <div id="card-employer" class="profile-card inactive">
+                <div class="card-header-line">
+                    <div class="card-title">
+                        <i class="ti ti-building" style="color: var(--text-accent);"></i> Hồ sơ Nhà tuyển dụng
+                    </div>
+                    <button onclick="openEditModal('employer')" class="btn-card-edit" title="Chỉnh sửa thông tin doanh nghiệp">
+                        <i class="ti ti-edit"></i> Sửa thông tin
+                    </button>
+                </div>
+
+                <div class="score-row">
+                    <div id="employer-score" class="score-value">---</div>
+                    <div class="score-label">/ 100 điểm uy tín</div>
+                </div>
+                <div class="progress-bar-container">
+                    <div id="employer-score-bar" class="progress-bar-fill"></div>
+                </div>
+                <div class="rating-sub-row">
+                    <i class="ti ti-star-filled" style="color: #f59e0b; font-size: 15px;"></i>
+                    <span>Đánh giá từ Ứng viên: <strong id="employer-card-rating">--</strong> / 5.0 (<span id="employer-card-count">0</span> đánh giá)</span>
+                </div>
+
+                <div class="info-field-group">
+                    <div class="info-field-label">Tên Doanh nghiệp / Cửa hàng</div>
+                    <div class="info-field-value" id="employer-name">---</div>
+                </div>
+
+                <div class="info-field-group">
+                    <div class="info-field-label">Mã số thuế</div>
+                    <div class="info-field-value" id="employer-tax">
+                        <i class="ti ti-file-certificate" style="color: var(--text-secondary);"></i> ---
+                    </div>
+                </div>
+
+                <div style="margin-top: auto; padding: 12px; background: var(--surface-1); border-radius: 8px; border: 1px dashed var(--border); font-size: 12px; color: var(--text-secondary); line-height: 1.4;">
+                    <i class="ti ti-info-circle"></i> Đầy đủ tên công ty và mã số thuế giúp tin tuyển dụng của bạn thu hút ứng viên uy tín hơn.
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Khu vực Đánh giá & Nhận xét từ đối tác -->
+        <div class="reviews-section" id="reviews-section">
+            <div class="section-header-row">
+                <div>
+                    <div class="section-title" id="reviews-section-title">
+                        <i class="ti ti-star-filled" style="color: #f59e0b;"></i> Đánh giá & Nhận xét từ đối tác
+                    </div>
+                    <div class="section-subtitle" id="reviews-section-subtitle">
+                        Tổng hợp các phản hồi và số sao nhận được sau các ca làm việc
+                    </div>
+                </div>
+                <div class="rating-overview-badge">
+                    <span class="big-score" id="overview-rating-score">--</span>
+                    <div class="overview-details">
+                        <div class="stars-display" id="overview-stars">
+                            <i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i>
+                        </div>
+                        <div class="total-reviews" id="overview-total-reviews">Đang tải đánh giá...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thống kê phân bố số sao (5★ - 1★) -->
+            <div class="rating-stats-box" id="rating-stats-box">
+                <!-- Sẽ được hiển thị tự động -->
+            </div>
+
+            <!-- Danh sách các lượt đánh giá chi tiết -->
+            <div id="reviews-list-container" class="reviews-list">
+                <div class="loading-reviews" style="text-align: center; padding: 30px; color: var(--text-secondary);">
+                    <i class="ti ti-loader ti-spin" style="font-size: 22px;"></i>
+                    <p style="margin-top: 8px; font-size: 13px;">Đang tải danh sách nhận xét...</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal Chỉnh Sửa Thông Tin Rõ Ràng & Mạch Lạc -->
+<div class="modal-overlay" id="edit-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="ti ti-user-edit"></i> Cập nhật thông tin hồ sơ</h3>
+            <button class="modal-close-btn" onclick="closeEditModal()" title="Đóng cửa sổ">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <!-- Nhóm: Ảnh đại diện (Avatar) -->
+            <div class="form-section" id="modal-section-avatar">
+                <div class="form-section-title">
+                    <i class="ti ti-photo"></i> Ảnh đại diện (Avatar)
+                </div>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px; flex-wrap: wrap;">
+                    <div style="position: relative; width: 68px; height: 68px; flex-shrink: 0;">
+                        <img id="modal-avatar-preview" src="" style="width: 68px; height: 68px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); display: none;" onerror="onModalAvatarError()">
+                        <div id="modal-avatar-placeholder" class="avatar-circle" style="width: 68px; height: 68px; font-size: 26px;">U</div>
+                    </div>
+                    <div style="flex: 1; min-width: 220px;">
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                            <label class="btn-select-file" style="cursor: pointer; padding: 7px 14px; background: var(--primary-light); border: 1px solid #FFD8BF; color: var(--primary-orange); border-radius: 8px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="ti ti-upload"></i> Chọn ảnh từ máy
+                                <input type="file" id="input-avatar-file" accept="image/*" style="display: none;" onchange="handleAvatarFileSelect(this)">
+                            </label>
+                            <button type="button" class="btn-cancel" onclick="applySampleAvatar('1yXCS3F3rHTFwit5Eq8XNs4YHc-DxuhRa')" style="font-size: 12.5px; padding: 6px 12px; display: inline-flex; align-items: center; gap: 4px;" title="Thử ảnh từ mã Drive của bạn">
+                                <i class="ti ti-sparkles" style="color: #f59e0b;"></i> Dùng ảnh mẫu Drive
+                            </button>
+                        </div>
+                        <span id="avatar-file-name" style="font-size: 12px; color: var(--text-success); font-weight: 500; display: none;"></span>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">Hoặc dán URL ảnh trực tiếp / Mã Google Drive ID:</label>
+                    <input type="text" id="input-avatar-url" placeholder="VD: 1yXCS3F3rHTFwit5Eq8XNs4YHc-DxuhRa hoặc https://example.com/avatar.jpg" oninput="previewAvatarFromInput()" style="font-size: 13px;">
+                </div>
+            </div>
+
+            <!-- Nhóm 1: Thông tin cá nhân cơ bản -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <i class="ti ti-user"></i> 1. Thông tin cá nhân & Tài khoản
+                </div>
+                <div class="form-group">
+                    <label>Họ và tên hiển thị</label>
+                    <input type="text" id="input-fullname" placeholder="Nhập họ và tên...">
+                </div>
+                <div class="form-group">
+                    <label>Địa chỉ Email liên hệ</label>
+                    <input type="email" id="input-email" placeholder="Nhập địa chỉ email...">
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại tài khoản</label>
+                    <input type="text" id="input-phone" disabled readonly style="background: #f1f5f9; cursor: not-allowed; color: #64748b;">
+                    <small style="font-size: 11.5px; color: var(--text-secondary); margin-top: 4px; display: block;">Số điện thoại được dùng để định danh đăng nhập và không thể thay đổi.</small>
+                </div>
+            </div>
+
+            <!-- Nhóm 2: Thông tin Người lao động -->
+            <div class="form-section" id="modal-section-worker">
+                <div class="form-section-title">
+                    <i class="ti ti-tools"></i> 2. Thông tin Ứng viên (Người tìm việc)
+                </div>
+                <div class="form-group">
+                    <label>Kỹ năng chuyên môn (cách nhau bởi dấu phẩy)</label>
+                    <input type="text" id="input-skills" placeholder="VD: Phục vụ bàn, Bán hàng, Phụ bếp, Bốc xếp...">
+                    
+                    <div class="quick-skills-label">Gợi ý kỹ năng phổ biến (bấm để thêm nhanh):</div>
+                    <div class="quick-skills-list">
+                        <button type="button" class="skill-chip-btn" onclick="addSkillSuggestion('Phục vụ F&B')">+ Phục vụ F&B</button>
+                        <button type="button" class="skill-chip-btn" onclick="addSkillSuggestion('Bán hàng')">+ Bán hàng</button>
+                        <button type="button" class="skill-chip-btn" onclick="addSkillSuggestion('Phụ bếp')">+ Phụ bếp</button>
+                        <button type="button" class="skill-chip-btn" onclick="addSkillSuggestion('Pha chế')">+ Pha chế</button>
+                        <button type="button" class="skill-chip-btn" onclick="addSkillSuggestion('Thu ngân')">+ Thu ngân</button>
+                        <button type="button" class="skill-chip-btn" onclick="addSkillSuggestion('Bốc xếp')">+ Bốc xếp</button>
+                        <button type="button" class="skill-chip-btn" onclick="addSkillSuggestion('Giao hàng')">+ Giao hàng</button>
+                        <button type="button" class="skill-chip-btn" onclick="addSkillSuggestion('Tạp vụ')">+ Tạp vụ</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nhóm 3: Thông tin Nhà tuyển dụng -->
+            <div class="form-section" id="modal-section-employer">
+                <div class="form-section-title">
+                    <i class="ti ti-building-store"></i> 3. Thông tin Nhà tuyển dụng / Doanh nghiệp
+                </div>
+                <div class="form-group">
+                    <label>Tên Công ty / Cửa hàng / Hộ kinh doanh</label>
+                    <input type="text" id="input-employer-name" placeholder="VD: Chuỗi Cà phê ABC, Tiệm Bánh XYZ...">
+                </div>
+                <div class="form-group">
+                    <label>Mã số thuế doanh nghiệp</label>
+                    <input type="text" id="input-tax-id" placeholder="VD: 0101234567...">
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeEditModal()">Hủy bỏ</button>
+            <button class="btn-save" id="btn-save-profile" onclick="submitProfileUpdate()">
+                <i class="ti ti-device-floppy"></i> Lưu thay đổi
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- NHÚNG THƯ VIỆN WEBSOCKET VÀ STOMP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+<script src="/asset/js/profile.js"></script>
+<script src="/asset/js/notification.js"></script>
+<script src="/asset/js/chat.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý công việc · AntGo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="/asset/css/managejob.css">
+</head>
+<body>
+<div class="page">
+    <header class="app-header">
+        <a href="/interface/managejob" class="header-brand" title="AntGo - Quản lý việc làm">
+            <img src="/asset/antgo-icon.svg" alt="AntGo" class="header-brand-icon-img">
+            <span class="brand-text">Ant<span class="brand-highlight">Go</span></span>
+        </a>
+        <div class="header-nav">
+            <a href="/interface/managejob" class="nav-btn active"><i class="ti ti-briefcase"></i> Quản lý việc làm</a>
+            <a href="/interface/createjob" class="nav-btn"><i class="ti ti-plus"></i> Đăng tin việc</a>
+            <a href="/interface/profile" class="nav-btn"><i class="ti ti-user"></i> Hồ sơ</a>
+            <button onclick="logout()" class="nav-btn nav-btn-logout"><i class="ti ti-logout"></i> Đăng xuất</button>
+        </div>
+    </header>
+
+    <!-- Thanh tìm kiếm công việc -->
+    <div class="search-box-wrapper">
+        <div class="search-box">
+            <i class="ti ti-search search-icon"></i>
+            <input type="text" id="jobSearchInput" placeholder="Tìm theo tiêu đề công việc, ngành nghề..." autocomplete="off">
+            <button type="button" id="clearSearchBtn" class="clear-btn" style="display: none;" title="Xóa tìm kiếm">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+    </div>
+
+    <ul class="nav nav-tabs" id="jobTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="open-tab" data-status="OPEN" type="button" role="tab">Đang tuyển dụng</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="inprogress-tab" data-status="IN_PROGRESS" type="button" role="tab">Đang thực hiện</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="completed-tab" data-status="COMPLETED" type="button" role="tab">Đã hoàn thành</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="cancelled-tab" data-status="CANCELLED" type="button" role="tab">Đã hủy</button>
+        </li>
+    </ul>
+
+    <div id="job-list-container">
+        <div class="state-box">
+            <div class="spinner"></div>
+            <p>Đang tải dữ liệu...</p>
+        </div>
+    </div>
+</div>
+
+<script src="/asset/js/managejob.js"></script>
+<script src="/asset/js/notification.js"></script>
+<script src="/asset/js/chat.js"></script>
+</body>
+</html>

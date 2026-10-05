@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công việc của tôi · AntGo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+
+    <!-- Leaflet CSS & JS for Map Modal -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <link rel="stylesheet" href="/asset/css/manageapplication.css">
+</head>
+<body>
+
+<div class="header">
+    <a href="/interface/manageapplication" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+        <img src="/asset/antgo-icon.svg" alt="AntGo" style="width: 32px; height: 32px; display: block; filter: drop-shadow(0 2px 8px rgba(255, 102, 0, 0.45));">
+        <span style="font-size: 19px; font-weight: 800; color: #ffffff; letter-spacing: -0.3px;">Ant<span style="color: var(--primary-orange);">Go</span></span>
+    </a>
+    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="/interface/manageapplication" class="nav-btn active"><i class="ti ti-file-text"></i> Công việc của tôi</a>
+        <a href="/interface/findjob" class="nav-btn"><i class="ti ti-radar"></i> Bản đồ tìm việc</a>
+        <a href="/interface/scanner" class="nav-btn"><i class="ti ti-qrcode"></i> Quét QR</a>
+        <a href="/interface/profile" class="nav-btn"><i class="ti ti-user"></i> Hồ sơ</a>
+        <button onclick="logout()" class="nav-btn nav-btn-logout"><i class="ti ti-logout"></i> Đăng xuất</button>
+    </div>
+</div>
+
+<!-- CÁC TAB BỘ LỌC ĐÃ ĐƯỢC BỔ SUNG TAB "ĐANG LÀM" -->
+<div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('INVITATION', this)">
+        <i class="ti ti-mail"></i> Lời mời
+    </button>
+    <button class="tab-btn" onclick="switchTab('APPLICATION', this)">
+        <i class="ti ti-send"></i> Chờ duyệt
+    </button>
+    <button class="tab-btn" onclick="switchTab('BOOKED', this)">
+        <i class="ti ti-calendar-check"></i> Sắp làm
+    </button>
+    <button class="tab-btn" onclick="switchTab('IN_PROGRESS', this)">
+        <i class="ti ti-player-play"></i> Đang làm
+    </button>
+    <button class="tab-btn" onclick="switchTab('HISTORY', this)">
+        <i class="ti ti-history"></i> Lịch sử
+    </button>
+</div>
+
+<!-- THANH TÌM KIẾM CÔNG VIỆC -->
+<div class="search-container">
+    <div class="search-box">
+        <i class="ti ti-search search-icon"></i>
+        <input type="text" id="appSearchInput" placeholder="Tìm theo tên việc, nhà tuyển dụng..." autocomplete="off">
+        <button type="button" id="clearAppSearchBtn" class="clear-btn" style="display: none;" title="Xóa tìm kiếm">
+            <i class="ti ti-x"></i>
+        </button>
+    </div>
+</div>
+
+<!-- DANH SÁCH HIỂN THỊ -->
+<div class="job-list" id="job-list-container">
+    <!-- Render dữ liệu vào đây -->
+</div>
+
+<!-- MODAL KHIẾU NẠI / BÁO CÁO -->
+<!-- MODAL KHIẾU NẠI / BÁO CÁO -->
+<div id="reportModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 520px; width: 95%;">
+        <div class="modal-header">
+            <h3><i class="ti ti-alert-triangle" style="color: var(--danger);"></i> Báo cáo / Khiếu nại</h3>
+            <button class="clear-btn" style="font-size: 18px;" onclick="closeReportModal()"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body">
+            <p style="margin: 0 0 14px; font-size: 13px; color: var(--text-sub);">
+                Công việc: <strong id="reportJobTitle" style="color: var(--text-main);"></strong>
+            </p>
+            <div class="form-group" style="margin-bottom: 14px;">
+                <label style="font-weight: 600; font-size: 13px;">Mô tả chi tiết sự việc:</label>
+                <textarea id="reportDetailText" class="form-control" rows="4" placeholder="Mô tả cụ thể sự việc, thời gian, lý do mâu thuẫn để Admin hỗ trợ can thiệp..."></textarea>
+            </div>
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label style="font-weight: 600; font-size: 13px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>Bằng chứng đính kèm (Ảnh & Video):</span>
+                    <span style="font-size: 11px; font-weight: normal; color: var(--text-sub);">Tối đa 5 ảnh, 1 video (&le;50MB)</span>
+                </label>
+                
+                <input type="file" id="reportFileInput" multiple accept="image/*,video/*" style="display: none;" onchange="handleReportFilesSelected(event)">
+                
+                <div onclick="document.getElementById('reportFileInput').click()" style="border: 1.5px dashed #cbd5e1; border-radius: 8px; padding: 14px; text-align: center; cursor: pointer; background: #f8fafc; transition: all 0.2s;">
+                    <i class="ti ti-cloud-upload" style="font-size: 26px; color: var(--primary); display: block; margin-bottom: 4px;"></i>
+                    <span style="font-size: 13px; color: var(--text-main); font-weight: 500;">Bấm vào đây để chọn ảnh hoặc video bằng chứng</span>
+                    <div style="font-size: 11px; color: var(--text-sub); margin-top: 2px;">Hỗ trợ ảnh (JPG, PNG) và video (MP4, MOV...)</div>
+                </div>
+
+                <!-- Khung xem trước các file đã chọn -->
+                <div id="reportMediaPreview" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-reject" style="flex: none; padding: 8px 16px;" onclick="closeReportModal()">Đóng</button>
+            <button class="btn btn-accept" id="btnSubmitReport" style="flex: none; padding: 8px 20px;" onclick="submitReport()">Gửi khiếu nại</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ĐÁNH GIÁ NHÀ TUYỂN DỤNG -->
+<div id="reviewModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="ti ti-star" style="color: #f59e0b;"></i> Đánh giá Nhà tuyển dụng</h3>
+            <button class="clear-btn" style="font-size: 18px;" onclick="closeReviewModal()"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body">
+            <p style="margin: 0 0 6px; font-size: 13px; color: var(--text-sub);">
+                Công việc: <strong id="reviewJobTitle" style="color: var(--text-main);"></strong>
+            </p>
+            <p style="margin: 0 0 16px; font-size: 13px; color: var(--text-sub);">
+                Đối tác: <strong id="reviewEmployerName" style="color: var(--text-main);"></strong>
+            </p>
+
+            <div style="text-align: center; margin-bottom: 8px;">
+                <label style="font-size: 13px; font-weight: 600; color: var(--text-main);">Mức độ hài lòng của bạn</label>
+                <div class="star-rating" id="reviewStarRating">
+                    <span class="star selected" data-rating="1" onclick="selectRating(1)" onmouseover="hoverRating(1)" onmouseout="resetHoverRating()"><i class="ti ti-star-filled"></i></span>
+                    <span class="star selected" data-rating="2" onclick="selectRating(2)" onmouseover="hoverRating(2)" onmouseout="resetHoverRating()"><i class="ti ti-star-filled"></i></span>
+                    <span class="star selected" data-rating="3" onclick="selectRating(3)" onmouseover="hoverRating(3)" onmouseout="resetHoverRating()"><i class="ti ti-star-filled"></i></span>
+                    <span class="star selected" data-rating="4" onclick="selectRating(4)" onmouseover="hoverRating(4)" onmouseout="resetHoverRating()"><i class="ti ti-star-filled"></i></span>
+                    <span class="star selected" data-rating="5" onclick="selectRating(5)" onmouseover="hoverRating(5)" onmouseout="resetHoverRating()"><i class="ti ti-star-filled"></i></span>
+                </div>
+                <div id="ratingTextDesc" style="font-size: 13.5px; font-weight: 600; color: #f59e0b; min-height: 20px;">Rất hài lòng & Xuất sắc (5 sao)</div>
+            </div>
+
+            <div class="form-group" style="margin-top: 14px;">
+                <label>Nhận xét / Góp ý (tùy chọn):</label>
+                <textarea id="reviewCommentText" class="form-control" rows="3" placeholder="Chia sẻ trải nghiệm làm việc cùng nhà tuyển dụng này..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-reject" style="flex: none; padding: 8px 16px;" onclick="closeReviewModal()">Hủy</button>
+            <button class="btn btn-accept" id="btnSubmitReview" style="flex: none; padding: 8px 20px; background: #f59e0b; color: #fff;" onclick="submitReview()">Gửi đánh giá</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL XEM BẢN ĐỒ & TÍNH LỘ TRÌNH ĐƯỜNG ĐI NGẮN NHẤT -->
+<div id="mapModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <div>
+                <h3 id="mapJobTitle"><i class="ti ti-map-pin" style="color:var(--danger);"></i> Bản đồ vị trí</h3>
+                <span id="mapEmployerSubtitle" style="font-size:12.5px; color:var(--text-sub); margin-top:2px; display:block;"></span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" id="btnRecalculateHeader" onclick="recalculateRoute()" class="btn" style="background:#f1f5f9; color:#0f172a; border:1px solid #cbd5e1; font-size:12.5px; padding:6px 12px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;" title="Lấy lại GPS và vẽ lại đường đi">
+                    <i class="ti ti-refresh" id="iconRecalculateHeader"></i> <span>Tính lại đường đi</span>
+                </button>
+                <button class="close-btn" onclick="closeMapModal()" title="Đóng"><i class="ti ti-x"></i></button>
+            </div>
+        </div>
+
+        <!-- Cảnh báo nếu GPS chưa chuẩn (Ví dụ lấy qua IP trung tâm Hà Nội) -->
+        <div id="mapAccuracyAlert" style="display:none; background:#fffbeb; border-bottom:1px solid #fde68a; padding:8px 18px; font-size:12.5px; color:#b45309; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <i class="ti ti-alert-triangle" style="font-size:18px; color:#d97706; flex-shrink:0;"></i>
+                <span id="mapAccuracyAlertText">Vị trí hiện tại chưa chuẩn (sai số lớn do lấy từ mạng IP). Tuyến đường có thể sai lệch.</span>
+            </div>
+            <button type="button" onclick="recalculateRoute()" style="background:#d97706; color:#fff; border:none; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px; white-space:nowrap;">
+                <i class="ti ti-refresh"></i> Tính lại ngay
+            </button>
+        </div>
+
+        <div class="modal-route-info" id="mapRouteHeader">
+            <div id="routeStatsText" style="display:flex; align-items:center; gap:12px; font-weight:500; flex-wrap:wrap;">
+                <span style="color:#0f172a;"><i class="ti ti-satellite" style="color:var(--primary);"></i> Đang lấy vị trí GPS và tính lộ trình ngắn nhất...</span>
+            </div>
+            <div id="mapRouteLoading" style="display:none; align-items:center; gap:6px; color:var(--text-sub); font-size:12px;">
+                <i class="ti ti-loader ti-spin" style="color:var(--primary);"></i> Đang tính đường...
+            </div>
+        </div>
+
+        <div id="modalMapCanvas"></div>
+
+        <div class="modal-footer">
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <a id="btnOpenGoogleMaps" href="#" target="_blank" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; background:#f1f5f9; color:#1e293b; padding:8px 14px; border-radius:8px; font-size:13px; font-weight:600; border:1px solid #cbd5e1;">
+                    <i class="ti ti-brand-google" style="color:#4285f4; font-size:16px;"></i> Mở chỉ đường bằng Google Maps
+                </a>
+                <button type="button" id="btnRecalculateFooter" onclick="recalculateRoute()" style="font-size:13px; padding:8px 14px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; cursor:pointer; font-weight:600;">
+                    <i class="ti ti-refresh" id="iconRecalculateFooter"></i> Định vị & Tính lại
+                </button>
+            </div>
+            <button class="btn btn-reject" style="flex:none; padding:8px 20px;" onclick="closeMapModal()">Đóng</button>
+        </div>
+    </div>
+</div>
+
+<script src="/asset/js/manageapplication.js"></script>
+<script src="/asset/js/notification.js"></script>
+<script src="/asset/js/chat.js"></script>
+</body>
+</html>

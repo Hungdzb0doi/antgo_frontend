@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quản lý Ca làm · AntGo</title>
+
+    <!-- Tabler Icons & QRCode.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+    <link rel="stylesheet" href="/asset/css/generate_qr.css">
+</head>
+<body>
+
+<header class="app-header">
+    <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
+        <a href="/interface/managejob" class="header-brand" title="AntGo - Quản lý việc làm">
+            <img src="/asset/antgo-icon.svg" alt="AntGo" class="header-brand-icon-img">
+            <span class="brand-text">Ant<span class="brand-highlight">Go</span></span>
+        </a>
+        <span style="color: rgba(255,255,255,0.2); font-size: 16px;">|</span>
+        <h1 style="margin: 0; font-size: 16px; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 6px;">
+            <i class="ti ti-qrcode" style="color: var(--primary-orange);"></i> Quản lý Điểm danh
+        </h1>
+    </div>
+    <div class="header-nav">
+        <a href="/interface/managejob" class="nav-btn"><i class="ti ti-briefcase"></i> Quản lý việc làm</a>
+        <a href="/interface/createjob" class="nav-btn"><i class="ti ti-plus"></i> Đăng tin việc</a>
+        <a href="/interface/profile" class="nav-btn"><i class="ti ti-user"></i> Hồ sơ</a>
+        <button onclick="logout()" class="nav-btn nav-btn-logout"><i class="ti ti-logout"></i> Đăng xuất</button>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- Toggle Chế độ VÀO CA / RA CA -->
+    <div class="toggle-group">
+        <button class="toggle-btn checkin active" id="btn-checkin" onclick="switchAction('CHECKIN')">
+            <i class="ti ti-login"></i> VÀO CA (Check-in)
+        </button>
+        <button class="toggle-btn checkout" id="btn-checkout" onclick="switchAction('CHECKOUT')">
+            <i class="ti ti-logout"></i> RA CA (Check-out)
+        </button>
+    </div>
+
+    <!-- Khung QR Code -->
+    <div class="qr-card">
+        <h2 class="qr-title" id="qr-display-title" style="color: var(--success);">Quét mã để Bắt đầu làm</h2>
+        <p class="qr-subtitle">Yêu cầu thợ vào web để quét mã</p>
+
+        <div class="qr-frame">
+            <div id="qrcode"></div>
+            <div class="qr-loading" id="qr-loading"><i class="ti ti-loader"></i></div>
+        </div>
+
+        <div class="timer-box">
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <i class="ti ti-refresh"></i> Tự động làm mới mã bảo mật sau <span id="time-text" style="color: var(--primary); font-weight: 700;">30</span>s
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        </div>
+    </div>
+
+</div>
+
+<script src="/asset/js/generate_qr.js"></script>
+
+<!-- Modal Popup Thanh toán cho Chủ khi Thợ Checkout -->
+<div id="employer-payment-modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(15,23,42,0.6); z-index:999; justify-content:center; align-items:center;">
+    <div style="background:white; padding:24px; border-radius:20px; max-width:420px; width:90%; box-shadow:0 10px 25px rgba(0,0,0,0.2); animation:slideDown 0.3s ease;">
+        <div style="text-align:center; margin-bottom:16px;">
+            <div style="width:60px; height:60px; background:#dcfce7; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:var(--success); font-size:32px;">
+                <i class="ti ti-cash"></i>
+            </div>
+            <h3 style="margin:0 0 6px;">Thanh toán cho Thợ</h3>
+            <p style="margin:0; font-size:14px; color:var(--text-sub);">
+                Thợ <strong id="emp-worker-name">...</strong> vừa hoàn thành ca
+            </p>
+            <span id="emp-worker-paid-badge" style="display:none; margin-top:6px; font-size:12px; font-weight:600; background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:12px;">
+                <i class="ti ti-check"></i> Thợ đã xác nhận nhận tiền
+            </span>
+        </div>
+        
+        <div style="background:var(--bg-body); padding:16px; border-radius:12px; margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px;">
+                <span style="color:var(--text-sub);">Thời gian làm:</span>
+                <strong id="emp-hours">0 giờ</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:16px; border-top:1px dashed var(--border); padding-top:8px;">
+                <span style="font-weight:700;">Số tiền cần thanh toán:</span>
+                <strong id="emp-total" style="color:var(--primary); font-size:22px;">0 VNĐ</strong>
+            </div>
+        </div>
+        <p style="font-size:13px; color:var(--text-sub); text-align:center; margin-bottom:20px;">
+            <i class="ti ti-info-circle"></i> Vui lòng thanh toán số tiền trên cho thợ qua tiền mặt hoặc chuyển khoản.
+        </p>
+        
+        <!-- Nút xác nhận hài lòng -->
+        <button id="btn-emp-confirm" class="btn" style="width:100%; padding:14px; background:var(--success); color:white; border-radius:12px; font-weight:700; border:none; cursor:pointer; font-size:15px; margin-bottom:8px;" onclick="confirmSatisfactionAction()">
+            <i class="ti ti-thumb-up"></i> Xác nhận hài lòng
+        </button>
+
+        <!-- Nút Báo Cáo (UI) -->
+        <button class="btn" style="width:100%; padding:12px; background:#fee2e2; color:#b91c1c; border-radius:12px; font-weight:600; border:none; cursor:pointer; margin-bottom:8px; font-size:14px;" onclick="promptReport()">
+            <i class="ti ti-alert-triangle"></i> Báo cáo
+        </button>
+
+        <button class="btn" style="width:100%; padding:10px; background:transparent; color:var(--text-sub); border:none; cursor:pointer;" onclick="closeEmployerModal()">
+            Đóng
+        </button>
+    </div>
+</div>
+<script src="/asset/js/notification.js"></script>
+<script src="/asset/js/chat.js"></script>
+</body>
+</html>

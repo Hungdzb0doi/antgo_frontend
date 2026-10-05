@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radar Tìm Thợ · AntGo</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <link rel="stylesheet" href="/asset/css/findworker.css">
+</head>
+<body>
+
+<header class="app-header">
+    <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
+        <a href="/interface/managejob" class="header-brand" title="AntGo - Quản lý việc làm">
+            <img src="/asset/antgo-icon.svg" alt="AntGo" class="header-brand-icon-img">
+            <span class="brand-text">Ant<span class="brand-highlight">Go</span></span>
+        </a>
+        <span style="color: rgba(255,255,255,0.2); font-size: 16px;">|</span>
+        <h1 style="margin: 0; font-size: 16px; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 6px;">
+            <i class="ti ti-radar" style="color: var(--primary-orange);"></i> Radar Quét Thợ
+        </h1>
+    </div>
+    <div class="header-nav">
+        <a href="/interface/managejob" class="nav-btn"><i class="ti ti-briefcase"></i> Quản lý việc làm</a>
+        <a href="/interface/createjob" class="nav-btn"><i class="ti ti-plus"></i> Đăng tin việc</a>
+        <a href="/interface/profile" class="nav-btn"><i class="ti ti-user"></i> Hồ sơ</a>
+        <button onclick="logout()" class="nav-btn nav-btn-logout"><i class="ti ti-logout"></i> Đăng xuất</button>
+    </div>
+</header>
+
+<div class="main-content">
+    <div class="map-container">
+        <div id="radar-map"></div>
+        <!-- Vòng sóng toả ra khi quét -->
+        <div class="radar-scan-effect" id="scan-effect"></div>
+        <button class="btn-recenter" onclick="recenterMap()"><i class="ti ti-current-location"></i></button>
+    </div>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-header-top">
+                <span>Ứng viên quanh đây (<span id="worker-count">0</span>)</span>
+                <span id="gps-status" style="font-size:12px; color:#10b981; font-weight:normal;">
+                    <i class="ti ti-map-pin"></i> Đang bật GPS
+                </span>
+            </div>
+            <!-- BỘ ĐIỀU KHIỂN BÁN KÍNH -->
+            <div class="radius-control">
+                <span style="font-size: 13px; color: var(--text-sub);">Bán kính:</span>
+                <input type="number" id="input-radius" value="5.0" min="1" max="100" step="1">
+                <span style="font-size: 13px; color: var(--text-sub);">km</span>
+                <button class="btn-action" style="padding: 6px 16px;" onclick="updateRadius()">Quét lại</button>
+            </div>
+        </div>
+        <div class="worker-list" id="worker-list-container">
+            <div style="text-align: center; color: #94a3b8; margin-top: 20px;">
+                <i class="ti ti-loader ti-spin" style="font-size: 24px;"></i>
+                <p>Đang dò tìm tín hiệu...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CHI TIẾT THỢ -->
+<div id="worker-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Hồ sơ ứng viên</h3>
+            <button class="btn-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body" id="modal-body-content">
+            <!-- Thông tin sẽ được đổ bằng Javascript vào đây -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn-action" style="background:#64748b;" onclick="closeModal()">Đóng</button>
+            <button class="btn-action" style="background:#10b981;" onclick="inviteFromModal()"><i class="ti ti-send"></i> Mời làm việc</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+<script src="/asset/js/findworker.js"></script>
+<script src="/asset/js/notification.js"></script>
+<script src="/asset/js/chat.js"></script>
+</body>
+</html>

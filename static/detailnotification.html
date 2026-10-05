@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Thông Báo · AntGo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+    <link rel="stylesheet" href="/asset/css/detailnotification.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="btn-back" onclick="goBack()">
+                <i class="ti ti-arrow-left"></i> Quay lại
+            </button>
+            <div class="header-title">Chi tiết thông báo</div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Search Bar by Title -->
+        <div class="search-box-card">
+            <input type="text" id="input-search-title" class="search-input" placeholder="Tìm kiếm thông báo theo tiêu đề..." />
+            <button class="btn-search" onclick="onSearchClick()">
+                <i class="ti ti-search"></i> Tìm kiếm
+            </button>
+        </div>
+
+        <!-- Main Notification Detail Card -->
+        <div class="detail-card" id="main-detail-card" style="display: none;">
+            <div class="detail-meta-row">
+                <span id="detail-tag" class="notif-tag">Hệ thống</span>
+                <span id="detail-time" class="detail-time"></span>
+            </div>
+            <h1 id="detail-title" class="detail-title"></h1>
+            <div id="detail-content" class="detail-content-box"></div>
+            <div class="detail-actions">
+                <button id="btn-action" class="btn-action-primary" style="display: none;">
+                    Đi tới liên kết liên quan
+                </button>
+                <button class="btn-action-secondary" onclick="goBack()">
+                    Quay lại
+                </button>
+            </div>
+        </div>
+
+        <!-- Empty state when no notification matched -->
+        <div id="not-found-state" class="detail-card empty-state" style="display: none;">
+            <div class="empty-icon"><i class="ti ti-bell-off"></i></div>
+            <h3 style="margin-bottom: 6px; color: var(--text-main); font-size: 16px;">Không tìm thấy thông báo</h3>
+            <p>Vui lòng thử tìm kiếm bằng từ khóa khác hoặc chọn từ danh sách bên dưới.</p>
+        </div>
+
+        <!-- Other Notifications List -->
+        <div class="section-title">
+            <span>Danh sách thông báo</span>
+            <span id="total-notif-count" style="font-size: 13px; font-weight: normal; color: var(--text-muted);"></span>
+        </div>
+        <ul id="other-notifications-list" class="other-list">
+            <li class="empty-state">Đang tải danh sách thông báo...</li>
+        </ul>
+    </main>
+
+    <script src="/asset/js/detailnotification.js"></script>
+    <script src="/asset/js/notification.js"></script>
+    <script src="/asset/js/chat.js"></script>
+</body>
+</html>

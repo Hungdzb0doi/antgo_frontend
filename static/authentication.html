@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập / Đăng ký · AntGo</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="/asset/css/authentication.css">
+</head>
+<body>
+<div class="page">
+    <h2 class="sr-only" style="display:none;">Màn hình đăng nhập và đăng ký tài khoản AntGo trên desktop</h2>
+    <div style="display:flex;min-height:480px;border-radius:14px;overflow:hidden;border:1px solid var(--border-line); box-shadow: 0 8px 30px rgba(0,0,0,0.06);">
+
+        <!-- Cột thông tin -->
+        <div style="width:40%;background:var(--black-main);padding:48px 40px;display:flex;flex-direction:column;justify-content:center;gap:28px;color:#ffffff;">
+            <div>
+                <div style="font-size:24px;font-weight:800;color:#ffffff;display:flex;align-items:center;gap:12px;">
+                    <img src="/asset/antgo-icon.svg" alt="AntGo" style="width:38px;height:38px;display:block;filter:drop-shadow(0 2px 8px rgba(255,102,0,0.5));">
+                    <span>Ant<span style="color:var(--primary-orange);">Go</span></span>
+                </div>
+                <div style="font-size:14px;color:#A1A1AA;margin-top:10px">Nền tảng kết nối việc làm thời vụ siêu tốc</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:18px">
+                <div style="display:flex;align-items:flex-start;gap:12px">
+                    <span style="width:28px;height:28px;border-radius:50%;background:rgba(255,102,0,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ti-map-pin" style="font-size:16px;color:var(--primary-orange)" aria-hidden="true"></i></span>
+                    <div style="font-size:13px;color:#D4D4D8;line-height:1.4">Tìm việc hoặc thợ gần bạn với radar bản đồ</div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:12px">
+                    <span style="width:28px;height:28px;border-radius:50%;background:rgba(255,102,0,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ti-bolt" style="font-size:16px;color:var(--primary-orange)" aria-hidden="true"></i></span>
+                    <div style="font-size:13px;color:#D4D4D8;line-height:1.4">Ứng tuyển hoặc nhận việc chỉ trong chớp mắt</div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:12px">
+                    <span style="width:28px;height:28px;border-radius:50%;background:rgba(255,102,0,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ti-shield-check" style="font-size:16px;color:var(--primary-orange)" aria-hidden="true"></i></span>
+                    <div style="font-size:13px;color:#D4D4D8;line-height:1.4">Định danh chuẩn mực & đánh giá minh bạch</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cột Form Tabs -->
+        <div style="width:60%;background:var(--surface-2);padding:48px 56px;display:flex;flex-direction:column;justify-content:center">
+
+            <div style="display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:28px">
+                <button id="tab-login" onclick="showTab('login')" style="flex:1;padding:10px 0;border:none;background:none;font-size:15px;font-weight:700;color:var(--primary-orange);border-bottom:2px solid var(--primary-orange);cursor:pointer;transition:all 0.2s">Đăng nhập</button>
+                <button id="tab-register" onclick="showTab('register')" style="flex:1;padding:10px 0;border:none;background:none;font-size:15px;font-weight:500;color:var(--text-secondary);border-bottom:2px solid transparent;cursor:pointer;transition:all 0.2s">Đăng ký</button>
+            </div>
+
+            <!-- FORM ĐĂNG NHẬP -->
+            <form id="form-login" onsubmit="return submitLogin(event)" style="display:flex;flex-direction:column;gap:14px">
+                <div>
+                    <label style="font-size:13px;font-weight:600;color:var(--text-primary);display:block;margin-bottom:6px">Số điện thoại</label>
+                    <input type="tel" id="login-phone" placeholder="09xxxxxxxx" style="width:100%">
+                    <div id="err-login-phone" style="font-size:12px;color:var(--text-danger);margin-top:4px;display:none"></div>
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;color:var(--text-primary);display:block;margin-bottom:6px">Mật khẩu</label>
+                    <div class="password-container">
+                        <input type="password" id="login-password" placeholder="Nhập mật khẩu" style="width:100%">
+                        <i class="ti ti-eye password-toggle" id="toggle-login-pass" onclick="togglePassword('login-password', 'toggle-login-pass')"></i>
+                    </div>
+                    <div id="err-login-password" style="font-size:12px;color:var(--text-danger);margin-top:4px;display:none"></div>
+                </div>
+                <div style="text-align:right">
+                    <a href="/interface/forgotpassword" style="font-size:13px;color:var(--primary-orange);text-decoration:none;font-weight:600">Quên mật khẩu?</a>
+                </div>
+                <button id="btn-login" type="submit" class="btn-auth-primary">Đăng nhập</button>
+
+                <div id="login-success" style="font-size:13px;color:var(--text-success);display:none;text-align:center;background:#f0fdf4;padding:10px;border-radius:6px;border:1px solid #bbf7d0"><i class="ti ti-circle-check"></i> Đăng nhập thành công! Đang chuyển hướng...</div>
+
+
+
+            </form>
+
+            <!-- FORM ĐĂNG KÝ -->
+            <form id="form-register" onsubmit="return submitRegister(event)" style="display:none;flex-direction:column;gap:14px">
+                <div>
+                    <label style="font-size:13px;font-weight:500;color:var(--text-primary);display:block;margin-bottom:6px">Họ và tên</label>
+                    <input type="text" id="reg-name" placeholder="Nguyễn Văn A" style="width:100%">
+                    <div id="err-reg-name" style="font-size:12px;color:var(--text-danger);margin-top:4px;display:none"></div>
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:500;color:var(--text-primary);display:block;margin-bottom:6px">Số điện thoại</label>
+                    <input type="tel" id="reg-phone" placeholder="09xxxxxxxx" style="width:100%">
+                    <div id="err-reg-phone" style="font-size:12px;color:var(--text-danger);margin-top:4px;display:none"></div>
+                </div>
+
+
+                <div>
+                    <label style="font-size:13px;font-weight:500;color:var(--text-primary);display:block;margin-bottom:6px">Email</label>
+                    <input type="email" id="reg-email" placeholder="nguyenvana@email.com" style="width:100%">
+                    <div id="err-reg-email" style="font-size:12px;color:var(--text-danger);margin-top:4px;display:none"></div>
+                </div>
+
+                <div style="display:flex;gap:12px">
+                    <div style="flex:1">
+                        <label style="font-size:13px;font-weight:500;color:var(--text-primary);display:block;margin-bottom:6px">Mật khẩu</label>
+                        <div class="password-container">
+                            <input type="password" id="reg-password" placeholder="Tối thiểu 8 ký tự" style="width:100%">
+                            <i class="ti ti-eye password-toggle" id="toggle-reg-pass" onclick="togglePassword('reg-password', 'toggle-reg-pass')"></i>
+                        </div>
+                        <div id="err-reg-password" style="font-size:12px;color:var(--text-danger);margin-top:4px;display:none"></div>
+                    </div>
+                    <div style="flex:1">
+                        <label style="font-size:13px;font-weight:500;color:var(--text-primary);display:block;margin-bottom:6px">Xác nhận mật khẩu</label>
+                        <div class="password-container">
+                            <input type="password" id="reg-password2" placeholder="Nhập lại" style="width:100%">
+                            <i class="ti ti-eye password-toggle" id="toggle-reg-pass2" onclick="togglePassword('reg-password2', 'toggle-reg-pass2')"></i>
+                        </div>
+                        <div id="err-reg-password2" style="font-size:12px;color:var(--text-danger);margin-top:4px;display:none"></div>
+                    </div>
+                </div>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary);cursor:pointer;margin-top:4px">
+                    <input type="checkbox" id="reg-terms" style="width:auto;cursor:pointer">
+                    <span>Tôi đồng ý với <a href="#" style="color:var(--primary-orange);text-decoration:none;font-weight:500">Điều khoản dịch vụ</a></span>
+                </label>
+                <div id="err-reg-terms" style="font-size:12px;color:var(--text-danger);margin-top:-8px;display:none"></div>
+
+                <button id="btn-register" type="submit" class="btn-auth-primary">Đăng ký</button>
+                <div id="register-success" style="font-size:13px;color:var(--text-success);display:none;text-align:center;background:#f0fdf4;padding:10px;border-radius:6px;border:1px solid #bbf7d0"><i class="ti ti-circle-check"></i> Thông tin hợp lệ — Đang chuyển hướng sang mã OTP...</div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="/asset/js/authentication.js"></script>
+</body>
+</html>

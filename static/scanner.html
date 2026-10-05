@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quét Mã Điểm Danh · AntGo</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <link rel="stylesheet" href="/asset/css/scanner.css">
+</head>
+<body>
+
+<div class="header">
+    <h1><i class="ti ti-scan text-primary"></i> Máy quét AntGo</h1>
+    <a href="javascript:history.back()" class="btn-back"><i class="ti ti-arrow-left"></i> Hủy</a>
+</div>
+
+<div class="container" id="main-ui">
+    <div class="scan-instruction">
+        <h2>Điểm danh ca làm</h2>
+        <p>Đưa camera quét mã QR trên máy nhà tuyển dụng</p>
+    </div>
+
+    <div class="scanner-wrapper">
+        <div class="scanner-container">
+            <div id="reader"></div>
+            <div class="scan-corner corner-tl"></div>
+            <div class="scan-corner corner-tr"></div>
+            <div class="scan-corner corner-bl"></div>
+            <div class="scan-corner corner-br"></div>
+            <div class="scan-line"></div>
+        </div>
+    </div>
+</div>
+
+<div id="result-sheet" class="result-sheet">
+    <div class="result-icon-wrapper" id="result-icon-box">
+        <i id="result-icon" class="ti result-icon"></i>
+    </div>
+    <h3 id="result-title" class="result-title"></h3>
+    <p id="result-msg" class="result-msg"></p>
+    <button class="btn-action btn-primary" id="btn-done" style="display:none;" onclick="goHome()">
+        <i class="ti ti-check"></i> Hoàn tất
+    </button>
+    <button class="btn-action btn-secondary" id="btn-retry" onclick="restartScanner()">
+        <i class="ti ti-refresh"></i> Quét lại
+    </button>
+</div>
+
+<!-- Popup Quyết Toán Lương cho Thợ khi CHECKOUT -->
+<div id="payment-sheet" class="result-sheet">
+    <div class="result-icon-wrapper" style="color: var(--success); border-color: #dcfce7;">
+        <i class="ti ti-cash result-icon"></i>
+    </div>
+    <h3 class="result-title" style="margin-bottom: 4px;">Quyết toán ca làm</h3>
+    <p style="color: var(--text-sub); font-size: 13px; margin: 0 0 16px;">Chi tiết thanh toán ca làm vừa kết thúc</p>
+
+    <div style="background: var(--bg-body); padding: 16px; border-radius: 16px; margin-bottom: 20px; text-align: left;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px;">
+            <span style="color:var(--text-sub);">Thời gian làm việc:</span>
+            <strong id="pay-hours">0 giờ</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px;">
+            <span style="color:var(--text-sub);">Đơn giá:</span>
+            <span id="pay-rate">0 đ/giờ</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:16px; border-top:1px dashed var(--border); padding-top:10px; margin-top:6px;">
+            <span style="font-weight:700;">Tổng tiền nhận:</span>
+            <strong id="pay-total" style="color: var(--success); font-size: 20px;">0 VNĐ</strong>
+        </div>
+    </div>
+
+    <!-- Nút xác nhận đã nhận tiền -->
+    <button class="btn-action btn-primary" id="btn-confirm-payment" onclick="confirmPaymentAction()">
+        <i class="ti ti-check"></i> Xác nhận đã nhận tiền
+    </button>
+
+    <!-- Nút Báo Cáo (UI) -->
+    <button class="btn-action" style="background:#fee2e2; color:#b91c1c; border:none; margin-top:10px;" onclick="promptReport()">
+        <i class="ti ti-alert-triangle"></i> Báo cáo vấn đề
+    </button>
+
+    <button class="btn-action btn-secondary" onclick="goHome()">
+        Quay lại
+    </button>
+</div>
+
+<!-- Thư viện WebSocket -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+<script src="/asset/js/scanner.js"></script>
+<script src="/asset/js/notification.js"></script>
+<script src="/asset/js/chat.js"></script>
+</body>
+</html>

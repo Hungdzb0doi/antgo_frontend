@@ -1,0 +1,429 @@
+:root {
+            --primary-orange: #FF6600;
+            --primary-hover: #E55C00;
+            --primary-light: #FFF0E6;
+            --black-main: #18181B;
+            --black-sub: #3F3F46;
+            --bg-light: #F4F4F5;
+            --white-surface: #FFFFFF;
+            --border-line: #E4E4E7;
+
+            /* Ánh xạ biến thương hiệu AntGo */
+            --primary: var(--primary-orange);
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: var(--primary-orange);
+            --bg: var(--bg-light);
+            --surface: var(--white-surface);
+            --text-main: var(--black-main);
+            --text-sub: var(--black-sub);
+            --border: var(--border-line);
+        }
+        body {
+            margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg); color: var(--text-main);
+        }
+
+        /* HEADER */
+        .header {
+            background: var(--black-main); padding: 14px 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .header h1 { margin: 0; font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; color: #fff;}
+        .nav-btn {
+            padding: 8px 15px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); border-radius: 8px;
+            cursor: pointer; font-weight: 600; color: #ffffff; text-decoration: none; font-size: 13.5px;
+            display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+        }
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.28); color: #ffffff;
+            transform: translateY(-1px);
+        }
+        .nav-btn.active {
+            background: var(--primary-orange) !important;
+            color: #ffffff !important;
+            border-color: var(--primary-orange) !important;
+            box-shadow: 0 2px 8px rgba(255, 102, 0, 0.35);
+        }
+        .nav-btn.active:hover {
+            background: var(--primary-hover) !important;
+        }
+        .nav-btn-logout:hover {
+            background: rgba(239, 68, 68, 0.22) !important;
+            color: #fca5a5 !important;
+            border-color: rgba(239, 68, 68, 0.4) !important;
+            transform: translateY(-1px);
+        }
+
+        /* TABS (BỘ LỌC) */
+        .tabs {
+            display: flex; background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto; white-space: nowrap;
+        }
+        /* Ẩn thanh cuộn trên webkit nhưng vẫn vuốt được */
+        .tabs::-webkit-scrollbar { display: none; }
+        .tabs { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .tab-btn {
+            flex: 1; min-width: 100px; padding: 12px 12px; text-align: center;
+            background: none; border: none; font-size: 13px; font-weight: 600;
+            color: var(--text-sub); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+            border-bottom: 2px solid transparent; transition: all 0.2s;
+        }
+        .tab-btn.active { color: var(--primary-orange); border-bottom-color: var(--primary-orange); }
+        .tab-btn i { font-size: 16px; }
+
+        /* LIST CÔNG VIỆC */
+        .job-list { padding: 16px; display: flex; flex-direction: column; gap: 16px; max-width: 600px; margin: 0 auto; padding-bottom: 40px;}
+
+        /* JOB CARD */
+        .job-card {
+            background: var(--white-surface); border-radius: 14px;
+            padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border: 1px solid var(--border-line);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .job-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+            transform: translateY(-1px);
+        }
+        .job-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .job-title { margin: 0 0 4px; font-size: 16px; font-weight: 700; color: var(--black-main); }
+        .employer-name { margin: 0; font-size: 13px; color: var(--black-sub); display: flex; align-items: center; gap: 4px; }
+
+        .badge {
+            padding: 4px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;
+        }
+        .badge.invitation { background: #e0f2fe; color: #0369a1; }
+        .badge.application { background: var(--primary-light); color: var(--primary-hover); }
+        .badge.booked { background: #dcfce7; color: #166534; }
+        .badge.inprogress { background: var(--primary-light); color: var(--primary-hover); border: 1px solid #fed7aa; }
+
+        /* Badges cho Tab Lịch sử */
+        .badge.completed { background: #dcfce7; color: #166534; }
+        .badge.cancelled { background: #f1f5f9; color: #64748b; }
+        .badge.noshow { background: #fee2e2; color: #991b1b; }
+
+        .job-details {
+            background: #fafafa; padding: 14px; border-radius: 10px;
+            display: flex; flex-direction: column; gap: 8px; font-size: 13px;
+            border: 1px solid #f4f4f5;
+        }
+        .detail-row { display: flex; align-items: center; gap: 8px; color: var(--black-sub); }
+        .detail-row i { color: var(--primary-orange); font-size: 16px; }
+        .price-highlight { color: var(--primary-orange); font-weight: 800; font-size: 15.5px; }
+
+        .job-actions {
+            margin-top: 14px; display: flex; flex-direction: column; gap: 8px; border-top: 1px dashed var(--border-line); padding-top: 14px;
+        }
+        .job-actions-secondary {
+            display: flex; gap: 8px; width: 100%; flex-wrap: wrap;
+        }
+        .job-actions-primary {
+            display: flex; gap: 8px; width: 100%;
+        }
+        .btn {
+            flex: 1; min-height: 38px; padding: 8px 12px; border-radius: 8px; border: none;
+            font-size: 13px; font-weight: 600; cursor: pointer; text-align: center;
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            box-sizing: border-box;
+        }
+        a.btn {
+            text-decoration: none;
+        }
+        .btn-primary, .btn-accept {
+            background: var(--primary-orange); color: white;
+            box-shadow: 0 2px 6px rgba(255, 102, 0, 0.2);
+        }
+        .btn-primary:hover, .btn-accept:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.35);
+        }
+        .btn-secondary, .btn-outline {
+            background: #ffffff;
+            color: var(--black-main);
+            border: 1px solid var(--border-line);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+        .btn-secondary:hover, .btn-outline:hover {
+            background: var(--primary-light);
+            color: var(--primary-hover);
+            border-color: var(--primary-orange);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(255, 102, 0, 0.15);
+        }
+        .btn-reject {
+            background: #f4f4f5; color: var(--danger); border: 1px solid var(--border-line);
+        }
+        .btn-reject:hover {
+            background: #fee2e2; border-color: #fca5a5;
+        }
+        .btn-warning {
+            background: var(--primary-orange); color: white;
+            box-shadow: 0 2px 6px rgba(255, 102, 0, 0.2);
+        }
+        .btn-warning:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.35);
+        }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-sub); }
+        .empty-state i { font-size: 48px; color: #cbd5e1; margin-bottom: 12px; }
+
+        /* SEARCH BOX */
+        .search-container {
+            max-width: 600px;
+            margin: 12px auto 0;
+            padding: 0 16px;
+        }
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2px 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-box:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+        }
+        .search-box .search-icon {
+            color: var(--text-sub);
+            font-size: 18px;
+            margin-right: 8px;
+        }
+        .search-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 10px 0;
+            font-size: 13.5px;
+            color: var(--text-main);
+            font-family: inherit;
+        }
+        .search-box input::placeholder {
+            color: #94a3b8;
+        }
+        .search-box .clear-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            padding: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.15s;
+        }
+        .search-box .clear-btn:hover {
+            color: var(--text-main);
+        }
+
+        /* MODAL REPORT */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(2px);
+            z-index: 9999; display: none; justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-content {
+            background: var(--surface); width: 440px; max-width: 100%; border-radius: 14px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12); overflow: hidden;
+            animation: modalFadeIn 0.2s ease-out;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-header {
+            padding: 18px 20px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-header h3 { margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
+        .modal-body { padding: 20px; }
+        .modal-footer {
+            padding: 14px 20px; background: var(--bg); display: flex; gap: 10px; justify-content: flex-end;
+            border-top: 1px solid var(--border);
+        }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
+        .form-control {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
+            font-size: 13.5px; font-family: inherit; color: var(--text-main); background: #fff; box-sizing: border-box;
+        }
+        .form-control:focus { outline: none; border-color: var(--primary); }
+
+        /* NÚT FLAG KHIẾU NẠI Ở HEADER THẺ VIỆC (PHƯƠNG ÁN 1) */
+        .btn-report-flag {
+            background: transparent;
+            border: 1px solid #e2e8f0;
+            color: #94a3b8;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            line-height: 1;
+        }
+        .btn-report-flag:hover {
+            color: var(--danger);
+            background: #fef2f2;
+            border-color: #fca5a5;
+        }
+
+        /* BADGE KHIẾU NẠI */
+        .badge.dispute {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+        }
+
+        /* STAR RATING TRONG MODAL ĐÁNH GIÁ */
+        .star-rating {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 12px 0 6px;
+            font-size: 38px;
+            cursor: pointer;
+            user-select: none;
+            line-height: 1;
+        }
+        .star-rating .star {
+            color: #cbd5e1;
+            transition: transform 0.15s ease, color 0.15s ease, text-shadow 0.15s ease;
+            display: inline-block;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+        .star-rating .star:hover {
+            transform: scale(1.25);
+        }
+        .star-rating .star.selected {
+            color: #f59e0b;
+            text-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+        }
+        .ti-star-filled {
+            font-style: normal;
+        }
+        .ti-star-filled::before {
+            content: "★";
+            color: inherit;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .ti-spin {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        /* MODAL BẢN ĐỒ VÀ ĐƯỜNG ĐI */
+        #mapModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        #mapModal .modal-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 820px;
+            max-height: 92vh;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+            animation: modalFadeIn 0.2s ease-out;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        #mapModal .modal-header {
+            padding: 14px 18px;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        #mapModal .modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+        }
+        #mapModal .close-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-sub);
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+        #mapModal .close-btn:hover {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+        #mapModal .modal-route-info {
+            padding: 10px 18px;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 13.5px;
+        }
+        #modalMapCanvas {
+            width: 100%;
+            height: 460px;
+            background: #e2e8f0;
+        }
+        #mapModal .modal-footer {
+            padding: 12px 18px;
+            background: #ffffff;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }

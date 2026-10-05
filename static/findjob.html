@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Radar Tìm Việc · AntGo</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+    <link rel="stylesheet" href="/asset/css/findjob.css">
+</head>
+<body>
+
+<div class="header">
+    <a href="/interface/manageapplication" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+        <img src="/asset/antgo-icon.svg" alt="AntGo" style="width: 32px; height: 32px; display: block; filter: drop-shadow(0 2px 8px rgba(255, 102, 0, 0.45));">
+        <span style="font-size: 19px; font-weight: 800; color: #ffffff; letter-spacing: -0.3px;">Ant<span style="color: var(--primary-orange);">Go</span></span>
+    </a>
+    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="/interface/manageapplication" class="nav-btn"><i class="ti ti-file-text"></i> Công việc của tôi</a>
+        <a href="/interface/findjob" class="nav-btn active"><i class="ti ti-radar"></i> Bản đồ tìm việc</a>
+        <a href="/interface/scanner" class="nav-btn"><i class="ti ti-qrcode"></i> Quét QR</a>
+        <a href="/interface/profile" class="nav-btn"><i class="ti ti-user"></i> Hồ sơ</a>
+        <button onclick="logout()" class="nav-btn nav-btn-logout"><i class="ti ti-logout"></i> Đăng xuất</button>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="map-container">
+        <div id="map"></div>
+        <div class="radar-scan-effect" id="scan-effect"></div>
+        <button class="btn-recenter" onclick="recenterMap()"><i class="ti ti-current-location"></i></button>
+    </div>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-header-top">
+                <span>Việc làm quanh đây (<span id="job-count">0</span>)</span>
+                <span id="gps-status" style="font-size:12px; color:var(--success); font-weight:normal;">
+                    <i class="ti ti-map-pin"></i> Đang bật GPS
+                </span>
+            </div>
+            <div class="radius-control">
+                <span style="font-size: 13px; color: var(--text-sub);">Bán kính:</span>
+                <input type="number" id="input-radius" value="5.0" min="1" max="100" step="1">
+                <span style="font-size: 13px; color: var(--text-sub);">km</span>
+                <button class="btn-action" style="padding: 6px 16px;" onclick="updateRadius()">Quét lại</button>
+            </div>
+        </div>
+        <div class="job-list" id="job-list-container">
+            <div style="text-align: center; color: #94a3b8; margin-top: 20px;">
+                <i class="ti ti-loader ti-spin" style="font-size: 24px;"></i>
+                <p>Đang tải dữ liệu bản đồ...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="job-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Chi tiết công việc</h3>
+            <button class="btn-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body" id="modal-body-content"></div>
+        <div class="modal-footer">
+            <button class="btn-action" style="background:#64748b;" onclick="closeModal()">Đóng</button>
+            <button class="btn-action" id="btn-apply-modal"  onclick="applyJobFromModal()">
+                <i class="ti ti-send"></i> Ứng tuyển ngay
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="/asset/js/findjob.js"></script>
+<script src="/asset/js/notification.js"></script>
+<script src="/asset/js/chat.js"></script>
+</body>
+</html>

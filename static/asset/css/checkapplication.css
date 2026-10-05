@@ -1,0 +1,258 @@
+:root {
+            --primary-orange: #FF6600;
+            --primary-hover: #E55C00;
+            --primary-light: #FFF0E6;
+            --black-main: #18181B;
+            --black-sub: #3F3F46;
+            --bg-light: #F4F4F5;
+            --white-surface: #FFFFFF;
+            --border-line: #E4E4E7;
+
+            /* Ánh xạ biến thương hiệu AntGo */
+            --primary: var(--primary-orange);
+            --bg-body: var(--bg-light);
+            --bg-surface: var(--white-surface);
+            --text-main: var(--black-main);
+            --text-sub: var(--black-sub);
+            --border: var(--border-line);
+            --success-color: #10b981;
+        }
+        body, html {
+            margin: 0; padding: 0; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--bg-body); color: var(--text-main); display: flex; flex-direction: column;
+        }
+
+        /* Unified AntGo App Header */
+        .app-header {
+            background: var(--black-main);
+            padding: 12px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #ffffff;
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+        .header-brand-icon-img {
+            width: 32px;
+            height: 32px;
+            display: block;
+            filter: drop-shadow(0 2px 8px rgba(255, 102, 0, 0.45));
+        }
+        .brand-text {
+            color: #ffffff;
+            font-weight: 800;
+        }
+        .brand-highlight {
+            color: var(--primary-orange);
+        }
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            text-decoration: none;
+            color: #ffffff;
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.08);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .nav-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.28);
+            transform: translateY(-1px);
+        }
+        /* Duy nhất nút đang chọn (Active) mới mang màu cam chủ đạo */
+        .nav-btn.active {
+            background: var(--primary-orange) !important;
+            color: #ffffff !important;
+            border-color: var(--primary-orange) !important;
+            box-shadow: 0 2px 8px rgba(255, 102, 0, 0.35);
+        }
+        .nav-btn.active:hover {
+            background: var(--primary-hover) !important;
+        }
+        .nav-btn-logout:hover {
+            background: rgba(239, 68, 68, 0.22) !important;
+            color: #fca5a5 !important;
+            border-color: rgba(239, 68, 68, 0.4) !important;
+            transform: translateY(-1px);
+        }
+
+        /* CONTAINER */
+        .container { max-width: 760px; margin: 0 auto; width: 100%; padding: 32px 20px; flex: 1; }
+        .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; }
+        .section-title { font-size: 22px; font-weight: 700; margin: 0; }
+        .section-subtitle { color: var(--text-sub); font-size: 14px; }
+
+        /* DANH SÁCH CARD */
+        .app-list { display: flex; flex-direction: column; gap: 16px; }
+        .app-card {
+            background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px;
+            padding: 20px; display: flex; gap: 20px; align-items: center;
+            transition: box-shadow 0.2s ease;
+        }
+        .app-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+
+        .worker-avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background: #e2e8f0; }
+
+        .worker-info { flex: 1; min-width: 0; }
+        .worker-info h4 { margin: 0 0 6px; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .info-tags { display: flex; gap: 16px; margin-bottom: 8px; flex-wrap: wrap; }
+        .tag { font-size: 13px; color: var(--text-sub); display: flex; align-items: center; gap: 4px; }
+        .time-text { font-size: 12px; color: #94a3b8; }
+
+        /* BUTTONS */
+        .card-actions { display: flex; flex-direction: column; gap: 8px; min-width: 130px; margin-left: auto; }
+        .btn {
+            padding: 10px 16px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-secondary, .btn-outline {
+            background: #ffffff;
+            color: var(--black-main);
+            border: 1px solid var(--border-line);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+        .btn-secondary:hover, .btn-outline:hover {
+            background: var(--primary-light);
+            color: var(--primary-hover);
+            border-color: var(--primary-orange);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(255, 102, 0, 0.15);
+        }
+
+        .btn-primary {
+            background: var(--primary-orange); color: #fff;
+            box-shadow: 0 2px 6px rgba(255, 102, 0, 0.2);
+        }
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.35);
+        }
+        .btn-outline { background: transparent; color: var(--text-main); border: 1px solid var(--border); }
+        .btn-outline:hover { background: var(--primary-light); color: var(--primary-orange); border-color: var(--primary-orange); }
+
+        /* BADGE TRẠNG THÁI */
+        .badge { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-align: center; display: flex; justify-content: center; align-items: center; gap: 6px;}
+        .badge-accepted { background: var(--black-main); color: #fff; border: 1px solid var(--black-main); }
+        .badge-rejected { background: var(--bg-body); color: var(--text-sub); border: 1px dashed var(--border); }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(2px); z-index: 9999;
+            display: none; justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-content {
+            background: var(--bg-surface); width: 440px; max-width: 100%; border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden;
+        }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { margin: 0; font-size: 16px; font-weight: 600; }
+        .btn-close { background: transparent; border: none; font-size: 20px; cursor: pointer; color: var(--text-sub); }
+
+        .modal-body { padding: 24px; }
+        .profile-banner { display: flex; gap: 16px; align-items: center; margin-bottom: 24px; }
+        .profile-banner img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; }
+
+        .detail-row { display: flex; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+        .detail-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .detail-icon { color: var(--text-sub); font-size: 20px; width: 24px; margin-top: 2px;}
+
+        @media (max-width: 600px) {
+            .app-card { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .card-actions { flex-direction: row; width: 100%; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 16px; }
+            .btn { flex: 1; }
+        }
+
+        /* NÚT FLAG KHIẾU NẠI */
+        .btn-report-flag {
+            background: transparent;
+            border: 1px solid #e2e8f0;
+            color: #94a3b8;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            line-height: 1;
+        }
+        .btn-report-flag:hover {
+            color: var();
+            background: #fef2f2;
+            border-color: #fca5a5;
+        }
+
+        /* STAR RATING TRONG MODAL */
+        .star-rating {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 12px 0 6px;
+            font-size: 38px;
+            cursor: pointer;
+            user-select: none;
+            line-height: 1;
+        }
+        .star-rating .star {
+            color: #cbd5e1;
+            transition: transform 0.15s ease, color 0.15s ease, text-shadow 0.15s ease;
+            display: inline-block;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+        .star-rating .star:hover {
+            transform: scale(1.25);
+        }
+        .star-rating .star.selected {
+            color: #f59e0b;
+            text-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+        }
+        .ti-star-filled {
+            font-style: normal;
+        }
+        .ti-star-filled::before {
+            content: "★";
+            color: inherit;
+        }
+
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
+        .form-control {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
+            font-size: 13.5px; font-family: inherit; color: var(--text-main); background: #fff; box-sizing: border-box;
+        }
+        .form-control:focus { outline: none; border-color: var(--primary); }

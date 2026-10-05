@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác thực eKYC · AntGo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="/asset/css/identify.css">
+</head>
+<body>
+<nav class="topnav">
+    <a href="/interface/profile">Quay lại Hồ sơ</a>
+    <a href="/interface/identify" class="active">Xác thực eKYC</a>
+</nav>
+
+<div class="page">
+    <div style="background:var(--surface-1);border-radius:12px;padding:56px 24px;display:flex;justify-content:center;box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <div style="max-width:440px;width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:40px 36px">
+
+            <div style="display:flex;gap:6px;margin-bottom:28px">
+                <div id="kd-1" style="flex:1;height:4px;border-radius:2px;background:var(--fill-primary);transition:background 0.3s"></div>
+                <div id="kd-2" style="flex:1;height:4px;border-radius:2px;background:var(--border);transition:background 0.3s"></div>
+                <div id="kd-3" style="flex:1;height:4px;border-radius:2px;background:var(--border);transition:background 0.3s"></div>
+                <div id="kd-4" style="flex:1;height:4px;border-radius:2px;background:var(--border);transition:background 0.3s"></div>
+            </div>
+
+            <div id="kyc-header" style="font-size:13px;color:var(--text-secondary);margin-bottom:24px;background:var(--bg-accent-muted);padding:10px;border-radius:6px;border:1px solid #cce5ff">
+                <i class="ti ti-info-circle"></i> Vui lòng cấp quyền truy cập Camera khi trình duyệt yêu cầu.
+            </div>
+
+            <!-- BƯỚC 1: CCCD MẶT TRƯỚC -->
+            <div id="kstep-1">
+                <div style="font-size:18px;font-weight:600;margin-bottom:6px;color:var(--text-primary)">Ảnh mặt trước CCCD</div>
+                <div style="font-size:13px;color:var(--text-secondary);margin-bottom:20px">Đặt CCCD nằm trọn trong khung hình, đảm bảo đủ ánh sáng.</div>
+
+                <div id="box-1" class="camera-box corners" onclick="handleCameraAction(1, 'environment')">
+                    <video id="vid-1" class="vid-stream" autoplay playsinline muted></video>
+                    <img id="img-1" class="img-preview">
+                    <span></span>
+                    <div id="content-1" class="cap-content">
+                        <i id="icon-1" class="ti ti-camera" style="font-size:40px;color:var(--text-muted)"></i>
+                        <div id="text-1" style="font-size:13px;font-weight:500;color:var(--text-secondary)">Bấm để mở Camera</div>
+                    </div>
+                </div>
+
+                <button onclick="nextStep(2)" id="btn-1" disabled class="btn-kyc-action" style="margin-top:24px;">Tiếp tục</button>
+            </div>
+
+            <!-- BƯỚC 2: CCCD MẶT SAU -->
+            <div id="kstep-2" style="display:none">
+                <div style="font-size:18px;font-weight:600;margin-bottom:6px;color:var(--text-primary)">Ảnh mặt sau CCCD</div>
+                <div style="font-size:13px;color:var(--text-secondary);margin-bottom:20px">Lật mặt sau của CCCD (mặt có vân tay) và chụp lại tương tự.</div>
+
+                <div id="box-2" class="camera-box corners" onclick="handleCameraAction(2, 'environment')">
+                    <video id="vid-2" class="vid-stream" autoplay playsinline muted></video>
+                    <img id="img-2" class="img-preview">
+                    <span></span>
+                    <div id="content-2" class="cap-content">
+                        <i id="icon-2" class="ti ti-camera" style="font-size:40px;color:var(--text-muted)"></i>
+                        <div id="text-2" style="font-size:13px;font-weight:500;color:var(--text-secondary)">Bấm để mở Camera</div>
+                    </div>
+                </div>
+
+                <button onclick="nextStep(3)" id="btn-2" disabled class="btn-kyc-action" style="margin-top:24px;">Tiếp tục</button>
+            </div>
+
+            <!-- BƯỚC 3: KHUÔN MẶT -->
+            <div id="kstep-3" style="display:none">
+                <div style="font-size:18px;font-weight:600;margin-bottom:6px;color:var(--text-primary)">Xác thực khuôn mặt</div>
+                <div style="font-size:13px;color:var(--text-secondary);margin-bottom:24px;text-align:center">Nhìn thẳng vào camera, giữ khuôn mặt trong vòng tròn.</div>
+
+                <div id="box-3" class="face-box" onclick="handleCameraAction(3, 'user')">
+                    <video id="vid-3" class="vid-stream mirror" autoplay playsinline muted></video>
+                    <img id="img-3" class="img-preview mirror">
+                    <div id="content-3" class="cap-content">
+                        <i id="icon-3" class="ti ti-user-scan" style="font-size:50px;color:var(--text-muted)"></i>
+                        <div id="text-3" style="font-size:13px;font-weight:500;color:var(--text-secondary)">Bấm để mở Camera trước</div>
+                    </div>
+                </div>
+
+                <button onclick="nextStep(4)" id="btn-3" disabled class="btn-kyc-action" style="margin-top:32px;">Tiếp tục</button>
+            </div>
+
+            <!-- BƯỚC 4: XÁC NHẬN THÔNG TIN (Giả lập OCR) -->
+            <div id="kstep-4" style="display:none">
+                <div style="font-size:18px;font-weight:600;margin-bottom:6px;color:var(--text-primary)">Xác nhận gửi duyệt</div>
+                <div style="font-size:13px;color:var(--text-secondary);margin-bottom:20px">3 ảnh đã được đóng gói và sẵn sàng gửi lên hệ thống.</div>
+
+                <button id="btn-submit" onclick="finish()" class="btn-kyc-action">Tải ảnh lên hệ thống</button>
+                <div onclick="nextStep(1)" style="text-align:center;margin-top:16px;font-size:14px;font-weight:600;color:var(--primary-orange);cursor:pointer">Làm lại từ đầu</div>
+            </div>
+
+            <!-- BƯỚC 5: HOÀN TẤT -->
+            <div id="kstep-5" style="display:none;text-align:center;padding:20px 0">
+                <i class="ti ti-shield-check-filled" style="font-size:64px;color:var(--text-success)"></i>
+                <div style="font-size:20px;font-weight:600;margin:16px 0 8px;color:var(--text-primary)">Gửi thành công!</div>
+                <div style="font-size:14px;line-height:1.5;color:var(--text-secondary);margin-bottom:32px">Yêu cầu xác thực của bạn đang chờ hệ thống duyệt.</div>
+                <a href="/interface/profile" style="text-decoration:none">
+                    <button class="btn-kyc-action">Về trang Hồ sơ</button>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Thẻ Canvas ẩn để cắt ảnh từ Video -->
+<canvas id="canvas" style="display:none;"></canvas>
+
+<script src="/asset/js/identify.js"></script>
+<script src="/asset/js/notification.js"></script>
+<script src="/asset/js/chat.js"></script>
+</body>
+</html>
