@@ -1,5 +1,6 @@
-const API_BASE_URL = 'http://localhost:8083/api/v1/profile';
+const API_BASE_URL = '/api/v1/profile';
     let currentProfileData = null;
+    let systemCategories = [];
 
     // BIẾN TOÀN CỤC CHO WEBSOCKET
     let stompClient = null;
@@ -66,7 +67,7 @@ const API_BASE_URL = 'http://localhost:8083/api/v1/profile';
         const driveId = extractDriveFileId(trimmed);
         if (driveId) {
             // Sử dụng streaming qua backend (đã permitAll)
-            return `http://localhost:8083/api/v1/messages/media/${driveId}`;
+            return `/api/v1/messages/media/${driveId}`;
         }
 
         if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:image/')) {
@@ -265,7 +266,7 @@ const API_BASE_URL = 'http://localhost:8083/api/v1/profile';
                     if (p.identityVerified) {
                         ekycBanner.className = 'ekyc-status-banner verified';
                         ekycIcon.className = 'ti ti-shield-check-filled';
-                        ekycIcon.style.color = '#059669';
+                        ekycIcon.style.color = 'var(--primary-orange)';
                         ekycText.innerHTML = '<strong>Đã định danh eKYC CCCD thành công.</strong> Hồ sơ của bạn đã được xác thực an toàn trên hệ thống.';
                         btnGoEkyc.style.display = 'none';
                     } else {
@@ -301,17 +302,29 @@ const API_BASE_URL = 'http://localhost:8083/api/v1/profile';
                     const toggle = document.getElementById('toggle-available');
                     const availDesc = document.getElementById('status-availability-desc');
                     if (toggle) {
-                        toggle.checked = p.isAvailable;
+                        // Trạng thái bật được ưu tiên duy trì: nếu DB là true hoặc localStorage đang là 'true'
+                        const isLocallyTracking = localStorage.getItem('workerLocationTracking') === 'true';
+                        const isTurnedOn = (p.isAvailable === true) || isLocallyTracking;
+
+                        toggle.checked = isTurnedOn;
                         if (availDesc) {
-                            availDesc.textContent = p.isAvailable 
+                            availDesc.textContent = isTurnedOn 
                                 ? 'Đang bật tìm việc · Hệ thống đang định vị GPS để NTD tìm thấy bạn' 
-                                : 'Đang tắt tìm việc · Bạn tạm thời ẩn khỏi bản đồ tìm thợ';
+                                : 'Đang tắt tìm việc · Bạn tạm thời ẩn khỏi bản đồ tìm ứng viên';
                         }
 
-                        // Nếu lúc tải lại trang mà trạng thái là bật và đang ở WORKER -> Tự động kết nối lại WS
+                        // Đồng bộ trạng thái vào localStorage & kích hoạt GPS toàn cục
                         const currentUpper = (p.currentMode || 'WORKER').toUpperCase();
-                        if (p.isAvailable && currentUpper === 'WORKER') {
-                            connectWebSocket();
+                        if (isTurnedOn) {
+                            localStorage.setItem('workerLocationTracking', 'true');
+                            if (currentUpper === 'WORKER' && window.startGlobalWorkerLocationTracking) {
+                                window.startGlobalWorkerLocationTracking();
+                            }
+                        } else {
+                            localStorage.setItem('workerLocationTracking', 'false');
+                            if (window.stopGlobalWorkerLocationTracking) {
+                                window.stopGlobalWorkerLocationTracking();
+                            }
                         }
                     }
 
@@ -347,9 +360,13 @@ const API_BASE_URL = 'http://localhost:8083/api/v1/profile';
             cardEmployer.className = 'profile-card inactive';
 
             if (roleBadge) {
-                roleBadge.textContent = 'Người lao động';
+                roleBadge.textContent = 'Ứng viên';
                 roleBadge.style.background = 'var(--bg-accent-muted)';
                 roleBadge.style.color = 'var(--text-accent)';
+            }
+            // Khôi phục GPS nếu đang bật tìm việc
+            if (localStorage.getItem('workerLocationTracking') === 'true' && window.startGlobalWorkerLocationTracking) {
+                window.startGlobalWorkerLocationTracking();
             }
         } else {
             btnEmployer.style.background = 'var(--fill-primary)'; 
@@ -367,7 +384,10 @@ const API_BASE_URL = 'http://localhost:8083/api/v1/profile';
                 roleBadge.style.background = '#fef3c7';
                 roleBadge.style.color = '#92400e';
             }
-            disconnectWebSocket(); // Dừng bắn GPS worker khi sang Nhà tuyển dụng
+            // Tạm dừng hiển thị chấm GPS khi ở chế độ Nhà tuyển dụng
+            if (window.updateGpsDotStatus) {
+                window.updateGpsDotStatus(false);
+            }
         }
 
         localStorage.setItem('currentMode', m.toUpperCase());
@@ -401,100 +421,47 @@ const API_BASE_URL = 'http://localhost:8083/api/v1/profile';
     }
 
     // ==========================================
-    // KHỐI LOGIC WEBSOCKET & THEO DÕI GPS
+    // KHỐI LOGIC THEO DÕI GPS TOÀN CỤC (TÍCH HỢP VỚI NOTIFICATION.JS)
     // ==========================================
     function connectWebSocket() {
-        const token = localStorage.getItem('accessToken');
-        if (!token) return;
-
-        // Kết nối đến cổng WebSocket
-        let socket = new SockJS('http://localhost:8083/ws');
-        stompClient = Stomp.over(socket);
-        stompClient.debug = null;
-
-        stompClient.connect({ 'Authorization': 'Bearer ' + token }, function (frame) {
-            console.log('Đã kết nối WebSocket thành công');
-            startTrackingGPS();
-        }, function (error) {
-            console.error('Lỗi kết nối WebSocket: ', error);
-        });
-    }
-
-    function startTrackingGPS() {
-        if (!navigator.geolocation) {
-            console.warn("Thiết bị hoặc trình duyệt không hỗ trợ Geolocation.");
-            const availDesc = document.getElementById('status-availability-desc');
-            if (availDesc) {
-                availDesc.innerHTML = `<span style="color:#ef4444;"><i class="ti ti-alert-circle"></i> Trình duyệt không hỗ trợ định vị GPS</span>`;
-            }
-            return;
+        if (window.startGlobalWorkerLocationTracking) {
+            window.startGlobalWorkerLocationTracking();
         }
-
-        const handlePositionSuccess = (position) => {
-            let lat = position.coords.latitude;
-            let lng = position.coords.longitude;
-
-            let payload = JSON.stringify({ 'longitude': lng, 'latitude': lat });
-            if (stompClient && stompClient.connected) {
-                stompClient.send("/app/locationworker", {}, payload);
-            }
-
-            console.log(`Đã bắn tọa độ lên Redis: [Kinh độ: ${lng}, Vĩ độ: ${lat}]`);
-            const availDesc = document.getElementById('status-availability-desc');
-            if (availDesc) {
-                availDesc.innerHTML = `<span style="color:#10b981;"><i class="ti ti-point-filled"></i> Đang bật tìm việc · Đã đồng bộ vị trí (${lat.toFixed(4)}, ${lng.toFixed(4)})</span>`;
-            }
-        };
-
-        const handlePositionError = (error) => {
-            console.warn("Lỗi định vị GPS:", error.code, error.message);
-            const availDesc = document.getElementById('status-availability-desc');
-            if (!availDesc) return;
-
-            if (error.code === 1) { // PERMISSION_DENIED
-                availDesc.innerHTML = `<span style="color:#ef4444;"><i class="ti ti-alert-triangle"></i> Chưa cấp quyền vị trí. Nhấp vào icon ổ khóa cạnh URL để Cho phép (Allow) vị trí.</span>`;
-            } else if (error.code === 2) { // POSITION_UNAVAILABLE
-                // Thử định vị mạng fallback cho máy tính không có chip GPS phần cứng
-                navigator.geolocation.getCurrentPosition(
-                    handlePositionSuccess,
-                    () => {
-                        availDesc.innerHTML = `<span style="color:#f59e0b;"><i class="ti ti-info-circle"></i> Không thể xác định tọa độ GPS chính xác trên thiết bị này.</span>`;
-                    },
-                    { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
-                );
-            } else if (error.code === 3) { // TIMEOUT
-                availDesc.innerHTML = `<span style="color:#f59e0b;"><i class="ti ti-clock"></i> Quá thời gian định vị GPS. Đang tiếp tục thử lại...</span>`;
-            }
-        };
-
-        watchId = navigator.geolocation.watchPosition(
-            handlePositionSuccess,
-            handlePositionError,
-            { enableHighAccuracy: false, timeout: 10000, maximumAge: 30000 }
-        );
     }
 
     function disconnectWebSocket() {
-        if (watchId !== null) {
-            navigator.geolocation.clearWatch(watchId);
-            watchId = null;
-        }
-        if (stompClient !== null) {
-            stompClient.disconnect();
-            console.log("Đã ngắt kết nối WebSocket, dừng gửi GPS.");
-            stompClient = null;
+        if (window.stopGlobalWorkerLocationTracking) {
+            window.stopGlobalWorkerLocationTracking();
         }
         const availDesc = document.getElementById('status-availability-desc');
         if (availDesc) {
-            availDesc.textContent = 'Đang tắt tìm việc · Bạn tạm thời ẩn khỏi bản đồ tìm thợ';
+            availDesc.textContent = 'Đang tắt tìm việc · Bạn tạm thời ẩn khỏi bản đồ tìm ứng viên';
         }
     }
 
-    // 3. BẬT/TẮT TÌM VIỆC
+    // 3. BẬT/TẮT TÌM VIỆC (CHỈ TẮT KHI NGƯỜI DÙNG BẤM TẮT TRỰC TIẾP)
     function toggleAvailability(checkboxEl) {
         const token = localStorage.getItem('accessToken');
         const isReady = checkboxEl.checked;
         const availDesc = document.getElementById('status-availability-desc');
+
+        if (availDesc) {
+            availDesc.textContent = isReady 
+                ? 'Đang bật tìm việc · Hệ thống đang định vị GPS để NTD tìm thấy bạn' 
+                : 'Đang tắt tìm việc · Bạn tạm thời ẩn khỏi bản đồ tìm ứng viên';
+        }
+
+        if (isReady) {
+            localStorage.setItem('workerLocationTracking', 'true');
+            if (window.startGlobalWorkerLocationTracking) {
+                window.startGlobalWorkerLocationTracking();
+            }
+        } else {
+            localStorage.setItem('workerLocationTracking', 'false');
+            if (window.stopGlobalWorkerLocationTracking) {
+                window.stopGlobalWorkerLocationTracking();
+            }
+        }
 
         fetch(`${API_BASE_URL}/availability?availability=${isReady}`, {
             method: 'PATCH',
@@ -503,26 +470,41 @@ const API_BASE_URL = 'http://localhost:8083/api/v1/profile';
             .then(res => res.json())
             .then(data => {
                 if (data.code === 200) {
-                    if (availDesc) {
-                        availDesc.textContent = isReady 
-                            ? 'Đang bật tìm việc · Hệ thống đang định vị GPS để NTD tìm thấy bạn' 
-                            : 'Đang tắt tìm việc · Bạn tạm thời ẩn khỏi bản đồ tìm thợ';
-                    }
-                    if (isReady) {
-                        connectWebSocket();
-                    } else {
-                        disconnectWebSocket();
-                    }
+                    console.log(`Đã cập nhật trạng thái tìm việc: ${isReady}`);
                 } else {
                     alert('Lỗi cập nhật trạng thái: ' + data.message);
                     checkboxEl.checked = !isReady; // Revert
+                    const reverted = !isReady;
+                    localStorage.setItem('workerLocationTracking', reverted ? 'true' : 'false');
+                    if (reverted && window.startGlobalWorkerLocationTracking) {
+                        window.startGlobalWorkerLocationTracking();
+                    } else if (!reverted && window.stopGlobalWorkerLocationTracking) {
+                        window.stopGlobalWorkerLocationTracking();
+                    }
                 }
             })
             .catch(err => {
                 console.error(err);
                 checkboxEl.checked = !isReady;
+                const reverted = !isReady;
+                localStorage.setItem('workerLocationTracking', reverted ? 'true' : 'false');
+                if (reverted && window.startGlobalWorkerLocationTracking) {
+                    window.startGlobalWorkerLocationTracking();
+                } else if (!reverted && window.stopGlobalWorkerLocationTracking) {
+                    window.stopGlobalWorkerLocationTracking();
+                }
             });
     }
+
+    // Lắng nghe cập nhật tọa độ thời gian thực từ module GPS toàn cục
+    window.addEventListener('antgo:gps-updated', function (e) {
+        const toggle = document.getElementById('toggle-available');
+        const availDesc = document.getElementById('status-availability-desc');
+        if (toggle && toggle.checked && availDesc && e.detail) {
+            const { latitude, longitude } = e.detail;
+            availDesc.innerHTML = `<span style="color:var(--primary-orange);"><i class="ti ti-point-filled"></i> Đang bật tìm việc · Đã đồng bộ vị trí (${latitude.toFixed(4)}, ${longitude.toFixed(4)})</span>`;
+        }
+    });
 
     // 4. MỞ/ĐÓNG MODAL SỬA HỒ SƠ
     function openEditModal(targetSection = 'all') {
@@ -533,6 +515,9 @@ const API_BASE_URL = 'http://localhost:8083/api/v1/profile';
         document.getElementById('input-skills').value = currentProfileData.skills || '';
         document.getElementById('input-employer-name').value = currentProfileData.employerName || '';
         document.getElementById('input-tax-id').value = currentProfileData.taxId || '';
+
+        // Tải và hiển thị danh mục kỹ năng động
+        loadAndRenderSkillChips();
         
         // Đặt lại trạng thái Avatar trong Modal
         selectedAvatarFile = null;
@@ -581,20 +566,109 @@ const API_BASE_URL = 'http://localhost:8083/api/v1/profile';
         document.getElementById('edit-modal').style.display = 'none';
     }
 
-    // Hàm thêm gợi ý kỹ năng nhanh
-    function addSkillSuggestion(skillName) {
+    // ==========================================
+    // QUẢN LÝ DANH MỤC KỸ NĂNG ĐỘNG CHO ỨNG VIÊN
+    // ==========================================
+    function loadAndRenderSkillChips() {
+        const container = document.getElementById('quick-skills-container');
+        if (!container) return;
+
+        if (systemCategories.length > 0) {
+            renderSkillChips();
+            return;
+        }
+
+        const token = localStorage.getItem('accessToken');
+        fetch('/api/v1/category', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+        .then(res => res.json())
+        .then(res => {
+            const list = res.data || res || [];
+            if (Array.isArray(list)) {
+                systemCategories = list;
+                renderSkillChips();
+            }
+        })
+        .catch(err => {
+            console.error('Lỗi tải danh mục kỹ năng:', err);
+            container.innerHTML = '<span style="font-size:12px; color:var(--text-secondary); font-style:italic;">Không thể tải danh mục</span>';
+        });
+    }
+
+    function renderSkillChips() {
+        const container = document.getElementById('quick-skills-container');
+        if (!container) return;
+
+        if (systemCategories.length === 0) {
+            container.innerHTML = '<span style="font-size:12px; color:var(--text-secondary); font-style:italic;">Chưa có danh mục ngành nghề từ hệ thống</span>';
+            return;
+        }
+
+        const currentSkills = getCurrentSkillList();
+
+        container.innerHTML = systemCategories.map(cat => {
+            const catName = cat.name || cat.categoryName || '';
+            const isActive = currentSkills.some(s => s.toLowerCase() === catName.toLowerCase());
+            const activeClass = isActive ? ' active' : '';
+            const icon = isActive ? '<i class="ti ti-check" style="font-size:11px;"></i> ' : '+ ';
+            return `<button type="button" class="skill-chip-btn${activeClass}" data-skill="${escapeHtml(catName)}" onclick="toggleSkillChip('${escapeHtml(catName)}')">${icon}${escapeHtml(catName)}</button>`;
+        }).join('');
+    }
+
+    function getCurrentSkillList() {
+        const input = document.getElementById('input-skills');
+        if (!input || !input.value) return [];
+        return input.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+    }
+
+    function toggleSkillChip(skillName) {
         const input = document.getElementById('input-skills');
         if (!input) return;
-        let current = input.value.trim();
-        if (!current) {
-            input.value = skillName;
+
+        let skills = getCurrentSkillList();
+        const idx = skills.findIndex(s => s.toLowerCase() === skillName.toLowerCase());
+
+        if (idx >= 0) {
+            skills.splice(idx, 1);
         } else {
-            const parts = current.split(',').map(s => s.trim().toLowerCase());
-            if (!parts.includes(skillName.toLowerCase())) {
-                input.value = current + ', ' + skillName;
-            }
+            skills.push(skillName);
         }
+
+        input.value = skills.join(', ');
+        updateActiveSkillChips();
         input.focus();
+    }
+
+    function updateActiveSkillChips() {
+        const currentSkills = getCurrentSkillList();
+        const chips = document.querySelectorAll('#quick-skills-container .skill-chip-btn');
+
+        chips.forEach(chip => {
+            const skillName = chip.getAttribute('data-skill') || '';
+            const isActive = currentSkills.some(s => s.toLowerCase() === skillName.toLowerCase());
+            if (isActive) {
+                chip.classList.add('active');
+                chip.innerHTML = `<i class="ti ti-check" style="font-size:11px;"></i> ${escapeHtml(skillName)}`;
+            } else {
+                chip.classList.remove('active');
+                chip.innerHTML = `+ ${escapeHtml(skillName)}`;
+            }
+        });
+    }
+
+    function addSkillSuggestion(skillName) {
+        toggleSkillChip(skillName);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
     async function submitProfileUpdate() {
@@ -614,7 +688,7 @@ const API_BASE_URL = 'http://localhost:8083/api/v1/profile';
                 const formData = new FormData();
                 formData.append('file', selectedAvatarFile);
 
-                const uploadRes = await fetch('http://localhost:8083/api/v1/profile/avatar', {
+                const uploadRes = await fetch('/api/v1/profile/avatar', {
                     method: 'POST',
                     headers: { 'Authorization': 'Bearer ' + token },
                     body: formData
@@ -688,7 +762,7 @@ const API_BASE_URL = 'http://localhost:8083/api/v1/profile';
         let userId = localStorage.getItem('myUserId');
         if (!userId) {
             try {
-                const resMe = await fetch('http://localhost:8083/api/v1/messages/me', {
+                const resMe = await fetch('/api/v1/messages/me', {
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
                 const dataMe = await resMe.json();
@@ -707,7 +781,7 @@ const API_BASE_URL = 'http://localhost:8083/api/v1/profile';
         }
 
         try {
-            const res = await fetch(`http://localhost:8083/api/v1/review/user/${userId}`, {
+            const res = await fetch(`/api/v1/review/user/${userId}`, {
                 headers: { 'Authorization': 'Bearer ' + token }
             });
             const resData = await res.json();
@@ -808,7 +882,7 @@ const API_BASE_URL = 'http://localhost:8083/api/v1/profile';
             if (isWorker) {
                 subtitleEl.textContent = 'Phản hồi và chấm điểm từ các nhà tuyển dụng sau khi bạn hoàn thành ca làm việc';
             } else {
-                subtitleEl.textContent = 'Phản hồi và nhận xét từ các bạn thợ / ứng viên sau khi hoàn thành ca làm tại cơ sở của bạn';
+                subtitleEl.textContent = 'Phản hồi và nhận xét từ các bạn ứng viên sau khi hoàn thành ca làm tại cơ sở của bạn';
             }
         }
 

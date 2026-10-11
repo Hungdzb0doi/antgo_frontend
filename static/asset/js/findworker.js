@@ -11,7 +11,7 @@ const token = localStorage.getItem('accessToken');
     let map, centerMarker, radarCircle;
     let workerMarkers = {};
 
-    // BIẾN TOÀN CỤC LƯU TRỮ DATA CỦA THỢ ĐỂ HIỂN THỊ MODAL
+    // BIẾN TOÀN CỤC LƯU TRỮ DATA CỦA ỨNG VIÊN ĐỂ HIỂN THỊ MODAL
     let workerDataMap = {};
     let currentSelectedWorkerId = null;
 
@@ -22,7 +22,7 @@ const token = localStorage.getItem('accessToken');
             return;
         }
         if (currentMode !== 'EMPLOYER') {
-            alert("Trang tìm thợ chỉ dành cho Nhà tuyển dụng! Vui lòng chuyển vai trò trong trang Cá nhân.");
+            alert("Trang tìm ứng viên chỉ dành cho Nhà tuyển dụng! Vui lòng chuyển vai trò trong trang Cá nhân.");
             window.location.href = "/interface/manageapplication";
             return;
         }
@@ -69,7 +69,7 @@ const token = localStorage.getItem('accessToken');
         document.getElementById('scan-effect').style.display = 'block';
         document.getElementById('worker-list-container').innerHTML = `<div style="text-align: center; color: #94a3b8; margin-top: 20px;"><i class="ti ti-loader ti-spin" style="font-size: 24px;"></i><p>Đang dò tìm tín hiệu...</p></div>`;
 
-        fetch(`http://localhost:8083/api/v1/job/nearby?jobId=${jobId}&radiusInKm=${radiusKm}`, {
+        fetch(`/api/v1/job/nearby?jobId=${jobId}&radiusInKm=${radiusKm}`, {
             method: 'GET',
             headers: { 'Authorization': 'Bearer ' + token }
         })
@@ -80,13 +80,12 @@ const token = localStorage.getItem('accessToken');
                     throw new Error("401 Unauthorized");
                 }
                 if (res.status === 403) {
-                    alert("Bạn không có quyền tìm thợ cho công việc này (Yêu cầu vai trò Nhà tuyển dụng)!");
+                    alert("Bạn không có quyền tìm ứng viên cho công việc này (Yêu cầu vai trò Nhà tuyển dụng)!");
                     window.location.href = "/interface/managejob";
                     throw new Error("403 Forbidden");
                 }
                 return res.json();
             })
-            .then(res => res.json())
             .then(apiResponse => {
                 let workers = apiResponse.data || [];
                 document.getElementById('worker-count').innerText = workers.length;
@@ -98,16 +97,21 @@ const token = localStorage.getItem('accessToken');
                 renderWorkerList(workers);
 
                 workers.forEach(w => {
-                    let currentId = w.id || w.userId;
-                    workerDataMap[currentId] = w;
-                    drawWorkerOnMap(currentId, w.fullName, w.latitude, w.longitude, w.distance);
+                    let currentId = w.userId || w.id;
+                    if (currentId) {
+                        workerDataMap[currentId] = w;
+                        if (w.userId) workerDataMap[w.userId] = w;
+                        if (w.id) workerDataMap[w.id] = w;
+                        drawWorkerOnMap(currentId, w.fullName, w.latitude, w.longitude, w.distance);
+                    }
                 });
 
                 // Tắt hiệu ứng sóng Radar sau 1 giây
                 setTimeout(() => { document.getElementById('scan-effect').style.display = 'none'; }, 1000);
             })
             .catch(err => {
-                document.getElementById('worker-list-container').innerHTML = `<p style="color:red;text-align:center">Lỗi tải dữ liệu!</p>`;
+                console.error("Lỗi tải danh sách ứng viên:", err);
+                document.getElementById('worker-list-container').innerHTML = `<p style="color:var(--text-sub);text-align:center">Lỗi tải dữ liệu!</p>`;
                 setTimeout(() => { document.getElementById('scan-effect').style.display = 'none'; }, 1000);
             });
     }
@@ -115,7 +119,7 @@ const token = localStorage.getItem('accessToken');
     function renderWorkerList(workers) {
         const container = document.getElementById('worker-list-container');
         if (workers.length === 0) {
-            container.innerHTML = `<div style="text-align: center; color: #94a3b8; margin-top: 20px;">Không có thợ nào trong bán kính ${radiusKm}km!</div>`;
+            container.innerHTML = `<div style="text-align: center; color: #94a3b8; margin-top: 20px;">Không có ứng viên nào trong bán kính ${radiusKm}km!</div>`;
             return;
         }
 
@@ -123,11 +127,13 @@ const token = localStorage.getItem('accessToken');
         workers.forEach(worker => {
             let dist = worker.distance ? parseFloat(worker.distance).toFixed(2) : '0.00';
             let currentId = worker.id || worker.userId;
-            let avatar = worker.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(worker.fullName)}&background=random`;
+            let avatar = (typeof resolveAvatarUrl === 'function')
+                ? resolveAvatarUrl(worker.avatar, worker.fullName)
+                : (worker.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(worker.fullName)}&background=18181b&color=ff6600&size=128&bold=true`);
             let ratingText = worker.averageRating ? `${worker.averageRating}★ (${worker.reviewCount || 0})` : 'Mới (4.5★)';
             let repText = (worker.workerScore != null ? worker.workerScore : 100) + '/100đ';
             let topBadge = (worker.priorityScore && worker.priorityScore >= 94)
-                ? `<span style="background: #fef3c7; color: #b45309; font-size: 10.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px; border: 1px solid #fde68a;"><i class="ti ti-crown"></i> Top thợ</span>`
+                ? `<span style="background: #fef3c7; color: #b45309; font-size: 10.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px; border: 1px solid #fde68a;"><i class="ti ti-crown"></i> Top ứng viên</span>`
                 : '';
 
             let appliedBadge = worker.hasApplied
@@ -136,7 +142,7 @@ const token = localStorage.getItem('accessToken');
 
             html += `
                 <div class="worker-card" id="card-${currentId}" onclick="focusMarker('${currentId}')">
-                    <img src="${avatar}" class="worker-avatar">
+                    <img src="${avatar}" class="worker-avatar" onerror="if(typeof handleAvatarError === 'function') handleAvatarError(this, '${escapeQuote(worker.fullName)}');">
                     <div class="worker-info">
                         <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 2px;">
                             <h4 style="margin: 0;">${worker.fullName}</h4>
@@ -154,7 +160,7 @@ const token = localStorage.getItem('accessToken');
                     </div>
                     <div class="card-actions">
                         <button class="btn-action" style="background:#64748b; font-size:11px;" onclick="event.stopPropagation(); viewDetail('${currentId}')">Chi tiết</button>
-                        <button class="btn-action" style="background:#10b981;" onclick="event.stopPropagation(); invite('${currentId}')">Mời</button>
+                        <button class="btn-action btn-invite" style="background:var(--primary-orange); color:#ffffff;" onclick="event.stopPropagation(); invite('${currentId}')">Mời</button>
                     </div>
                 </div>
             `;
@@ -163,32 +169,59 @@ const token = localStorage.getItem('accessToken');
     }
 
     function connectRadarWebSocket() {
-        let socket = new SockJS('http://localhost:8083/ws');
+        let socket = new SockJS('/ws');
         let stompClient = Stomp.over(socket);
         stompClient.debug = null; // Tắt log debug cho mượt
 
         stompClient.connect({ 'Authorization': 'Bearer ' + token }, function (frame) {
             stompClient.subscribe('/topic/locationworker', function (message) {
                 let data = JSON.parse(message.body);
+                let currentId = data.workerId || data.id || data.userId;
+                if (!currentId) return;
 
                 let workerLatLng = L.latLng(data.latitude, data.longitude);
                 let jobLatLng = L.latLng(jobLat, jobLng);
                 let realTimeDist = (workerLatLng.distanceTo(jobLatLng) / 1000).toFixed(2);
 
-                if(workerDataMap[data.id]) {
-                    workerDataMap[data.id].latitude = data.latitude;
-                    workerDataMap[data.id].longitude = data.longitude;
-                    workerDataMap[data.id].distance = realTimeDist;
+                if (workerDataMap[currentId]) {
+                    workerDataMap[currentId].latitude = data.latitude;
+                    workerDataMap[currentId].longitude = data.longitude;
+                    workerDataMap[currentId].distance = realTimeDist;
+                    if (data.fullName) workerDataMap[currentId].fullName = data.fullName;
+                } else {
+                    workerDataMap[currentId] = {
+                        id: currentId,
+                        userId: currentId,
+                        fullName: data.fullName || 'Ứng viên',
+                        latitude: data.latitude,
+                        longitude: data.longitude,
+                        distance: realTimeDist,
+                        avatar: data.avatar || null,
+                        skills: data.skills || null,
+                        phone: data.phone || null,
+                        email: data.email || null,
+                        workerScore: 100,
+                        identityVerified: false
+                    };
+                    // Tự động quét lại danh sách để đồng bộ đầy đủ hồ sơ mới xuất hiện
+                    if (!window._reloadNearbyTimeout) {
+                        window._reloadNearbyTimeout = setTimeout(() => {
+                            window._reloadNearbyTimeout = null;
+                            loadInitialWorkers();
+                        }, 2000);
+                    }
                 }
 
-                drawWorkerOnMap(data.id, data.fullName, data.latitude, data.longitude, realTimeDist);
+                drawWorkerOnMap(currentId, data.fullName, data.latitude, data.longitude, realTimeDist);
             });
         });
     }
 
     function drawWorkerOnMap(id, name, lat, lng, distance) {
         let distText = distance ? distance + ' km' : 'Đang cập nhật...';
-        let avatar = workerDataMap[id]?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
+        let avatar = (typeof resolveAvatarUrl === 'function')
+            ? resolveAvatarUrl(workerDataMap[id]?.avatar, name)
+            : (workerDataMap[id]?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=18181b&color=ff6600&size=128&bold=true`);
         let isApplied = workerDataMap[id]?.hasApplied;
 
         let appliedTag = isApplied 
@@ -197,19 +230,19 @@ const token = localStorage.getItem('accessToken');
 
         let popupContent = `
             <div style="text-align: center; min-width: 140px; font-family: sans-serif;">
-                <img src="${avatar}" style="width:40px; height:40px; border-radius:50%; margin-bottom:6px; object-fit:cover;"><br>
+                <img src="${avatar}" style="width:40px; height:40px; border-radius:50%; margin-bottom:6px; object-fit:cover;" onerror="if(typeof handleAvatarError === 'function') handleAvatarError(this, '${escapeQuote(name)}');"><br>
                 ${appliedTag}
                 <h4 style="margin: 0 0 4px; font-size: 14px;">${name}</h4>
                 <p style="margin: 0 0 10px; font-size: 12px; color: #64748b;"><i class="ti ti-map-pin"></i> Cách ${distText}</p>
                 <div style="display:flex; justify-content:center; gap:6px;">
                     <button class="btn-action" style="padding: 4px 8px; font-size: 11px; background:#64748b;" onclick="viewDetail('${id}')">Chi tiết</button>
-                    <button class="btn-action" style="padding: 4px 8px; font-size: 11px; background:#10b981;" onclick="invite('${id}')">Mời</button>
+                    <button class="btn-action btn-invite" style="padding: 4px 8px; font-size: 11px; background:var(--primary-orange); color:#ffffff;" onclick="invite('${id}')">Mời</button>
                 </div>
             </div>
         `;
         let iconUrl = isApplied 
-            ? 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png'
-            : 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png';
+            ? 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png'
+            : 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png';
 
         let customIcon = L.icon({
             iconUrl: iconUrl,
@@ -240,14 +273,24 @@ const token = localStorage.getItem('accessToken');
     // HIỂN THỊ MODAL CHI TIẾT
     function viewDetail(workerId) {
         let worker = workerDataMap[workerId];
+        if (!worker) {
+            for (let k in workerDataMap) {
+                if (workerDataMap[k].userId === workerId || workerDataMap[k].id === workerId) {
+                    worker = workerDataMap[k];
+                    break;
+                }
+            }
+        }
         if(!worker) {
-            alert("Đang tải dữ liệu thợ, vui lòng thử lại sau!");
+            alert("Đang tải dữ liệu ứng viên, vui lòng thử lại sau!");
             return;
         }
 
-        currentSelectedWorkerId = workerId;
+        currentSelectedWorkerId = worker.userId || worker.id || workerId;
 
-        let avatar = worker.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(worker.fullName)}&background=random`;
+        let avatar = (typeof resolveAvatarUrl === 'function')
+            ? resolveAvatarUrl(worker.avatar, worker.fullName)
+            : (worker.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(worker.fullName)}&background=18181b&color=ff6600&size=128&bold=true`);
         let verifiedBadge = worker.identityVerified
             ? `<span class="badge-verified"><i class="ti ti-discount-check-filled"></i> Đã xác thực CCCD</span>`
             : `<span class="badge-unverified"><i class="ti ti-alert-circle"></i> Chưa xác thực</span>`;
@@ -259,7 +302,7 @@ const token = localStorage.getItem('accessToken');
 
         let html = `
             <div class="profile-header">
-                <img src="${avatar}" class="profile-avatar">
+                <img src="${avatar}" class="profile-avatar" onerror="if(typeof handleAvatarError === 'function') handleAvatarError(this, '${escapeQuote(worker.fullName)}');">
                 <div>
                     <h3 style="margin: 0 0 6px; font-size: 18px;">${worker.fullName}</h3>
                     ${verifiedBadge}
@@ -278,7 +321,7 @@ const token = localStorage.getItem('accessToken');
             </div>
             <div class="detail-row">
                 <span class="detail-icon" style="color: #f59e0b; font-size: 22px; line-height: 1;">★</span>
-                <div><b>Đánh giá khách hàng:</b><br>${worker.averageRating ? `${worker.averageRating} / 5.0 ⭐ (${worker.reviewCount || 0} lượt đánh giá)` : '<span style="color:#64748b;">Chưa có đánh giá (Thợ mới)</span>'}</div>
+                <div><b>Đánh giá khách hàng:</b><br>${worker.averageRating ? `${worker.averageRating} / 5.0 ⭐ (${worker.reviewCount || 0} lượt đánh giá)` : '<span style="color:#64748b;">Chưa có đánh giá (Ứng viên mới)</span>'}</div>
             </div>
             <div class="detail-row">
                 <i class="ti ti-shield-check detail-icon" style="color: #0284c7;"></i>
@@ -307,11 +350,11 @@ const token = localStorage.getItem('accessToken');
         }
     }
 
-    // GỌI API MỜI THỢ
+    // GỌI API MỜI ỨNG VIÊN
     function invite(workerId) {
         if (!confirm("Bạn có chắc chắn muốn mời ứng viên này làm việc?")) return;
 
-        const apiUrl = `http://localhost:8083/api/v1/job/invitation?workerId=${workerId}&jobId=${jobId}`;
+        const apiUrl = `/api/v1/job/invitation?workerId=${workerId}&jobId=${jobId}`;
 
         fetch(apiUrl, {
             method: 'POST',
@@ -321,7 +364,7 @@ const token = localStorage.getItem('accessToken');
         })
             .then(res => {
                 if (res.status === 403) {
-                    alert("Bạn không có quyền mời thợ cho công việc này (Yêu cầu vai trò Nhà tuyển dụng và là chủ công việc)!");
+                    alert("Bạn không có quyền mời ứng viên cho công việc này (Yêu cầu vai trò Nhà tuyển dụng và là chủ công việc)!");
                     throw new Error("403 Forbidden");
                 }
                 return res.json();
@@ -330,7 +373,7 @@ const token = localStorage.getItem('accessToken');
                 if (data.code === 201 || data.code === 200) {
                     alert("Đã gửi lời mời thành công!");
 
-                    let cardBtn = document.querySelector(`#card-${workerId} button.btn-action[style*="background:#10b981"]`);
+                    let cardBtn = document.querySelector(`#card-${workerId} button.btn-invite`) || document.querySelector(`#card-${workerId} button.btn-action[style*="background:var(--primary-orange)"]`);
                     if (cardBtn) {
                         cardBtn.innerText = "Đã mời";
                         cardBtn.style.background = "#94a3b8";

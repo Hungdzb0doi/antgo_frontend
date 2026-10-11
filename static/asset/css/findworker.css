@@ -96,9 +96,9 @@
             background: var(--primary-hover) !important;
         }
         .nav-btn-logout:hover {
-            background: rgba(239, 68, 68, 0.22) !important;
-            color: #fca5a5 !important;
-            border-color: rgba(239, 68, 68, 0.4) !important;
+            background: rgba(255, 102, 0, 0.22) !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 102, 0, 0.4) !important;
             transform: translateY(-1px);
         }
 
@@ -192,19 +192,96 @@
         .profile-header { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; }
         .profile-avatar { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); flex-shrink: 0; }
         .badge-verified {
-            background: #dcfce7; color: #166534; padding: 4px 8px;
+            background: var(--primary-light); color: var(--primary-orange); border: 1px solid #fed7aa; padding: 4px 8px;
             border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;
         }
         .badge-unverified {
-            background: #fee2e2; color: #991b1b; padding: 4px 8px;
+            background: var(--bg-light); color: var(--black-sub); border: 1px solid var(--border-line); padding: 4px 8px;
             border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;
         }
         .detail-row { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
         .detail-icon { color: var(--primary); font-size: 18px; width: 20px; text-align: center; margin-top: 2px; }
 
-        /* Responsive Mobile */
+        /* RESPONSIVE BREAKPOINTS */
         @media (max-width: 768px) {
-            .main-content { flex-direction: column; }
-            .sidebar { max-width: 100%; border-left: none; border-top: 1px solid var(--border); flex: 1; }
-            .map-container { flex: 1; min-height: 40vh; }
+            .app-header {
+                padding: 10px 14px;
+                gap: 8px;
+            }
+            .header-brand {
+                font-size: 17px;
+            }
+            .header-brand-icon-img {
+                width: 26px; height: 26px;
+            }
+            .header-nav {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                max-width: 100%;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                gap: 6px;
+                padding-bottom: 2px;
+            }
+            .header-nav::-webkit-scrollbar { display: none; }
+            .nav-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .main-content { 
+                flex-direction: column; 
+            }
+            .map-container { 
+                height: 38vh; 
+                min-height: 180px; 
+                flex: none; 
+            }
+            .sidebar { 
+                max-width: 100%; 
+                min-width: 0; 
+                border-left: none; 
+                border-top: 1px solid var(--border); 
+                flex: 1; 
+                min-height: 0;
+            }
+            .sidebar-header {
+                padding: 10px 14px;
+                gap: 8px;
+            }
+            .worker-list {
+                padding: 10px 12px;
+                gap: 8px;
+            }
+            .worker-card {
+                padding: 10px 12px;
+                gap: 10px;
+            }
+            .modal-content {
+                width: 95% !important;
+                max-width: 95% !important;
+                max-height: 85vh;
+                border-radius: 12px;
+            }
+            .modal-body {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .map-container {
+                height: 34vh;
+            }
+            .worker-info h4 {
+                font-size: 13.5px;
+            }
+            .worker-info p {
+                font-size: 11.5px;
+            }
+            .btn-action {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
         }

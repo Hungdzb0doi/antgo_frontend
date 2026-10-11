@@ -15,7 +15,7 @@
             --text-main: var(--black-main);
             --text-sub: var(--black-sub);
             --border: var(--border-line);
-            --success-color: #10b981;
+            --success-color: var(--primary-orange);
         }
         body, html {
             margin: 0; padding: 0; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -99,15 +99,63 @@
             background: var(--primary-hover) !important;
         }
         .nav-btn-logout:hover {
-            background: rgba(239, 68, 68, 0.22) !important;
-            color: #fca5a5 !important;
-            border-color: rgba(239, 68, 68, 0.4) !important;
+            background: rgba(255, 102, 0, 0.22) !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 102, 0, 0.4) !important;
             transform: translateY(-1px);
         }
 
+        /* NÚT QUAY LẠI */
+        .btn-back-circle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 1px solid var(--border-line);
+            color: var(--black-main);
+            font-size: 18px;
+            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .btn-back-circle:hover {
+            background: var(--primary-orange);
+            border-color: var(--primary-orange);
+            color: #ffffff;
+            transform: scale(1.08);
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.3);
+        }
+        .btn-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-sub);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: #ffffff;
+            border: 1px solid var(--border-line);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            margin-bottom: 16px;
+        }
+        .btn-back-link:hover {
+            color: var(--primary-orange);
+            border-color: var(--primary-orange);
+            background: var(--primary-light);
+            transform: translateX(-3px);
+        }
+
         /* CONTAINER */
-        .container { max-width: 760px; margin: 0 auto; width: 100%; padding: 32px 20px; flex: 1; }
-        .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; }
+        .container { max-width: 760px; margin: 0 auto; width: 100%; padding: 24px 20px; flex: 1; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .section-title { font-size: 22px; font-weight: 700; margin: 0; }
         .section-subtitle { color: var(--text-sub); font-size: 14px; }
 
@@ -189,10 +237,90 @@
         .detail-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .detail-icon { color: var(--text-sub); font-size: 20px; width: 24px; margin-top: 2px;}
 
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 10px 14px;
+                gap: 8px;
+            }
+            .header-brand {
+                font-size: 17px;
+            }
+            .header-brand-icon-img {
+                width: 26px; height: 26px;
+            }
+            #page-job-title {
+                max-width: 160px !important;
+                font-size: 14px !important;
+            }
+            .header-nav {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                max-width: 100%;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                gap: 6px;
+                padding-bottom: 2px;
+            }
+            .header-nav::-webkit-scrollbar { display: none; }
+            .nav-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .container {
+                padding: 16px 12px;
+            }
+            .section-header {
+                margin-bottom: 16px;
+            }
+            .section-title {
+                font-size: 18px;
+            }
+
+            .modal-content {
+                width: 95% !important;
+                max-width: 95% !important;
+                max-height: 90vh;
+                overflow-y: auto;
+                border-radius: 14px;
+            }
+            .modal-body {
+                padding: 16px;
+            }
+            .modal-header {
+                padding: 14px 16px;
+            }
+        }
+
         @media (max-width: 600px) {
-            .app-card { flex-direction: column; align-items: flex-start; gap: 16px; }
-            .card-actions { flex-direction: row; width: 100%; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 16px; }
-            .btn { flex: 1; }
+            .app-card { 
+                flex-direction: column; 
+                align-items: stretch; 
+                gap: 12px; 
+                padding: 14px;
+            }
+            .worker-avatar {
+                width: 52px;
+                height: 52px;
+            }
+            .card-actions { 
+                flex-direction: column; 
+                width: 100%; 
+                border-top: 1px solid var(--border); 
+                padding-top: 12px; 
+                gap: 6px;
+                margin-left: 0;
+            }
+            .card-actions .btn { 
+                width: 100%; 
+                min-height: 38px;
+            }
+            .info-tags {
+                gap: 10px;
+                font-size: 12px;
+            }
         }
 
         /* NÚT FLAG KHIẾU NẠI */
@@ -211,9 +339,9 @@
             line-height: 1;
         }
         .btn-report-flag:hover {
-            color: var();
-            background: #fef2f2;
-            border-color: #fca5a5;
+            color: var(--primary-orange);
+            background: var(--primary-light);
+            border-color: var(--primary-orange);
         }
 
         /* STAR RATING TRONG MODAL */
@@ -256,3 +384,51 @@
             font-size: 13.5px; font-family: inherit; color: var(--text-main); background: #fff; box-sizing: border-box;
         }
         .form-control:focus { outline: none; border-color: var(--primary); }
+
+        /* TABS CHO DUYỆT ĐƠN / LỜI MỜI */
+        .app-tabs {
+            display: flex;
+            gap: 6px;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .app-tabs .tab-btn {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+        }
+        .app-tabs .tab-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.6);
+        }
+        .app-tabs .tab-btn.active {
+            background: #ffffff;
+            color: var(--primary-orange);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        }
+        .app-tabs .tab-badge {
+            font-size: 11px;
+            padding: 1px 7px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.06);
+            color: inherit;
+            font-weight: 700;
+        }
+        .app-tabs .tab-btn.active .tab-badge {
+            background: var(--primary-light);
+            color: var(--primary-orange);
+        }

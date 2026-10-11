@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Xác thực eKYC · AntGo</title>
+    <script src="/asset/js/auth-guard.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="/asset/css/identify.css">
 </head>
@@ -14,8 +15,8 @@
 </nav>
 
 <div class="page">
-    <div style="background:var(--surface-1);border-radius:12px;padding:56px 24px;display:flex;justify-content:center;box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-        <div style="max-width:440px;width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:40px 36px">
+    <div class="kyc-wrapper">
+        <div class="kyc-card">
 
             <div style="display:flex;gap:6px;margin-bottom:28px">
                 <div id="kd-1" style="flex:1;height:4px;border-radius:2px;background:var(--fill-primary);transition:background 0.3s"></div>
@@ -107,6 +108,7 @@
 <!-- Thẻ Canvas ẩn để cắt ảnh từ Video -->
 <canvas id="canvas" style="display:none;"></canvas>
 
+<script src="/asset/js/avatar-util.js"></script>
 <script src="/asset/js/identify.js"></script>
 <script src="/asset/js/notification.js"></script>
 <script src="/asset/js/chat.js"></script>

@@ -10,8 +10,8 @@
 
             /* Ánh xạ biến thương hiệu AntGo */
             --primary: var(--primary-orange);
-            --success: #10b981;
-            --danger: #ef4444;
+            --success: var(--primary-orange);
+            --danger: #71717a;
             --warning: var(--primary-orange);
             --bg: var(--bg-light);
             --surface: var(--white-surface);
@@ -53,9 +53,9 @@
             background: var(--primary-hover) !important;
         }
         .nav-btn-logout:hover {
-            background: rgba(239, 68, 68, 0.22) !important;
-            color: #fca5a5 !important;
-            border-color: rgba(239, 68, 68, 0.4) !important;
+            background: rgba(255, 102, 0, 0.22) !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 102, 0, 0.4) !important;
             transform: translateY(-1px);
         }
 
@@ -100,15 +100,15 @@
         .badge {
             padding: 4px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;
         }
-        .badge.invitation { background: #e0f2fe; color: #0369a1; }
-        .badge.application { background: var(--primary-light); color: var(--primary-hover); }
-        .badge.booked { background: #dcfce7; color: #166534; }
-        .badge.inprogress { background: var(--primary-light); color: var(--primary-hover); border: 1px solid #fed7aa; }
+        .badge.invitation { background: #f4f4f5; color: var(--black-main); border: 1px solid var(--border-line); }
+        .badge.application { background: var(--primary-light); color: var(--primary-orange); border: 1px solid #fed7aa; }
+        .badge.booked { background: var(--primary-light); color: var(--primary-orange); border: 1px solid #fed7aa; }
+        .badge.inprogress { background: var(--primary-light); color: var(--primary-orange); border: 1px solid #fed7aa; }
 
-        /* Badges cho Tab Lịch sử */
-        .badge.completed { background: #dcfce7; color: #166534; }
-        .badge.cancelled { background: #f1f5f9; color: #64748b; }
-        .badge.noshow { background: #fee2e2; color: #991b1b; }
+        /* Badges cho Tab Lịch sử (Chuẩn Đen - Cam - Trắng) */
+        .badge.completed { background: var(--black-main); color: #ffffff; border: 1px solid var(--black-main); }
+        .badge.cancelled { background: #f4f4f5; color: #71717a; border: 1px solid #e4e4e7; }
+        .badge.noshow { background: var(--black-main); color: #ffffff; border: 1px solid var(--black-main); }
 
         .job-details {
             background: #fafafa; padding: 14px; border-radius: 10px;
@@ -162,10 +162,10 @@
             box-shadow: 0 2px 6px rgba(255, 102, 0, 0.15);
         }
         .btn-reject {
-            background: #f4f4f5; color: var(--danger); border: 1px solid var(--border-line);
+            background: #f4f4f5; color: var(--black-sub); border: 1px solid var(--border-line);
         }
         .btn-reject:hover {
-            background: #fee2e2; border-color: #fca5a5;
+            background: #e4e4e7; border-color: #d4d4d8; color: var(--black-main);
         }
         .btn-warning {
             background: var(--primary-orange); color: white;
@@ -199,7 +199,7 @@
         }
         .search-box:focus-within {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+            box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.12);
         }
         .search-box .search-icon {
             color: var(--text-sub);
@@ -285,16 +285,16 @@
             line-height: 1;
         }
         .btn-report-flag:hover {
-            color: var(--danger);
-            background: #fef2f2;
-            border-color: #fca5a5;
+            color: var(--primary-orange);
+            background: var(--primary-light);
+            border-color: var(--primary-orange);
         }
 
         /* BADGE KHIẾU NẠI */
         .badge.dispute {
-            background: #fee2e2;
-            color: #b91c1c;
-            border: 1px solid #fca5a5;
+            background: var(--black-main);
+            color: #ffffff;
+            border: 1px solid var(--black-main);
         }
 
         /* STAR RATING TRONG MODAL ĐÁNH GIÁ */
@@ -399,8 +399,8 @@
             transition: all 0.2s;
         }
         #mapModal .close-btn:hover {
-            background: #fee2e2;
-            color: var(--danger);
+            background: var(--primary-light);
+            color: var(--primary-orange);
         }
         #mapModal .modal-route-info {
             padding: 10px 18px;
@@ -426,4 +426,86 @@
             align-items: center;
             justify-content: space-between;
             gap: 12px;
+        }
+
+        /* RESPONSIVE BREAKPOINTS */
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 14px;
+                gap: 8px;
+            }
+            .header h1 {
+                font-size: 16px;
+            }
+            .header > div[style*="display: flex"],
+            .header > div[style*="display:flex"] {
+                overflow-x: auto;
+                flex-wrap: nowrap !important;
+                max-width: 100%;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                gap: 6px !important;
+                padding-bottom: 2px;
+            }
+            .header > div::-webkit-scrollbar { display: none; }
+            .nav-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .tabs {
+                padding: 0 4px;
+            }
+            .tab-btn {
+                padding: 10px 10px;
+                font-size: 12px;
+                min-width: 74px;
+            }
+
+            .job-list {
+                padding: 12px 10px 40px;
+            }
+            .job-card {
+                padding: 14px 14px;
+                border-radius: 12px;
+            }
+            .job-header {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .job-title {
+                font-size: 15px;
+            }
+
+            #modalMapCanvas {
+                height: 300px;
+            }
+            .modal-content {
+                width: 95% !important;
+                max-width: 95% !important;
+                border-radius: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tab-btn {
+                padding: 8px 6px;
+                font-size: 11.5px;
+                min-width: 65px;
+            }
+            .job-actions-primary, 
+            .job-actions-secondary {
+                flex-direction: column;
+            }
+            .job-actions .btn {
+                width: 100%;
+            }
+            #modalMapCanvas {
+                height: 240px;
+            }
+            .detail-row {
+                font-size: 12px;
+            }
         }

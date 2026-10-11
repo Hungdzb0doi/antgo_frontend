@@ -34,7 +34,7 @@ const token = localStorage.getItem('accessToken');
         function markAsRead(notif) {
             if (!notif || notif.isRead || !token) return;
             notif.isRead = true;
-            fetch(`http://localhost:8083/api/v1/notification/${notif.id}`, {
+            fetch(`/api/v1/notification/${notif.id}`, {
                 method: 'PUT',
                 headers: { 'Authorization': 'Bearer ' + token }
             }).catch(() => {});
@@ -179,7 +179,7 @@ const token = localStorage.getItem('accessToken');
             }
 
             try {
-                const res = await fetch('http://localhost:8083/api/v1/notification', {
+                const res = await fetch('/api/v1/notification', {
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
                 if (res.status === 401) {

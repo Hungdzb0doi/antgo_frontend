@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AntGo - Nền Tảng Kết Nối Việc Làm & Nhân Lực Tức Thì Thời Gian Thực</title>
+    <meta name="description" content="Dò tìm việc làm ca kíp và ứng viên thời vụ theo bán kính GPS thực tế. Điểm danh QR thông minh, hệ thống đánh giá uy tín minh bạch.">
+    <link rel="icon" type="image/svg+xml" href="/asset/antgo-icon.svg">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Tabler Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.36.0/tabler-icons.min.css">
+
+    <!-- Landing Page CSS -->
+    <link rel="stylesheet" href="/asset/css/landing.css">
+
+    <!-- Anti-Flash Theme Initializer -->
+    <script>
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('antgo_theme');
+                const systemPrefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+                const theme = savedTheme ? savedTheme : (systemPrefersLight ? 'light' : 'dark');
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+</head>
+<body>
+
+    <!-- ================= 1. HEADER / NAVBAR ================= -->
+    <header class="landing-header">
+        <div class="container">
+            <nav class="navbar">
+                <!-- Brand Logo -->
+                <a href="/" class="brand-logo">
+                    <img src="/asset/antgo-icon.svg" alt="AntGo Logo">
+                    <span class="brand-name">Ant<span>Go</span></span>
+                </a>
+
+                <!-- Desktop Navigation Links -->
+                <ul class="nav-links">
+                    <li><a href="#features">Tính năng</a></li>
+                    <li><a href="#radar-simulator">Radar thực tế</a></li>
+                    <li><a href="#user-guide">Hướng dẫn</a></li>
+                    <li><a href="#categories">Ngành nghề</a></li>
+                    <li><a href="#testimonials">Đánh giá</a></li>
+                    <li><a href="#faq">Hỏi đáp</a></li>
+                    <li><a href="#admin-support">Liên hệ Admin</a></li>
+                </ul>
+
+                <!-- Right Controls: Theme Switcher & Auth Actions -->
+                <div class="nav-controls">
+                    <!-- Theme Toggle Button -->
+                    <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Chuyển chế độ Giao diện Sáng / Tối" title="Chuyển chế độ Sáng / Tối">
+                        <i class="ti ti-sun icon-sun"></i>
+                        <i class="ti ti-moon icon-moon"></i>
+                    </button>
+
+                    <!-- Action Buttons / Auth Adaptive -->
+                    <div class="nav-actions" id="header-auth-actions">
+                        <a href="/interface/authentication" class="btn btn-glass btn-sm">Đăng nhập</a>
+                        <a href="/interface/authentication?mode=register" class="btn btn-primary btn-sm">
+                            <span>Bắt đầu ngay</span>
+                            <i class="ti ti-arrow-right btn-icon-right"></i>
+                        </a>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <button class="nav-menu-toggle" aria-label="Mở Menu">
+                        <i class="ti ti-menu-2"></i>
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ================= 2. HERO SECTION ================= -->
+    <section class="hero-section">
+        <div class="hero-glow-bg"></div>
+        <div class="hero-grid-pattern"></div>
+        <div class="container">
+            <div class="hero-content">
+                <!-- Badge Announcement -->
+                <div class="badge-pill">
+                    <span class="pulse-dot"></span>
+                    <span>Thế hệ 2.0 · Định vị GPS & Check-in QR thông minh</span>
+                </div>
+
+                <!-- Headline -->
+                <h1 class="hero-title">
+                    Kết nối việc làm & nhân lực <br>
+                    <span class="text-gradient">tức thì gần bạn nhất.</span>
+                </h1>
+
+                <!-- Subheadline -->
+                <p class="hero-description">
+                    Dò tìm việc làm ca kíp và thợ thời vụ chỉ trong vài phút theo bán kính GPS thực tế. 
+                    Điểm danh chấm công mã QR chuẩn xác, thanh toán minh bạch, đánh giá uy tín hai chiều.
+                </p>
+
+                <!-- Dual CTA -->
+                <div class="hero-cta-group">
+                    <a href="/interface/authentication?mode=register" class="btn btn-primary" id="hero-cta-worker">
+                        <i class="ti ti-compass"></i>
+                        <span>Tìm việc làm quanh đây</span>
+                        <i class="ti ti-arrow-right btn-icon-right"></i>
+                    </a>
+                    <a href="/interface/authentication?role=employer" class="btn btn-glass" id="hero-cta-employer">
+                        <i class="ti ti-plus"></i>
+                        <span>Đăng tin tuyển dụng</span>
+                    </a>
+                </div>
+
+                <!-- Social Proof -->
+                <div class="hero-social-proof">
+                    <div class="avatar-stack">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Ứng viên">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" alt="Ứng viên">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80" alt="Ứng viên">
+                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80" alt="Ứng viên">
+                    </div>
+                    <div>
+                        <div class="stars">★★★★★</div>
+                        <span><strong>50,000+</strong> đối tác & ứng viên tin dùng trên toàn quốc</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Interactive Mockup -->
+            <div class="hero-preview">
+                <div class="radar-mockup-frame">
+                    <div class="mockup-topbar">
+                        <div class="mockup-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div class="mockup-address">
+                            <i class="ti ti-radar"></i>
+                            <span>antgo.vn/radar · Quét trực tiếp thời gian thực</span>
+                        </div>
+                        <div style="font-size: 12px; color: #10B981; font-weight: 600;">
+                            <i class="ti ti-point-filled"></i> GPS Online
+                        </div>
+                    </div>
+
+                    <div class="mockup-content">
+                        <!-- Left: Radar Sonar Map -->
+                        <div class="mockup-radar-view">
+                            <div class="radar-map-bg"></div>
+                            
+                            <div class="radar-circles-container">
+                                <div class="radar-circle-ring"></div>
+                                <div class="radar-circle-ring"></div>
+                                <div class="radar-circle-ring"></div>
+                                <div class="radar-sweep"></div>
+                                
+                                <div class="radar-center-hub" title="Vị trí của bạn / Doanh nghiệp">
+                                    <i class="ti ti-building"></i>
+                                </div>
+                            </div>
+
+                            <!-- Floating Worker Pins -->
+                            <div class="radar-floating-worker pin-1">
+                                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Ngọc Lan">
+                                <div class="info">
+                                    <h6>Ngọc Lan · Thu ngân</h6>
+                                    <p>Cách 0.8 km · 4.9★</p>
+                                </div>
+                            </div>
+
+                            <div class="radar-floating-worker pin-2">
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" alt="Minh Tuấn">
+                                <div class="info">
+                                    <h6>Minh Tuấn · Phục vụ</h6>
+                                    <p>Cách 1.2 km · 98đ uy tín</p>
+                                </div>
+                            </div>
+
+                            <div class="radar-floating-worker pin-3">
+                                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80" alt="Hoàng Nam">
+                                <div class="info">
+                                    <h6>Hoàng Nam · Pha chế</h6>
+                                    <p>Cách 1.9 km · Sẵn sàng</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Live Mini Feed -->
+                        <div class="mockup-side-panel">
+                            <div class="side-panel-header">
+                                <h5>Ứng viên gần bạn (6)</h5>
+                                <span>Bán kính 3 km</span>
+                            </div>
+
+                            <div class="mini-worker-card">
+                                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Ngọc Lan">
+                                <div class="mini-worker-info">
+                                    <h6>Ngọc Lan</h6>
+                                    <p><span class="text-orange">★ 4.9</span> · Cách 0.8 km</p>
+                                </div>
+                                <div class="mini-worker-action">
+                                    <button onclick="window.location.href='/interface/authentication?role=employer'">Mời ca</button>
+                                </div>
+                            </div>
+
+                            <div class="mini-worker-card">
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" alt="Minh Tuấn">
+                                <div class="mini-worker-info">
+                                    <h6>Minh Tuấn</h6>
+                                    <p><span class="text-orange">★ 5.0</span> · Cách 1.2 km</p>
+                                </div>
+                                <div class="mini-worker-action">
+                                    <button onclick="window.location.href='/interface/authentication?role=employer'">Mời ca</button>
+                                </div>
+                            </div>
+
+                            <div class="mini-worker-card">
+                                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80" alt="Hoàng Nam">
+                                <div class="mini-worker-info">
+                                    <h6>Hoàng Nam</h6>
+                                    <p><span class="text-orange">★ 4.8</span> · Cách 1.9 km</p>
+                                </div>
+                                <div class="mini-worker-action">
+                                    <button onclick="window.location.href='/interface/authentication?role=employer'">Mời ca</button>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: auto; text-align: center;">
+                                <a href="/interface/authentication?role=employer" class="btn btn-glass btn-sm" style="width: 100%;">
+                                    <span>Mở đầy đủ radar quét</span>
+                                    <i class="ti ti-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 3. STATS BAR ================= -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>50,000<span>+</span></h3>
+                    <p>Ứng viên sẵn sàng nhận việc</p>
+                </div>
+                <div class="stat-item">
+                    <h3>15,000<span>+</span></h3>
+                    <p>Cửa hàng & Doanh nghiệp</p>
+                </div>
+                <div class="stat-item">
+                    <h3>&lt; 10 <span>phút</span></h3>
+                    <p>Thời gian trung bình ghép ca</p>
+                </div>
+                <div class="stat-item">
+                    <h3>99.2<span>%</span></h3>
+                    <p>Tỉ lệ hoàn thành ca làm hài lòng</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 4. LIVE INTERACTIVE RADAR SIMULATOR ================= -->
+    <section class="simulator-section" id="radar-simulator">
+        <div class="container">
+            <div class="section-head">
+                <div class="badge-pill">
+                    <i class="ti ti-adjustments-horizontal"></i>
+                    <span>Trải nghiệm thực tế</span>
+                </div>
+                <h2>Khám phá việc làm & nhân lực quanh bạn</h2>
+                <p>Kéo thanh trượt điều chỉnh bán kính để xem mật độ việc làm và ứng viên có sẵn trong khu vực của bạn.</p>
+            </div>
+
+            <div class="sim-box">
+                <div class="sim-controls">
+                    <div class="sim-slider-group">
+                        <label for="sim-slider"><i class="ti ti-map-pin"></i> Bán kính quét:</label>
+                        <input type="range" class="sim-slider" id="sim-slider" min="1" max="20" step="1" value="5">
+                        <div class="sim-radius-val" id="sim-radius-val">5 km</div>
+                    </div>
+
+                    <div class="sim-metrics">
+                        <div class="sim-metric-badge">
+                            <div class="num text-orange" id="sim-worker-count">42</div>
+                            <div class="lbl">Ứng viên trực tuyến</div>
+                        </div>
+                        <div class="sim-metric-badge">
+                            <div class="num" id="sim-job-count">18</div>
+                            <div class="lbl">Ca làm đang tuyển</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Sample Cards -->
+                <div class="sim-cards-grid" id="sim-cards-grid">
+                    <!-- Cards will be populated dynamically by landing.js -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 5. BENTO GRID FEATURES ================= -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <div class="section-head">
+                <div class="badge-pill">
+                    <i class="ti ti-sparkles"></i>
+                    <span>Tính năng cốt lõi</span>
+                </div>
+                <h2>Công nghệ đột phá cho thị trường lao động tức thì</h2>
+                <p>AntGo giải quyết bài toán tuyển dụng thiếu hụt nhân sự đột xuất và tìm việc làm linh hoạt với hệ sinh thái công nghệ thông minh.</p>
+            </div>
+
+            <div class="bento-grid">
+                <!-- Card 1: GPS Radar (Large) -->
+                <div class="bento-card col-span-2">
+                    <div class="bento-icon"><i class="ti ti-radar-2"></i></div>
+                    <h3>Radar Định Vị GPS Vệ Tinh Thời Gian Thực</h3>
+                    <p>
+                        Nhà tuyển dụng quét tìm nhân sự xung quanh bán kính từ 1km đến 20km ngay trên bản đồ tương tác. 
+                        Ứng viên chỉ cần bật tính năng "Tìm việc" là vị trí được phát sóng liên tục, nhận ngay lời mời ca làm gần nhà.
+                    </p>
+                    <div class="bento-illustration">
+                        <div style="display:flex; align-items:center; gap:20px; font-size:13px; color:var(--theme-text-muted); flex-wrap:wrap; justify-content:center;">
+                            <span><i class="ti ti-broadcast text-orange"></i> Truyền tọa độ WebSocket</span>
+                            <span><i class="ti ti-bolt text-orange"></i> Độ trễ dưới 0.5s</span>
+                            <span><i class="ti ti-battery-charging text-orange"></i> Tiết kiệm pin tối đa</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: QR Check-in -->
+                <div class="bento-card">
+                    <div class="bento-icon"><i class="ti ti-qrcode"></i></div>
+                    <h3>Chấm Công Mã QR Bảo Mật</h3>
+                    <p>
+                        Điểm danh vào ca & kết thúc ca bằng mã QR động mã hóa an toàn. Chống gian lận giờ làm, tự động tính thù lao theo phút chính xác 100%.
+                    </p>
+                    <div class="bento-illustration">
+                        <span style="font-size:12.5px; color:#10B981; font-weight:600;"><i class="ti ti-shield-check"></i> Xác thực 2 đầu không thể làm giả</span>
+                    </div>
+                </div>
+
+                <!-- Card 3: Trust Score & KYC -->
+                <div class="bento-card">
+                    <div class="bento-icon"><i class="ti ti-discount-check"></i></div>
+                    <h3>Điểm Uy Tín & Đánh Giá 2 Chiều</h3>
+                    <p>
+                        Hệ thống thang điểm 100 nghiêm ngặt kết hợp xác thực căn cước công dân (CCCD). Tự động loại trừ người bùng ca, gian lận, bảo vệ cả hai bên.
+                    </p>
+                    <div class="bento-illustration">
+                        <span style="font-size:12.5px; color:var(--primary); font-weight:600;"><i class="ti ti-star-filled"></i> Đánh giá sau mỗi ca làm</span>
+                    </div>
+                </div>
+
+                <!-- Card 4: 1-Click Role Switch (Large) -->
+                <div class="bento-card col-span-2">
+                    <div class="bento-icon"><i class="ti ti-arrows-exchange"></i></div>
+                    <h3>Linh Hoạt Chuyển Vai Trò 1-Chạm</h3>
+                    <p>
+                        Một tài khoản duy nhất đáp ứng trọn vẹn cả hai nhu cầu: Buổi sáng là ứng viên nhận ca phục vụ kiếm thêm thu nhập, 
+                        buổi chiều là chủ cửa hàng đăng tin tìm người bốc xếp hoặc phụ quán. Chuyển đổi tức thì mà không cần đăng ký tài khoản mới.
+                    </p>
+                    <div class="bento-illustration">
+                        <div style="display:flex; align-items:center; gap:20px; font-size:13px; color:var(--theme-text-muted); flex-wrap:wrap; justify-content:center;">
+                            <span><i class="ti ti-user-check text-orange"></i> Hồ sơ ứng viên độc lập</span>
+                            <span><i class="ti ti-building-store text-orange"></i> Quản lý ca tuyển dụng riêng biệt</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 6. APP USER GUIDE / WALKTHROUGH ================= -->
+    <section class="how-section" id="user-guide">
+        <div class="container">
+            <div class="section-head">
+                <div class="badge-pill">
+                    <i class="ti ti-book-2"></i>
+                    <span>Hướng dẫn sử dụng</span>
+                </div>
+                <h2>Cẩm nang làm chủ AntGo chỉ với 4 bước</h2>
+                <p>Khám phá quy trình sử dụng chuẩn xác từ đăng ký, quét radar định vị GPS, ứng tuyển đến điểm danh chấm công mã QR cho cả hai vai trò.</p>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="tabs-nav">
+                <button class="tab-btn active" data-target="worker">
+                    <i class="ti ti-user"></i>
+                    <span>Dành cho Người tìm việc</span>
+                </button>
+                <button class="tab-btn" data-target="employer">
+                    <i class="ti ti-briefcase"></i>
+                    <span>Dành cho Nhà tuyển dụng</span>
+                </button>
+            </div>
+
+            <!-- Dynamic Steps Container -->
+            <div class="steps-grid" id="how-steps-container">
+                <!-- Populated dynamically via landing.js -->
+            </div>
+
+            <!-- App Pro Tips Banner -->
+            <div class="guide-tips-box">
+                <div class="tip-header-row">
+                    <div class="tip-badge"><i class="ti ti-bulb"></i> Mẹo sử dụng app AntGo hiệu quả</div>
+                </div>
+                <div class="tips-grid">
+                    <div class="tip-item">
+                        <i class="ti ti-shield-check text-orange"></i>
+                        <div>
+                            <h6>Duy trì điểm uy tín > 85</h6>
+                            <p>Không bùng ca, đến đúng giờ để luôn được thuật toán ưu tiên đẩy lên đầu Radar tìm kiếm.</p>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <i class="ti ti-location text-orange"></i>
+                        <div>
+                            <h6>Cấp quyền vị trí chính xác (GPS)</h6>
+                            <p>Bật định vị trên trình duyệt để hệ thống quét việc làm và nhân sự gần bạn chuẩn xác đến từng mét.</p>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <i class="ti ti-arrows-exchange text-orange"></i>
+                        <div>
+                            <h6>Chuyển vai trò 1-chạm</h6>
+                            <p>Dùng một tài khoản duy nhất: ban ngày nhận ca làm kiếm thêm, ban đêm đăng tuyển thợ phụ quán.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 7. CATEGORIES ================= -->
+    <section class="categories-section" id="categories">
+        <div class="container">
+            <div class="section-head">
+                <div class="badge-pill">
+                    <i class="ti ti-category"></i>
+                    <span>Ngành nghề phổ biến</span>
+                </div>
+                <h2>Hàng ngàn cơ hội việc làm đa dạng</h2>
+                <p>Khám phá các lĩnh vực tuyển dụng thời vụ và ca kíp có nhu cầu cao nhất trên nền tảng AntGo.</p>
+            </div>
+
+            <div class="categories-grid">
+                <a href="/interface/findjob" class="category-card">
+                    <i class="ti ti-coffee category-icon"></i>
+                    <h5>F&B & Nhà hàng</h5>
+                    <span>Phục vụ, Pha chế, Phụ bếp</span>
+                </a>
+                <a href="/interface/findjob" class="category-card">
+                    <i class="ti ti-truck-delivery category-icon"></i>
+                    <h5>Kho vận & Giao nhận</h5>
+                    <span>Đóng gói, Bốc xếp, Shipper</span>
+                </a>
+                <a href="/interface/findjob" class="category-card">
+                    <i class="ti ti-shopping-cart category-icon"></i>
+                    <h5>Bán lẻ & Siêu thị</h5>
+                    <span>Thu ngân, Kiểm kê hàng, Bán hàng</span>
+                </a>
+                <a href="/interface/findjob" class="category-card">
+                    <i class="ti ti-camera category-icon"></i>
+                    <h5>Sự kiện & Khánh tiết</h5>
+                    <span>PG/PB, Lễ tân, Hậu cần</span>
+                </a>
+                <a href="/interface/findjob" class="category-card">
+                    <i class="ti ti-tools category-icon"></i>
+                    <h5>Kỹ thuật & Lắp ráp</h5>
+                    <span>Sửa chữa điện máy, Lắp đặt</span>
+                </a>
+                <a href="/interface/findjob" class="category-card">
+                    <i class="ti ti-sparkles category-icon"></i>
+                    <h5>Vệ sinh công nghiệp</h5>
+                    <span>Dọn dẹp nhà hàng, Văn phòng</span>
+                </a>
+                <a href="/interface/findjob" class="category-card">
+                    <i class="ti ti-shield category-icon"></i>
+                    <h5>Bảo vệ & Giữ xe</h5>
+                    <span>Trực ca ngày, Ca đêm sự kiện</span>
+                </a>
+                <a href="/interface/findjob" class="category-card">
+                    <i class="ti ti-dots category-icon"></i>
+                    <h5>Việc làm theo giờ khác</h5>
+                    <span>Hơn 50+ loại ca làm việc</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 8. TESTIMONIALS ================= -->
+    <section class="testimonials-section" id="testimonials">
+        <div class="container">
+            <div class="section-head">
+                <div class="badge-pill">
+                    <i class="ti ti-thumb-up"></i>
+                    <span>Khách hàng nói gì</span>
+                </div>
+                <h2>Được tin chọn bởi hàng ngàn chủ quán & thợ làm ca</h2>
+                <p>Những trải nghiệm chân thực từ người dùng đang sử dụng AntGo để giải quyết bài toán việc làm mỗi ngày.</p>
+            </div>
+
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">
+                        "Quán cà phê của mình thường xuyên hụt nhân viên vào dịp cuối tuần. Từ khi có Radar AntGo, mình chỉ cần bật quét là 10 phút sau đã có bạn sinh viên quanh đây nhận ca. Điểm danh QR tiện lợi vô cùng!"
+                    </p>
+                    <div class="testimonial-user">
+                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80" alt="Chị Thu Hằng">
+                        <div>
+                            <h5>Chị Thu Hằng</h5>
+                            <p>Chủ chuỗi Cafe The Morning</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">
+                        "Mình là sinh viên năm 3, lịch học thay đổi liên tục. Nhờ AntGo, hôm nào rảnh mình bật GPS là có ca làm gần trường, lương theo giờ nhận luôn sau ca. Điểm uy tín cao còn được các quán ưu tiên mời làm."
+                    </p>
+                    <div class="testimonial-user">
+                        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&auto=format&fit=crop&q=80" alt="Bạn Quốc Huy">
+                        <div>
+                            <h5>Bạn Quốc Huy</h5>
+                            <p>Sinh viên ĐH Bách Khoa</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">
+                        "Kho logistics của tôi cần rất nhiều thợ bốc xếp theo chuyến hàng đột xuất. AntGo giúp tôi lọc được những ứng viên đã xác thực CCCD và có điểm uy tín trên 90, không lo bị bùng ca phút chót."
+                    </p>
+                    <div class="testimonial-user">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop&q=80" alt="Anh Trần Cường">
+                        <div>
+                            <h5>Anh Trần Cường</h5>
+                            <p>Giám đốc Vận hành Kho Express</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 9. FAQ ACCORDION ================= -->
+    <section class="faq-section" id="faq">
+        <div class="container">
+            <div class="section-head">
+                <div class="badge-pill">
+                    <i class="ti ti-help"></i>
+                    <span>Giải đáp thắc mắc</span>
+                </div>
+                <h2>Câu hỏi thường gặp về AntGo</h2>
+                <p>Tất cả những gì bạn cần biết trước khi bắt đầu sử dụng nền tảng.</p>
+            </div>
+
+            <div class="faq-container">
+                <div class="faq-item active">
+                    <div class="faq-question">
+                        <span>AntGo có thu phí người tìm việc làm không?</span>
+                        <i class="ti ti-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Hoàn toàn <strong>KHÔNG</strong>. AntGo miễn phí 100% cho người tìm việc và lao động thời vụ. Bạn nhận trọn vẹn 100% tiền công sau mỗi ca làm việc mà không bị trừ bất kỳ khoản phí môi giới nào.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Tiền công ca làm việc được thanh toán như thế nào?</span>
+                        <i class="ti ti-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Sau khi bạn quét mã QR kết thúc ca làm việc (Check-out), Nhà tuyển dụng sẽ xác nhận và thanh toán trực tiếp bằng tiền mặt hoặc chuyển khoản ngân hàng ngay tại chỗ theo thỏa thuận trên ứng dụng.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Radar GPS có tốn pin và bảo mật vị trí cá nhân không?</span>
+                        <i class="ti ti-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        AntGo áp dụng thuật toán định vị thông minh chỉ cập nhật khi bạn di chuyển hoặc đang bật công tắc sẵn sàng nhận việc. Khi bạn tắt công tắc tìm việc, hệ thống hoàn toàn ngừng thu thập vị trí và ẩn bạn khỏi bản đồ tuyển dụng.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Điểm uy tín hệ thống được tính ra sao?</span>
+                        <i class="ti ti-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Mỗi tài khoản khởi đầu với 100 điểm uy tín. Hoàn thành tốt ca làm và nhận đánh giá 5 sao sẽ duy trì điểm tối đa. Nếu tự ý hủy ca sát giờ hoặc bùng việc sẽ bị trừ điểm uy tín nghiêm khắc. Tài khoản dưới 50 điểm sẽ bị hạn chế quyền nhận ca.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Một tài khoản có thể vừa tìm việc vừa đăng tuyển được không?</span>
+                        <i class="ti ti-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Hoàn toàn được! AntGo hỗ trợ tính năng chuyển đổi vai trò 1-chạm giữa chế độ <strong>Ứng viên</strong> và <strong>Nhà tuyển dụng</strong> ngay trong trang Hồ sơ cá nhân.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 10. ADMIN SUPPORT & CONTACT ================= -->
+    <section class="admin-support-section" id="admin-support">
+        <div class="container">
+            <div class="admin-card">
+                <div class="admin-card-glow"></div>
+                <div class="admin-header-row">
+                    <div class="admin-badge-pill">
+                        <i class="ti ti-headset"></i>
+                        <span>Kênh Hỗ Trợ Quản Trị Viên 24/7</span>
+                    </div>
+                    <span class="admin-status-online">
+                        <span class="pulse-green"></span>
+                        Admin đang trực tuyến sẵn sàng hỗ trợ
+                    </span>
+                </div>
+
+                <div class="admin-content-grid">
+                    <div class="admin-info-col">
+                        <h2>Bạn cần trợ giúp trực tiếp hoặc có khiếu nại?</h2>
+                        <p>
+                            Đội ngũ Quản trị viên AntGo luôn túc trực để hỗ trợ bạn giải quyết mọi vấn đề: từ hướng dẫn sử dụng app, xử lý tài khoản đến bảo vệ quyền lợi làm việc minh bạch.
+                        </p>
+                        <div class="admin-features-list">
+                            <div class="feature-bullet"><i class="ti ti-check"></i> Hướng dẫn tạo tài khoản, bật GPS và ứng tuyển ca làm</div>
+                            <div class="feature-bullet"><i class="ti ti-check"></i> Xử lý khiếu nại bùng việc, chậm tiền công & khôi phục điểm uy tín</div>
+                            <div class="feature-bullet"><i class="ti ti-check"></i> Hỗ trợ duyệt nhanh hồ sơ eKYC xác thực CCCD 24/7</div>
+                        </div>
+                    </div>
+
+                    <div class="admin-contact-col">
+                        <div class="contact-channel-card">
+                            <div class="channel-icon phone-icon"><i class="ti ti-phone-call"></i></div>
+                            <div class="channel-details">
+                                <span class="channel-label">Hotline Quản trị viên</span>
+                                <a href="tel:0356092740" class="channel-value">0356 092 740</a>
+                            </div>
+                            <a href="tel:0356092740" class="btn btn-primary btn-sm">
+                                <i class="ti ti-phone"></i> Gọi ngay
+                            </a>
+                        </div>
+
+                        <div class="contact-channel-card">
+                            <div class="channel-icon email-icon"><i class="ti ti-mail"></i></div>
+                            <div class="channel-details">
+                                <span class="channel-label">Email hỗ trợ kỹ thuật & khiếu nại</span>
+                                <a href="mailto:satan22072005@gmail.com" class="channel-value">satan22072005@gmail.com</a>
+                            </div>
+                            <a href="mailto:satan22072005@gmail.com" class="btn btn-glass btn-sm">
+                                <i class="ti ti-send"></i> Gửi email
+                            </a>
+                        </div>
+
+                        <div class="contact-channel-card">
+                            <div class="channel-icon zalo-icon"><i class="ti ti-brand-hipchat"></i></div>
+                            <div class="channel-details">
+                                <span class="channel-label">Nhắn tin Zalo trực tiếp với Admin</span>
+                                <span class="channel-value">0356 092 740</span>
+                            </div>
+                            <a href="https://zalo.me/0356092740" target="_blank" rel="noopener noreferrer" class="btn btn-glass btn-sm">
+                                <i class="ti ti-message-dots"></i> Chat Zalo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 11. CALL TO ACTION BANNER ================= -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-banner">
+                <div class="cta-banner-glow"></div>
+                <div class="cta-content">
+                    <div class="badge-pill">
+                        <i class="ti ti-rocket"></i>
+                        <span>Tham gia cộng đồng ngay hôm nay</span>
+                    </div>
+                    <h2>Sẵn sàng tối ưu hóa thời gian & nhân lực của bạn?</h2>
+                    <p>Đăng ký tài khoản miễn phí chỉ trong 30 giây và bắt đầu kết nối việc làm tức thì quanh bạn.</p>
+                    <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap;">
+                        <a href="/interface/authentication?mode=register" class="btn btn-primary">
+                            <span>Tạo tài khoản miễn phí</span>
+                            <i class="ti ti-arrow-right btn-icon-right"></i>
+                        </a>
+                        <a href="/interface/findjob" class="btn btn-glass">
+                            <i class="ti ti-compass"></i>
+                            <span>Xem các ca làm đang mở</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 11. FOOTER ================= -->
+    <footer class="landing-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/" class="brand-logo">
+                        <img src="/asset/antgo-icon.svg" alt="AntGo Logo">
+                        <span class="brand-name">Ant<span>Go</span></span>
+                    </a>
+                    <p>
+                        Nền tảng công nghệ kết nối việc làm tức thì & nhân lực thời vụ thông minh hàng đầu. Tối ưu thời gian, gia tăng thu nhập cho mọi người.
+                    </p>
+                    <div class="footer-socials">
+                        <a href="#" class="footer-social-btn" aria-label="Facebook"><i class="ti ti-brand-facebook"></i></a>
+                        <a href="#" class="footer-social-btn" aria-label="TikTok"><i class="ti ti-brand-tiktok"></i></a>
+                        <a href="#" class="footer-social-btn" aria-label="Youtube"><i class="ti ti-brand-youtube"></i></a>
+                        <a href="#" class="footer-social-btn" aria-label="Linkedin"><i class="ti ti-brand-linkedin"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-col">
+                    <h5>Dành cho Ứng viên</h5>
+                    <ul class="footer-links">
+                        <li><a href="/interface/findjob">Tìm việc quanh đây</a></li>
+                        <li><a href="/interface/manageapplication">Quản lý ứng tuyển</a></li>
+                        <li><a href="/interface/scanner">Quét QR Check-in</a></li>
+                        <li><a href="/interface/profile">Hồ sơ & Điểm uy tín</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h5>Dành cho Tuyển dụng</h5>
+                    <ul class="footer-links">
+                        <li><a href="/interface/createjob">Đăng tin tuyển dụng</a></li>
+                        <li><a href="/interface/managejob">Quản lý việc làm</a></li>
+                        <li><a href="/interface/findworker">Radar quét ứng viên</a></li>
+                        <li><a href="/interface/generateqr">Tạo mã QR ca làm</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col" id="contact-admin">
+                    <h5>Liên hệ Quản trị viên</h5>
+                    <ul class="footer-links">
+                        <li><a href="tel:0356092740"><i class="ti ti-phone text-orange"></i> Hotline: <strong>0356 092 740</strong></a></li>
+                        <li><a href="mailto:satan22072005@gmail.com"><i class="ti ti-mail text-orange"></i> <strong>satan22072005@gmail.com</strong></a></li>
+                        <li><a href="https://zalo.me/0356092740" target="_blank" rel="noopener noreferrer"><i class="ti ti-message-circle text-orange"></i> Zalo Admin: 0356 092 740</a></li>
+                        <li><a href="#user-guide"><i class="ti ti-book-2 text-orange"></i> Hướng dẫn sử dụng app</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div>&copy; 2026 AntGo Technologies. Tất cả các quyền được bảo lưu.</div>
+                <div style="display:flex; gap:20px;">
+                    <a href="#" style="color:#64748B; text-decoration:none;">Điều khoản sử dụng</a>
+                    <a href="#" style="color:#64748B; text-decoration:none;">Chính sách quyền riêng tư</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/asset/js/avatar-util.js"></script>
+    <script src="/asset/js/landing.js"></script>
+    <script src="/asset/js/notification.js"></script>
+</body>
+</html>

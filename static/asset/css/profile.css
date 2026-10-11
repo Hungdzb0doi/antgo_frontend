@@ -122,9 +122,9 @@
             background: var(--primary-hover) !important;
         }
         .nav-btn-logout:hover {
-            background: rgba(239, 68, 68, 0.22) !important;
-            color: #fca5a5 !important;
-            border-color: rgba(239, 68, 68, 0.4) !important;
+            background: rgba(255, 102, 0, 0.22) !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 102, 0, 0.4) !important;
             transform: translateY(-1px);
         }
 
@@ -284,17 +284,17 @@
             font-weight: 500;
         }
         .ekyc-status-banner.verified {
-            background: #ecfdf5;
-            border: 1px solid #a7f3d0;
-            color: #065f46;
+            background: var(--primary-light);
+            border: 1px solid #fed7aa;
+            color: var(--primary-orange);
         }
         .ekyc-status-banner.unverified {
-            background: #fffbeb;
-            border: 1px solid #fde68a;
-            color: #92400e;
+            background: #f4f4f5;
+            border: 1px solid #e4e4e7;
+            color: var(--black-main);
         }
         .btn-ekyc-now {
-            background: #f59e0b;
+            background: var(--primary-orange);
             color: white;
             text-decoration: none;
             padding: 6px 14px;
@@ -304,10 +304,11 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            transition: opacity 0.2s;
+            transition: all 0.2s;
         }
         .btn-ekyc-now:hover {
-            opacity: 0.9;
+            background: var(--primary-hover);
+            opacity: 1;
         }
 
         /* Mode Switcher Block */
@@ -356,11 +357,90 @@
             margin-top: 10px;
         }
         @media (max-width: 768px) {
+            body {
+                padding: 16px 12px 60px;
+            }
+            .app-header {
+                padding: 10px 14px;
+                gap: 8px;
+                border-radius: 12px;
+                margin-bottom: 16px;
+            }
+            .header-brand {
+                font-size: 17px;
+            }
+            .header-brand-icon-img {
+                width: 26px; height: 26px;
+            }
+            .header-nav {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                max-width: 100%;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                gap: 6px;
+                padding-bottom: 2px;
+            }
+            .header-nav::-webkit-scrollbar { display: none; }
+            .nav-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
             .cards-grid {
                 grid-template-columns: 1fr;
             }
             .profile-container {
-                padding: 24px 20px;
+                padding: 24px 18px;
+                border-radius: 14px;
+            }
+            .user-header {
+                gap: 16px;
+            }
+            .user-header-actions {
+                width: 100%;
+                align-items: stretch;
+            }
+            .user-header-actions .btn-header-action {
+                width: 100%;
+                justify-content: center;
+            }
+            .mode-selector {
+                width: 100%;
+            }
+            .mode-btn {
+                flex: 1;
+                justify-content: center;
+                padding: 9px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile-container {
+                padding: 18px 14px;
+            }
+            .user-fullname {
+                font-size: 19px;
+            }
+            .avatar-wrapper {
+                width: 68px; height: 68px;
+            }
+            .avatar-image, .avatar-circle {
+                width: 68px; height: 68px;
+            }
+            .profile-card {
+                padding: 18px 14px;
+            }
+            .stat-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .modal-content {
+                width: 95% !important;
+                max-width: 95% !important;
+                border-radius: 14px;
             }
         }
 
@@ -976,6 +1056,12 @@
             background: var(--primary-light);
             border-color: #FFD8BF;
             color: var(--primary-orange);
+        }
+        .skill-chip-btn.active {
+            background: var(--primary-orange);
+            border-color: var(--primary-orange);
+            color: #ffffff;
+            font-weight: 600;
         }
 
         .modal-actions { 

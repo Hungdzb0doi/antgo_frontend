@@ -15,8 +15,8 @@
 
             /* Các màu trạng thái */
             --text-accent: var(--primary-orange);
-            --text-success: #15803d;
-            --text-danger: #dc2626;
+            --text-success: var(--primary-orange);
+            --text-danger: #71717A;
             --text-warning: var(--primary-orange);
             --on-primary: #ffffff;
 
@@ -34,8 +34,8 @@
 
             /* Màu nền nhạt cho các huy hiệu (Badge) */
             --bg-accent-muted: var(--primary-light);
-            --bg-success: #f0fdf4;
-            --bg-danger: #fef2f2;
+            --bg-success: var(--primary-light);
+            --bg-danger: #f4f4f5;
             --bg-warning: #fff7ed;
 
             --radius: 8px;
@@ -129,9 +129,9 @@
             background: var(--primary-hover) !important;
         }
         .nav-btn-logout:hover {
-            background: rgba(239, 68, 68, 0.22) !important;
-            color: #fca5a5 !important;
-            border-color: rgba(239, 68, 68, 0.4) !important;
+            background: rgba(255, 102, 0, 0.22) !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 102, 0, 0.4) !important;
             transform: translateY(-1px);
         }
 
@@ -160,8 +160,8 @@
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(255, 102, 0, 0.35);
         }
-        .btn-danger-outline { color: var(--text-danger); border-color: #fecaca; }
-        .btn-warning { background: var(--primary-light); color: var(--primary-hover); border-color: #fed7aa; }
+        .btn-danger-outline { color: var(--text-secondary); border-color: var(--border); }
+        .btn-danger-outline:hover { color: var(--black-main); border-color: var(--black-main); background: #f4f4f5; }
         .btn-ghost { border-color: transparent; color: var(--text-secondary); }
         .btn-sm { padding: 7px 12px; font-size: 12px; }
         .btn a, a.btn { text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
@@ -246,8 +246,8 @@
         }
         .status-OPEN { background: var(--bg-accent-muted); color: var(--text-accent); }
         .status-IN_PROGRESS { background: var(--bg-warning); color: var(--text-warning); }
-        .status-COMPLETED { background: var(--bg-success); color: var(--text-success); }
-        .status-CANCELLED { background: var(--bg-danger); color: var(--text-danger); }
+        .status-COMPLETED { background: var(--black-main); color: #ffffff; }
+        .status-CANCELLED { background: var(--surface-1); color: var(--text-secondary); border: 1px dashed var(--border); }
 
         /* Loading / empty / error states */
         .state-box { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
@@ -283,7 +283,7 @@
         }
         .search-box:focus-within {
             border-color: var(--fill-primary);
-            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+            box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.12);
         }
         .search-box .search-icon {
             color: var(--text-secondary);
@@ -318,4 +318,87 @@
         }
         .search-box .clear-btn:hover {
             color: var(--text-primary);
+        }
+
+        /* RESPONSIVE BREAKPOINTS */
+        @media (max-width: 768px) {
+            body { padding: 16px 12px 60px; }
+            .app-header {
+                padding: 10px 14px;
+                border-radius: 12px;
+                margin-bottom: 16px;
+                gap: 8px;
+            }
+            .header-brand {
+                font-size: 17px;
+            }
+            .header-brand-icon-img {
+                width: 26px; height: 26px;
+            }
+            .header-nav {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                max-width: 100%;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                gap: 6px;
+                padding-bottom: 2px;
+            }
+            .header-nav::-webkit-scrollbar { display: none; }
+            .nav-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            #jobTabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                padding: 4px;
+                gap: 4px;
+            }
+            #jobTabs::-webkit-scrollbar { display: none; }
+            #jobTabs .nav-item {
+                flex: 0 0 auto;
+            }
+            #jobTabs .nav-link {
+                padding: 8px 14px;
+                font-size: 12.5px;
+                white-space: nowrap;
+            }
+
+            .job-card {
+                padding: 14px 14px;
+                border-radius: 10px;
+            }
+            .job-card-top {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .job-title {
+                font-size: 14.5px;
+            }
+            .job-actions {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .job-actions .btn {
+                flex: 1 1 calc(50% - 6px);
+                min-height: 38px;
+                text-align: center;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .job-actions .btn {
+                flex: 1 1 100%;
+            }
+            .job-meta, .job-info {
+                font-size: 11.5px;
+                gap: 8px;
+            }
         }

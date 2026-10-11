@@ -32,7 +32,7 @@ const token = localStorage.getItem('accessToken');
     }
 
     function connectWebSocket() {
-        const socket = new SockJS('http://localhost:8083/ws');
+        const socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
         stompClient.debug = null;
         stompClient.connect({ 'Authorization': 'Bearer ' + token }, function () {
@@ -92,7 +92,7 @@ const token = localStorage.getItem('accessToken');
         document.getElementById('scan-effect').style.display = 'block';
         document.getElementById('job-list-container').innerHTML = `<div style="text-align:center;color:#94a3b8;margin-top:20px;"><i class="ti ti-loader ti-spin" style="font-size:24px;"></i><p>Đang quét việc làm...</p></div>`;
 
-        fetch(`http://localhost:8083/api/v1/job/nearbyjob?lat=${currentLat}&lng=${currentLng}&radiusInKm=${radiusKm}`, {
+        fetch(`/api/v1/job/nearbyjob?lat=${currentLat}&lng=${currentLng}&radiusInKm=${radiusKm}`, {
             headers: { 'Authorization': 'Bearer ' + token }
         })
         .then(res => {
@@ -149,12 +149,18 @@ const token = localStorage.getItem('accessToken');
             const empRatingText = job.employerRating ? `${job.employerRating}★ (${job.employerReviewCount || 0})` : 'Mới (4.5★)';
             const empRepText = (job.employerScore != null ? job.employerScore : 100) + 'đ';
             const topJobBadge = (job.priorityScore && job.priorityScore >= 94)
-                ? `<span style="background: #ecfdf5; color: #059669; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; border: 1px solid #a7f3d0;"><i class="ti ti-rosette-discount-check"></i> NTD Uy tín</span>`
+                ? `<span style="background: var(--primary-light); color: var(--primary-orange); font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; border: 1px solid #fed7aa;"><i class="ti ti-rosette-discount-check"></i> NTD Uy tín</span>`
                 : '';
+
+            const empAvatar = (typeof resolveAvatarUrl === 'function') 
+                ? resolveAvatarUrl(job.employerAvatar, job.employerName) 
+                : (job.employerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(job.employerName || 'NTD')}&background=18181b&color=ff6600&size=128&bold=true`);
 
             html += `
                 <div class="job-card" id="card-${job.id}" onclick="focusJob('${job.id}')">
-                    <div class="job-card-icon"><i class="ti ti-briefcase"></i></div>
+                    <div class="job-card-icon" style="overflow:hidden; border-radius:50%; border:1.5px solid var(--primary-orange); width:44px; height:44px; flex-shrink:0;">
+                        <img src="${empAvatar}" style="width:100%; height:100%; object-fit:cover;" onerror="if(typeof handleAvatarError === 'function') handleAvatarError(this, '${escapeQuote(job.employerName)}');">
+                    </div>
                     <div class="job-info">
                         <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 2px;">
                             <h4 style="margin: 0;">${job.title}</h4>
@@ -172,7 +178,7 @@ const token = localStorage.getItem('accessToken');
                     </div>
                     <div class="card-actions">
                         <button class="btn-action" style="background:#64748b;font-size:11px;" onclick="event.stopPropagation(); viewDetail('${job.id}')">Chi tiết</button>
-                        <button class="btn-action" style="background:#10b981;" id="btn-list-${job.id}" onclick="event.stopPropagation(); applyJob('${job.id}')">Ứng tuyển</button>
+                        <button class="btn-action" style="background:var(--primary-orange); color:#ffffff;" id="btn-list-${job.id}" onclick="event.stopPropagation(); applyJob('${job.id}')">Ứng tuyển</button>
                     </div>
                 </div>
             `;
@@ -187,6 +193,9 @@ const token = localStorage.getItem('accessToken');
     function viewDetail(jobId) {
         selectedJobId = jobId;
         let job = jobDataMap[jobId];
+        const empAvatar = (typeof resolveAvatarUrl === 'function') 
+            ? resolveAvatarUrl(job.employerAvatar, job.employerName) 
+            : (job.employerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(job.employerName || 'NTD')}&background=18181b&color=ff6600&size=128&bold=true`);
         const rate = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(job.hourlyRate);
         const start = new Date(job.startTime).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
         const end = new Date(job.endTime).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
@@ -196,9 +205,7 @@ const token = localStorage.getItem('accessToken');
 
         document.getElementById('modal-body-content').innerHTML = `
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-                <div style="width:52px;height:52px;border-radius:12px;background:#eff6ff;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:26px;flex-shrink:0;">
-                    <i class="ti ti-briefcase"></i>
-                </div>
+                <img src="${empAvatar}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-orange);flex-shrink:0;box-shadow:0 3px 10px rgba(255,102,0,0.15);" onerror="if(typeof handleAvatarError === 'function') handleAvatarError(this, '${escapeQuote(job.employerName)}');">
                 <div>
                     <h3 style="margin:0 0 4px;font-size:17px;color:var(--text-main);">${job.title}</h3>
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
@@ -251,7 +258,7 @@ const token = localStorage.getItem('accessToken');
         if (btnList) { btnList.disabled = true; btnList.innerText = "Đang gửi..."; }
         if (btnModal && selectedJobId === jobId) { btnModal.disabled = true; btnModal.innerHTML = `<i class="ti ti-loader ti-spin"></i> Đang gửi...`; }
 
-        fetch(`http://localhost:8083/api/v1/job/application?jobId=${jobId}`, {
+        fetch(`/api/v1/job/application?jobId=${jobId}`, {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + token }
         })

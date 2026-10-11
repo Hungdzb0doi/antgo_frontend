@@ -91,7 +91,7 @@ const STATUS_LABEL = {
         const container = document.getElementById('job-list-container');
         container.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Đang lấy dữ liệu...</p></div>';
 
-        let url = `http://localhost:8083/api/v1/job?status=${currentStatus}`;
+        let url = `/api/v1/job?status=${currentStatus}`;
         if (kw) {
             url += `&keyword=${encodeURIComponent(kw)}`;
         }
@@ -158,20 +158,22 @@ const STATUS_LABEL = {
             if (currentStatus === 'OPEN') {
                 actionButtons = `
                          <button class="btn btn-sm btn-accent" onclick="openRadar('${job.id}', ${safeLat}, ${safeLng})">
-                             <i class="ti ti-radar"></i> Tìm thợ xung quanh
+                             <i class="ti ti-radar"></i> Tìm ứng viên xung quanh
                          </button>
                          <button class="btn btn-sm btn-primary" onclick="openManageApplications('${job.id}')">
                              <i class="ti ti-users"></i> Duyệt ứng viên
                          </button>
                          <button class="btn btn-sm btn-danger-outline" onclick="cancelJob('${job.id}')">Hủy việc</button>`;
             } else if (currentStatus === 'IN_PROGRESS') {
-                // SỬA: Đã thêm sự kiện onclick gọi hàm openGenerateQR
                 actionButtons = `<button class="btn btn-sm btn-warning" onclick="openGenerateQR('${job.id}')">
                                      <i class="ti ti-qrcode"></i> Quản lý Điểm danh
+                                 </button>
+                                 <button class="btn btn-sm btn-ghost" onclick="openManageApplications('${job.id}')">
+                                     <i class="ti ti-users"></i> Xem ứng viên ca làm
                                  </button>`;
             } else if (currentStatus === 'COMPLETED') {
-                actionButtons = `<button class="btn btn-sm btn-primary" onclick="openManageApplications('${job.id}')"><i class="ti ti-star"></i> Đánh giá Thợ</button>
-                         <button class="btn btn-sm btn-ghost" onclick="openManageApplications('${job.id}')">Xem danh sách thợ</button>`;
+                actionButtons = `<button class="btn btn-sm btn-primary" onclick="openManageApplications('${job.id}')"><i class="ti ti-star"></i> Đánh giá Ứng viên</button>
+                         <button class="btn btn-sm btn-ghost" onclick="openManageApplications('${job.id}')">Xem danh sách ứng viên</button>`;
             }
 
             html += `
@@ -220,7 +222,7 @@ const STATUS_LABEL = {
         }
 
         localStorage.setItem('currentJobId', jobId);
-        window.location.href = '/interface/checkapplication';
+        window.location.href = `/interface/checkapplication?jobId=${jobId}`;
     }
 
 
@@ -233,7 +235,7 @@ const STATUS_LABEL = {
         localStorage.setItem('currentJobId', jobId);
 
 
-        window.location.href = '/interface/generateqr';
+        window.location.href = `/interface/generateqr?jobId=${jobId}`;
     }
 
     // 7. HỦY CÔNG VIỆC
@@ -247,7 +249,7 @@ const STATUS_LABEL = {
             return;
         }
 
-        fetch(`http://localhost:8083/api/v1/job/cancellation?jobId=${jobId}`, {
+        fetch(`/api/v1/job/cancellation?jobId=${jobId}`, {
             method: 'PUT',
             headers: {
                 'Authorization': 'Bearer ' + token

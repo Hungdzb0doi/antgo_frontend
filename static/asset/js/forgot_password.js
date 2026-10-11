@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:8083/api/v1/auth';
+const API_BASE_URL = (window.location.protocol.startsWith('http')) 
+    ? '/api/v1/auth' 
+    : 'http://localhost:8083/api/v1/auth';
 
 
     let currentEmail = "";

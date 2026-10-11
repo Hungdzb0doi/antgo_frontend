@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Radar Tìm Thợ · AntGo</title>
+    <title>Radar Tìm Ứng viên · AntGo</title>
 
+    <script src="/asset/js/auth-guard.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
@@ -20,10 +21,13 @@
         </a>
         <span style="color: rgba(255,255,255,0.2); font-size: 16px;">|</span>
         <h1 style="margin: 0; font-size: 16px; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 6px;">
-            <i class="ti ti-radar" style="color: var(--primary-orange);"></i> Radar Quét Thợ
+            <i class="ti ti-radar" style="color: var(--primary-orange);"></i> Radar Quét Ứng viên
         </h1>
     </div>
     <div class="header-nav">
+        <a href="/interface/managejob" onclick="if(document.referrer && document.referrer.includes('/interface/managejob')){history.back(); return false;}" class="nav-btn" style="background: rgba(255, 102, 0, 0.15); border-color: rgba(255, 102, 0, 0.4); color: #ff8533;">
+            <i class="ti ti-arrow-left"></i> Quay lại
+        </a>
         <a href="/interface/managejob" class="nav-btn"><i class="ti ti-briefcase"></i> Quản lý việc làm</a>
         <a href="/interface/createjob" class="nav-btn"><i class="ti ti-plus"></i> Đăng tin việc</a>
         <a href="/interface/profile" class="nav-btn"><i class="ti ti-user"></i> Hồ sơ</a>
@@ -43,7 +47,7 @@
         <div class="sidebar-header">
             <div class="sidebar-header-top">
                 <span>Ứng viên quanh đây (<span id="worker-count">0</span>)</span>
-                <span id="gps-status" style="font-size:12px; color:#10b981; font-weight:normal;">
+                <span id="gps-status" style="font-size:12px; color:var(--primary-orange); font-weight:600;">
                     <i class="ti ti-map-pin"></i> Đang bật GPS
                 </span>
             </div>
@@ -64,7 +68,7 @@
     </div>
 </div>
 
-<!-- MODAL CHI TIẾT THỢ -->
+<!-- MODAL CHI TIẾT ỨNG VIÊN -->
 <div id="worker-modal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
@@ -76,7 +80,7 @@
         </div>
         <div class="modal-footer">
             <button class="btn-action" style="background:#64748b;" onclick="closeModal()">Đóng</button>
-            <button class="btn-action" style="background:#10b981;" onclick="inviteFromModal()"><i class="ti ti-send"></i> Mời làm việc</button>
+            <button class="btn-action" style="background:var(--primary-orange); color:#ffffff;" onclick="inviteFromModal()"><i class="ti ti-send"></i> Mời làm việc</button>
         </div>
     </div>
 </div>
@@ -85,6 +89,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
+<script src="/asset/js/avatar-util.js"></script>
 <script src="/asset/js/findworker.js"></script>
 <script src="/asset/js/notification.js"></script>
 <script src="/asset/js/chat.js"></script>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng tin tuyển dụng · AntGo</title>
+    <script src="/asset/js/auth-guard.js"></script>
     <!-- Bản đồ Leaflet giống trang findjob -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -18,6 +19,9 @@
         <span class="brand-text">Ant<span class="brand-highlight">Go</span></span>
     </a>
     <div class="header-nav">
+        <a href="/interface/managejob" onclick="if(document.referrer && document.referrer.includes('/interface/managejob')){history.back(); return false;}" class="nav-btn" style="background: rgba(255, 102, 0, 0.15); border-color: rgba(255, 102, 0, 0.4); color: #ff8533;">
+            <i class="ti ti-arrow-left"></i> Quay lại
+        </a>
         <a href="/interface/managejob" class="nav-btn"><i class="ti ti-briefcase"></i> Quản lý việc làm</a>
         <a href="/interface/createjob" class="nav-btn active"><i class="ti ti-plus"></i> Đăng tin việc</a>
         <a href="/interface/profile" class="nav-btn"><i class="ti ti-user"></i> Hồ sơ</a>
@@ -35,23 +39,23 @@
             <input type="text" id="title" placeholder="VD: Cần 5 bạn phục vụ tiệc cưới cuối tuần">
         </div>
 
-        <div style="display:flex; gap:15px;">
-            <div class="form-group" style="flex:1">
+        <div class="form-row">
+            <div class="form-group">
                 <label>Lương theo giờ (VNĐ)</label>
                 <input type="number" id="hourlyRate" placeholder="VD: 25000">
             </div>
-            <div class="form-group" style="flex:1">
+            <div class="form-group">
                 <label>Số người tuyển</label>
                 <input type="number" id="requiredWorkers" value="1" min="1">
             </div>
         </div>
 
-        <div style="display:flex; gap:15px;">
-            <div class="form-group" style="flex:1">
+        <div class="form-row form-row-time">
+            <div class="form-group">
                 <label>Bắt đầu lúc</label>
                 <input type="datetime-local" id="startTime">
             </div>
-            <div class="form-group" style="flex:1">
+            <div class="form-group">
                 <label>Kết thúc lúc</label>
                 <input type="datetime-local" id="endTime">
             </div>
@@ -65,7 +69,7 @@
             </select>
         </div>
 
-        <button class="btn-submit" onclick="submitJob()">Đăng việc làm</button>
+        <button class="btn-submit" id="btn-submit-job" onclick="submitJob()"><i class="ti ti-plus"></i> Đăng việc làm</button>
     </div>
 
     <!-- Cột Bản đồ -->
@@ -95,6 +99,7 @@
     </div>
 </div>
 
+<script src="/asset/js/avatar-util.js"></script>
 <script src="/asset/js/createjob.js"></script>
 <script src="/asset/js/notification.js"></script>
 <script src="/asset/js/chat.js"></script>

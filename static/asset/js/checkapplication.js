@@ -7,6 +7,8 @@ const token = localStorage.getItem('accessToken');
         localStorage.setItem('currentJobId', urlJobId);
     }
     let appsDataMap = {};
+    let currentTabType = 'APPLICATION';
+    let currentJobStatus = 'OPEN';
 
     document.addEventListener("DOMContentLoaded", () => {
         if (!token) {
@@ -14,7 +16,7 @@ const token = localStorage.getItem('accessToken');
             window.location.href = "/interface/authentication";
             return;
         }
-        if (currentMode !== 'EMPLOYER') {
+        if (String(currentMode || '').toUpperCase() !== 'EMPLOYER') {
             alert("Trang duyệt ứng viên chỉ dành cho Nhà tuyển dụng! Vui lòng chuyển vai trò trong trang Cá nhân.");
             window.location.href = "/interface/manageapplication";
             return;
@@ -24,12 +26,30 @@ const token = localStorage.getItem('accessToken');
             window.location.href = "/interface/managejob";
             return;
         }
-        loadApplications();
+        loadApplications('APPLICATION');
     });
 
+    // CHUYỂN TAB (ĐƠN ỨNG TUYỂN / LỜI MỜI RADAR)
+    function switchAppTab(tabType) {
+        currentTabType = tabType;
+        document.querySelectorAll('.app-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
+        if (tabType === 'APPLICATION') {
+            const btnApp = document.getElementById('tab-btn-applications');
+            if (btnApp) btnApp.classList.add('active');
+        } else {
+            const btnInv = document.getElementById('tab-btn-invitations');
+            if (btnInv) btnInv.classList.add('active');
+        }
+        loadApplications(tabType);
+    }
+
     // 1. TẢI DANH SÁCH ỨNG TUYỂN (Dùng API GET /job)
-    function loadApplications() {
-        fetch(`http://localhost:8083/api/v1/application/job?jobId=${jobId}`, {
+    function loadApplications(filterType = currentTabType) {
+        let url = `/api/v1/application/job?jobId=${jobId}`;
+        if (currentJobStatus === 'OPEN' && filterType) {
+            url += `&type=${filterType}`;
+        }
+        fetch(url, {
             method: 'GET',
             headers: { 'Authorization': 'Bearer ' + token }
         })
@@ -46,10 +66,10 @@ const token = localStorage.getItem('accessToken');
                 }
                 return res.json();
             })
-            .then(res => res.json())
             .then(apiRes => {
                 const apps = apiRes.data || [];
-                document.getElementById('app-count').innerText = `${apps.length} hồ sơ`;
+                const jobStatus = apps.length > 0 ? (apps[0].jobStatus || 'OPEN') : currentJobStatus;
+                currentJobStatus = jobStatus;
 
                 // Cập nhật tiêu đề công việc & cảnh báo trạng thái
                 if (apps.length > 0 && apps[0].jobTitle) {
@@ -58,7 +78,34 @@ const token = localStorage.getItem('accessToken');
                     document.getElementById('page-job-title').innerText = "Duyệt Đơn Ứng Tuyển";
                 }
 
-                const jobStatus = apps.length > 0 ? apps[0].jobStatus : 'OPEN';
+                const tabsContainer = document.getElementById('app-tabs-container');
+                const sectionTitle = document.querySelector('.section-title');
+                const appCount = document.getElementById('app-count');
+
+                if (jobStatus === 'COMPLETED') {
+                    if (tabsContainer) tabsContainer.style.display = 'none';
+                    if (sectionTitle) sectionTitle.innerText = "Đánh giá & Danh sách ứng viên hoàn thành";
+                    if (appCount) appCount.innerText = `${apps.length} ứng viên`;
+                } else if (jobStatus === 'IN_PROGRESS') {
+                    if (tabsContainer) tabsContainer.style.display = 'none';
+                    if (sectionTitle) sectionTitle.innerText = "Danh sách ứng viên trong ca làm";
+                    if (appCount) appCount.innerText = `${apps.length} ứng viên`;
+                } else {
+                    // Trạng thái OPEN: Chỉ đưa ứng viên đã ứng tuyển trong tab mặc định
+                    if (tabsContainer) tabsContainer.style.display = 'flex';
+                    if (filterType === 'INVITATION') {
+                        if (sectionTitle) sectionTitle.innerText = "Lời mời gửi qua Radar";
+                        if (appCount) appCount.innerText = `${apps.length} lời mời`;
+                        const badgeInv = document.getElementById('badge-tab-inv');
+                        if (badgeInv) badgeInv.innerText = apps.length;
+                    } else {
+                        if (sectionTitle) sectionTitle.innerText = "Danh sách ứng viên ứng tuyển";
+                        if (appCount) appCount.innerText = `${apps.length} hồ sơ`;
+                        const badgeApp = document.getElementById('badge-tab-app');
+                        if (badgeApp) badgeApp.innerText = apps.length;
+                    }
+                }
+
                 const alertBox = document.getElementById('job-status-alert');
                 if (alertBox) {
                     if (jobStatus === 'IN_PROGRESS') {
@@ -66,19 +113,19 @@ const token = localStorage.getItem('accessToken');
                         alertBox.style.background = '#fffbeb';
                         alertBox.style.color = '#b45309';
                         alertBox.style.border = '1px solid #fde68a';
-                        alertBox.innerHTML = '<i class="ti ti-player-play" style="font-size:18px;"></i> <span>Công việc đang diễn ra. Đã chốt danh sách thợ và các đơn chưa duyệt đã tự động đóng.</span>';
+                        alertBox.innerHTML = '<i class="ti ti-player-play" style="font-size:18px;"></i> <span>Công việc đang diễn ra. Đã chốt danh sách ứng viên và các đơn chưa duyệt đã tự động đóng.</span>';
                     } else if (jobStatus === 'COMPLETED') {
                         alertBox.style.display = 'flex';
-                        alertBox.style.background = '#f0fdf4';
-                        alertBox.style.color = '#15803d';
-                        alertBox.style.border = '1px solid #bbf7d0';
-                        alertBox.innerHTML = '<i class="ti ti-check" style="font-size:18px;"></i> <span>Công việc đã hoàn thành. Đợt tuyển dụng đã kết thúc.</span>';
+                        alertBox.style.background = 'var(--primary-light)';
+                        alertBox.style.color = '#C2410C';
+                        alertBox.style.border = '1px solid #FED7AA';
+                        alertBox.innerHTML = '<i class="ti ti-check" style="font-size:18px; color:var(--primary-orange);"></i> <span>Công việc đã hoàn thành. Hãy đánh giá các ứng viên bên dưới để hoàn tất ca làm.</span>';
                     } else if (jobStatus === 'CANCELLED') {
                         alertBox.style.display = 'flex';
-                        alertBox.style.background = '#fef2f2';
-                        alertBox.style.color = '#dc2626';
-                        alertBox.style.border = '1px solid #fecaca';
-                        alertBox.innerHTML = '<i class="ti ti-alert-triangle" style="font-size:18px;"></i> <span>Công việc đã bị hủy do quá giờ bắt đầu hoặc lý do khác.</span>';
+                        alertBox.style.background = '#F4F4F5';
+                        alertBox.style.color = 'var(--black-main)';
+                        alertBox.style.border = '1px solid var(--border-line)';
+                        alertBox.innerHTML = '<i class="ti ti-alert-triangle" style="font-size:18px; color:var(--primary-orange);"></i> <span>Công việc đã bị hủy do quá giờ bắt đầu hoặc lý do khác.</span>';
                     } else {
                         alertBox.style.display = 'none';
                     }
@@ -87,7 +134,8 @@ const token = localStorage.getItem('accessToken');
                 renderAppList(apps, jobStatus);
             })
             .catch(err => {
-                document.getElementById('app-list-container').innerHTML = `<p style="color:red; text-align:center;">Lỗi kết nối máy chủ!</p>`;
+                console.error("Lỗi:", err);
+                document.getElementById('app-list-container').innerHTML = `<p style="color:var(--text-sub); text-align:center;">Lỗi kết nối máy chủ!</p>`;
             });
     }
 
@@ -95,9 +143,17 @@ const token = localStorage.getItem('accessToken');
     function renderAppList(apps, jobStatus) {
         const container = document.getElementById('app-list-container');
         if (apps.length === 0) {
+            let emptyMsg = "Chưa có ứng viên nào nộp đơn ứng tuyển cho công việc này.";
+            if (currentTabType === 'INVITATION' && jobStatus === 'OPEN') {
+                emptyMsg = "Chưa có lời mời nhận việc nào được gửi qua Radar.";
+            } else if (jobStatus === 'COMPLETED') {
+                emptyMsg = "Không tìm thấy ứng viên nào hoàn thành công việc này để đánh giá.";
+            } else if (jobStatus === 'IN_PROGRESS') {
+                emptyMsg = "Chưa có ứng viên nào tham gia ca làm việc này.";
+            }
             container.innerHTML = `
                 <div style="text-align: center; color: #94a3b8; padding: 40px; background: var(--bg-surface); border-radius: 12px; border: 1px dashed var(--border);">
-                    <p>Chưa có thợ nào ứng tuyển vào công việc này.</p>
+                    <p>${emptyMsg}</p>
                 </div>`;
             return;
         }
@@ -108,26 +164,60 @@ const token = localStorage.getItem('accessToken');
         apps.forEach(app => {
             appsDataMap[app.applicationId] = app;
 
-            // Xử lý avatar fallback
-            let avatar = app.workerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(app.workerName)}&background=e2e8f0&color=0f172a&size=128`;
+            // Xử lý avatar với universal utility (Drive ID, external, brand fallback)
+            let avatar = (typeof resolveAvatarUrl === 'function') 
+                ? resolveAvatarUrl(app.workerAvatar, app.workerName) 
+                : (app.workerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(app.workerName)}&background=18181b&color=ff6600&size=128&bold=true`);
             let displayPhone = app.status === 'PENDING' ? app.phone.substring(0,4) + '***' + app.phone.substring(7) : app.phone;
             let timeStr = app.createdAt ? new Date(app.createdAt).toLocaleString('vi-VN', {hour: '2-digit', minute:'2-digit', day:'2-digit', month:'2-digit'}) : 'Mới đây';
             let scoreStr = app.workerScore != null ? app.workerScore : 'Chưa có';
 
             // Icon xác thực CCCD
-            let verifiedIcon = app.identityVerified ? `<i class="ti ti-discount-check-filled" style="color: var(--success-color);" title="Đã xác thực CCCD"></i>` : '';
+            let verifiedIcon = app.identityVerified ? `<i class="ti ti-discount-check-filled" style="color: var(--primary-orange);" title="Đã xác thực CCCD"></i>` : '';
+
+            // Badge loại đơn (Tự ứng tuyển vs Được mời)
+            let typeBadge = '';
+            if (app.type === 'INVITATION') {
+                typeBadge = `<span class="tag" style="background:var(--primary-light); color:var(--primary-orange); border:1px solid #fed7aa; padding:2px 8px; border-radius:6px; font-weight:600;"><i class="ti ti-mail-check"></i> Được mời</span>`;
+            } else {
+                typeBadge = `<span class="tag" style="background:#f8fafc; color:#475569; padding:2px 8px; border-radius:6px; font-weight:600;"><i class="ti ti-file-text"></i> Tự ứng tuyển</span>`;
+            }
 
             let actionHtml = '';
 
-            // Nút flag khiếu nại thợ (Phương án 1)
+            // Nút flag khiếu nại ứng viên
             let reportFlag = '';
-            if (app.isDisputed) {
-                reportFlag = `<span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; font-size:11px; padding:3px 8px; border-radius:6px;" title="Đang có khiếu nại"><i class="ti ti-alert-triangle"></i> Khiếu nại</span>`;
+            if (app.hasReported) {
+                reportFlag = `<span class="badge" style="background:#18181B; color:#ffffff; border:1px solid #18181B; font-size:11px; padding:3px 8px; border-radius:6px;" title="Bạn đã gửi khiếu nại ứng viên này"><i class="ti ti-check" style="color:var(--primary-orange);"></i> Đã báo cáo</span>`;
             } else if (['BOOKED', 'IN_PROGRESS', 'COMPLETED', 'NO_SHOW', 'CANCELLED'].includes(app.status)) {
-                reportFlag = `<button class="btn-report-flag" onclick="openEmployerReportModal('${app.applicationId}', '${escapeQuote(app.workerName)}')" title="Báo cáo / Khiếu nại thợ"><i class="ti ti-flag"></i></button>`;
+                let disputeNote = app.isDisputed ? `<span class="badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; font-size:11px; padding:2px 6px; margin-right:4px;" title="Ứng viên đã gửi khiếu nại đối ứng"><i class="ti ti-alert-triangle"></i> Đang tranh chấp</span>` : '';
+                reportFlag = `${disputeNote}<button class="btn-report-flag" onclick="openEmployerReportModal('${app.applicationId}', '${escapeQuote(app.workerName)}')" title="Báo cáo / Khiếu nại ứng viên"><i class="ti ti-flag"></i></button>`;
             }
 
-            if (app.status === 'PENDING') {
+            // Với LỜI MỜI khi đang OPEN: Do ứng viên quyết định, nhà tuyển dụng không duyệt thay
+            if (app.type === 'INVITATION' && jobStatus === 'OPEN') {
+                if (app.status === 'PENDING') {
+                    actionHtml = `
+                        <div class="badge" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a;">
+                            <i class="ti ti-clock"></i> Đang chờ ứng viên quyết định
+                        </div>
+                        <button class="btn btn-outline" style="margin-top:4px;" onclick="viewDetail('${app.applicationId}')">Xem hồ sơ</button>
+                    `;
+                } else if (app.status === 'BOOKED') {
+                    actionHtml = `
+                        <div class="badge badge-accepted">
+                            <i class="ti ti-check" style="color:var(--primary-orange);"></i> Ứng viên đã nhận lời
+                        </div>
+                        <button class="btn btn-outline" style="margin-top:4px;" onclick="viewDetail('${app.applicationId}')">Xem hồ sơ</button>
+                    `;
+                } else {
+                    actionHtml = `
+                        <div class="badge badge-rejected">
+                            <i class="ti ti-x"></i> Ứng viên đã từ chối
+                        </div>
+                    `;
+                }
+            } else if (app.status === 'PENDING') {
                 if (jobStatus && jobStatus !== 'OPEN') {
                     actionHtml = `<div class="badge badge-rejected"><i class="ti ti-clock-x"></i> Hết hạn</div>
                                   <button class="btn btn-outline" style="margin-top:4px;" onclick="viewDetail('${app.applicationId}')">Xem hồ sơ</button>`;
@@ -141,15 +231,15 @@ const token = localStorage.getItem('accessToken');
                     `;
                 }
             } else if (app.status === 'BOOKED') {
-                actionHtml = `<div class="badge badge-accepted"><i class="ti ti-check"></i> Đã nhận</div>
+                actionHtml = `<div class="badge badge-accepted"><i class="ti ti-check" style="color:var(--primary-orange);"></i> Đã nhận</div>
                               <button class="btn btn-outline" style="margin-top:4px;" onclick="viewDetail('${app.applicationId}')">Liên hệ</button>`;
             } else if (app.status === 'IN_PROGRESS') {
                 if (app.checkOutAt) {
                     let satisfactionAction = '';
                     if (!app.employerConfirmed) {
-                        satisfactionAction = `<button class="btn btn-primary" style="margin-top:4px; background:var(--success-color); border:none; display:inline-flex; align-items:center; gap:4px;" onclick="confirmEmployerSatisfaction('${app.applicationId}')"><i class="ti ti-thumb-up"></i> Xác nhận hài lòng</button>`;
+                        satisfactionAction = `<button class="btn btn-primary" style="margin-top:4px; background:var(--primary-orange); border:none; display:inline-flex; align-items:center; gap:4px;" onclick="confirmEmployerSatisfaction('${app.applicationId}')"><i class="ti ti-thumb-up"></i> Xác nhận hài lòng</button>`;
                     } else {
-                        satisfactionAction = `<span style="font-size:12px; color:#15803d; margin-top:4px; display:inline-flex; align-items:center; gap:3px;"><i class="ti ti-check"></i> Đã xác nhận hài lòng</span>`;
+                        satisfactionAction = `<span style="font-size:12px; color:var(--black-main); font-weight:600; margin-top:4px; display:inline-flex; align-items:center; gap:3px;"><i class="ti ti-check" style="color:var(--primary-orange);"></i> Đã xác nhận hài lòng</span>`;
                     }
                     actionHtml = `<div class="badge" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a;"><i class="ti ti-logout"></i> Đã ra ca</div>
                                   ${satisfactionAction}
@@ -172,32 +262,34 @@ const token = localStorage.getItem('accessToken');
                             </div>` : ''}
                         </div>`;
                 } else {
-                    reviewBtn = `<button class="btn btn-primary" style="margin-top:4px; background:linear-gradient(135deg, #f59e0b, #d97706); border:none; display:inline-flex; align-items:center; gap:4px;" onclick="openEmployerReviewModal('${app.applicationId}', '${escapeQuote(app.workerName)}')"><span style="font-size:15px;">★</span> Đánh giá Thợ</button>`;
+                    reviewBtn = `<button class="btn btn-primary" style="margin-top:4px; background:var(--primary-orange); border:none; display:inline-flex; align-items:center; gap:4px;" onclick="openEmployerReviewModal('${app.applicationId}', '${escapeQuote(app.workerName)}')"><span style="font-size:15px;">★</span> Đánh giá Ứng viên</button>`;
                 }
-                actionHtml = `<div class="badge" style="background:#ecfdf5; color:#15803d; border:1px solid #a7f3d0;"><i class="ti ti-check"></i> Hoàn thành</div>
+                actionHtml = `<div class="badge badge-accepted"><i class="ti ti-check" style="color:var(--primary-orange);"></i> Hoàn thành</div>
                               ${reviewBtn}`;
             } else if (app.status === 'NO_SHOW') {
-                actionHtml = `<div class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5;"><i class="ti ti-alert-triangle"></i> Bỏ ca</div>`;
+                actionHtml = `<div class="badge badge-rejected"><i class="ti ti-alert-triangle"></i> Bỏ ca</div>`;
             } else {
                 const cancelLabel = (jobStatus && jobStatus !== 'OPEN') ? 'Đã đóng / Hết hạn' : 'Đã từ chối';
                 actionHtml = `<div class="badge badge-rejected">${cancelLabel}</div>`;
             }
 
             // Nút nhắn tin
+            const chatJobTitle = app.jobTitle || (document.getElementById('page-job-title') ? document.getElementById('page-job-title').innerText : '');
             actionHtml += `
-                <button class="btn btn-secondary" style="margin-top:8px; width:100%;" onclick="if(window.openChatByAppId) window.openChatByAppId('${app.applicationId}', '${escapeQuote(app.workerName)}', '', '${escapeQuote(avatar)}', null, 'WORKER'); else alert('Tính năng nhắn tin đang tải...');">
+                <button class="btn btn-secondary" style="margin-top:8px; width:100%;" onclick="if(window.openChatByAppId) window.openChatByAppId('${app.applicationId}', '${escapeQuote(app.workerName)}', '${escapeQuote(chatJobTitle)}', '${escapeQuote(avatar)}', null, 'WORKER'); else alert('Tính năng nhắn tin đang tải...');">
                     <i class="ti ti-message-circle"></i> Nhắn tin
                 </button>`;
 
             html += `
                 <div class="app-card" id="card-${app.applicationId}">
-                    <img src="${avatar}" class="worker-avatar">
+                    <img src="${avatar}" class="worker-avatar" onerror="if(typeof handleAvatarError === 'function') handleAvatarError(this, '${escapeQuote(app.workerName)}');">
                     <div class="worker-info">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
                             <h4 style="margin:0;">${app.workerName} ${verifiedIcon}</h4>
                             ${reportFlag}
                         </div>
                         <div class="info-tags">
+                            ${typeBadge}
                             <span class="tag"><i class="ti ti-star"></i> ${scoreStr} / 100</span>
                             <span class="tag"><i class="ti ti-phone"></i> ${displayPhone}</span>
                         </div>
@@ -224,7 +316,7 @@ const token = localStorage.getItem('accessToken');
             isAccepted: isAccepted
         };
 
-        fetch(`http://localhost:8083/api/v1/application/isacceptapplication`, {
+        fetch(`/api/v1/application/isacceptapplication`, {
             method: 'PUT',
             headers: {
                 'Authorization': 'Bearer ' + token,
@@ -258,14 +350,16 @@ const token = localStorage.getItem('accessToken');
     // 4. HIỂN THỊ CHI TIẾT
     function viewDetail(applicationId) {
         const app = appsDataMap[applicationId];
-        let avatar = app.workerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(app.workerName)}&background=e2e8f0&color=0f172a&size=128`;
+        let avatar = (typeof resolveAvatarUrl === 'function') 
+            ? resolveAvatarUrl(app.workerAvatar, app.workerName) 
+            : (app.workerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(app.workerName)}&background=18181b&color=ff6600&size=128&bold=true`);
         let displayPhone = ( app.status === 'BOOKED') ? app.phone : app.phone.substring(0,4) + '***' + app.phone.substring(7);
         let phoneNote = app.status === 'PENDING' ? '<div style="font-size:12px; color:var(--text-sub); margin-top:4px;">Chấp nhận để xem số đầy đủ</div>' : '';
-        let verifiedIcon = app.identityVerified ? `<i class="ti ti-discount-check-filled" style="color: var(--success-color);" title="Đã xác thực CCCD"></i>` : '';
+        let verifiedIcon = app.identityVerified ? `<i class="ti ti-discount-check-filled" style="color: var(--primary-orange);" title="Đã xác thực CCCD"></i>` : '';
 
         let html = `
             <div class="profile-banner">
-                <img src="${avatar}">
+                <img src="${avatar}" onerror="if(typeof handleAvatarError === 'function') handleAvatarError(this, '${escapeQuote(app.workerName)}');">
                 <div>
                     <h3 style="margin:0 0 4px; font-size:18px; display:flex; align-items:center; gap:6px;">
                         ${app.workerName} ${verifiedIcon}
@@ -287,7 +381,7 @@ const token = localStorage.getItem('accessToken');
                     <i class="ti ti-shield-check detail-icon"></i>
                     <div>
                         <div style="font-size:13px; color:var(--text-sub);">Xác thực danh tính</div>
-                        <div style="font-weight:500; color:${app.identityVerified ? 'var(--success-color)' : 'var(--text-main)'};">
+                        <div style="font-weight:500; color:${app.identityVerified ? 'var(--primary-orange)' : 'var(--text-main)'};">
                             ${app.identityVerified ? 'Đã xác thực CCCD' : 'Chưa xác thực'}
                         </div>
                     </div>
@@ -305,7 +399,7 @@ const token = localStorage.getItem('accessToken');
         return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
     }
 
-    // XỬ LÝ ĐÁNH GIÁ THỢ (DÀNH CHO CHỦ NHÀ)
+    // XỬ LÝ ĐÁNH GIÁ ỨNG VIÊN (DÀNH CHO NHÀ TUYỂN DỤNG)
     let currentEmployerReviewAppId = null;
     let selectedEmployerRatingScore = 5;
 
@@ -319,7 +413,7 @@ const token = localStorage.getItem('accessToken');
 
     function openEmployerReviewModal(applicationId, workerName) {
         currentEmployerReviewAppId = applicationId;
-        document.getElementById('employerReviewWorkerName').innerText = workerName || 'Thợ';
+        document.getElementById('employerReviewWorkerName').innerText = workerName || 'Ứng viên';
         document.getElementById('employerReviewCommentText').value = '';
         selectEmployerRating(5);
         document.getElementById('employerReviewModal').style.display = 'flex';
@@ -375,7 +469,7 @@ const token = localStorage.getItem('accessToken');
 
         const comment = document.getElementById('employerReviewCommentText').value.trim();
 
-        fetch('http://localhost:8083/api/v1/review', {
+        fetch('/api/v1/review', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -390,7 +484,7 @@ const token = localStorage.getItem('accessToken');
         .then(res => res.json())
         .then(apiRes => {
             if (apiRes.code === 200 || apiRes.code === 201) {
-                alert("Đã gửi đánh giá thợ thành công!");
+                alert("Đã gửi đánh giá ứng viên thành công!");
                 closeEmployerReviewModal();
                 loadApplications();
             } else {
@@ -408,8 +502,8 @@ const token = localStorage.getItem('accessToken');
     }
 
     function confirmEmployerSatisfaction(applicationId) {
-        if (!confirm("Bạn xác nhận hài lòng với ca làm của thợ này?")) return;
-        fetch(`http://localhost:8083/api/v1/application/satisfaction?applicationId=${applicationId}`, {
+        if (!confirm("Bạn xác nhận hài lòng với ca làm của ứng viên này?")) return;
+        fetch(`/api/v1/application/satisfaction?applicationId=${applicationId}`, {
             method: 'PUT',
             headers: { 'Authorization': 'Bearer ' + token }
         })
@@ -420,7 +514,6 @@ const token = localStorage.getItem('accessToken');
             }
             return res.json();
         })
-        .then(res => res.json())
         .then(res => {
             if (res.code === 200) {
                 alert("Đã xác nhận hài lòng! Ca làm sẽ chính thức hoàn tất khi cả hai bên xác nhận xong.");
@@ -435,13 +528,13 @@ const token = localStorage.getItem('accessToken');
         });
     }
 
-    // XỬ LÝ KHIẾU NẠI THỢ (DÀNH CHO CHỦ NHÀ)
+    // XỬ LÝ KHIẾU NẠI ỨNG VIÊN (DÀNH CHO NHÀ TUYỂN DỤNG)
     let currentEmployerReportAppId = null;
     let employerReportSelectedFiles = [];
 
     function openEmployerReportModal(applicationId, workerName) {
         currentEmployerReportAppId = applicationId;
-        document.getElementById('employerReportWorkerName').innerText = workerName || 'Thợ';
+        document.getElementById('employerReportWorkerName').innerText = workerName || 'Ứng viên';
         document.getElementById('employerReportDetailText').value = '';
         employerReportSelectedFiles = [];
         renderEmployerReportPreview();
@@ -565,7 +658,7 @@ const token = localStorage.getItem('accessToken');
             formData.append('files', file);
         });
 
-        fetch(`http://localhost:8083/api/v1/report`, {
+        fetch(`/api/v1/report`, {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + token

@@ -333,3 +333,64 @@
             margin-bottom: 8px;
             color: #94a3b8;
         }
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (TABLETS & MOBILE)
+   ========================================================================== */
+@media (max-width: 600px) {
+    .header {
+        padding: 12px 16px;
+    }
+
+    .header-title {
+        font-size: 16px;
+    }
+
+    .container {
+        margin: 16px auto;
+        padding: 0 12px;
+    }
+
+    .detail-card {
+        padding: 18px 14px;
+        border-radius: 12px;
+    }
+
+    .detail-title {
+        font-size: 18px;
+    }
+
+    .detail-content-box {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-box-card {
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .btn-search {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .detail-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .btn-action-primary,
+    .btn-action-secondary {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .other-item {
+        padding: 12px 12px;
+    }
+}
+

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Quét Mã Điểm Danh · AntGo</title>
 
+    <script src="/asset/js/auth-guard.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
@@ -14,7 +15,12 @@
 
 <div class="header">
     <h1><i class="ti ti-scan text-primary"></i> Máy quét AntGo</h1>
-    <a href="javascript:history.back()" class="btn-back"><i class="ti ti-arrow-left"></i> Hủy</a>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <button type="button" class="btn-header-reload" id="btn-header-reload" onclick="reloadCamera()" title="Tải lại camera">
+            <i class="ti ti-rotate-clockwise" id="icon-header-reload"></i>
+        </button>
+        <a href="javascript:history.back()" class="btn-back"><i class="ti ti-arrow-left"></i> Hủy</a>
+    </div>
 </div>
 
 <div class="container" id="main-ui">
@@ -26,12 +32,40 @@
     <div class="scanner-wrapper">
         <div class="scanner-container">
             <div id="reader"></div>
+
+            <!-- Lớp phủ trạng thái / tải lại camera -->
+            <div id="cam-status-overlay" class="cam-status-overlay">
+                <div class="cam-spinner" id="cam-spinner"></div>
+                <i class="ti ti-camera-off cam-error-icon" id="cam-error-icon" style="display: none;"></i>
+                <span id="cam-status-text">Đang kết nối camera...</span>
+                <button type="button" class="btn-overlay-retry" id="btn-overlay-retry" style="display: none;" onclick="reloadCamera()">
+                    <i class="ti ti-rotate-clockwise"></i> Bật lại camera
+                </button>
+            </div>
+
             <div class="scan-corner corner-tl"></div>
             <div class="scan-corner corner-tr"></div>
             <div class="scan-corner corner-bl"></div>
             <div class="scan-corner corner-br"></div>
             <div class="scan-line"></div>
         </div>
+    </div>
+
+    <!-- Thanh công cụ: Nút Tải lại Camera & Đổi Camera -->
+    <div class="scanner-toolbar">
+        <button type="button" class="btn-scanner-tool" id="btn-reload-cam" onclick="reloadCamera()" title="Tải lại camera nếu lần đầu bị lỗi hoặc chưa bật được">
+            <i class="ti ti-rotate-clockwise" id="icon-reload-cam"></i>
+            <span>Tải lại Camera</span>
+        </button>
+        <button type="button" class="btn-scanner-tool" id="btn-switch-cam" onclick="switchCamera()" title="Đổi giữa camera sau và camera trước">
+            <i class="ti ti-camera-rotate"></i>
+            <span>Đổi Camera</span>
+        </button>
+    </div>
+
+    <div class="scanner-hint">
+        <i class="ti ti-info-circle"></i>
+        <span>Nếu camera bị đen hoặc không bật được lần đầu, hãy bấm <strong>"Tải lại Camera"</strong>.</span>
     </div>
 </div>
 
@@ -49,9 +83,9 @@
     </button>
 </div>
 
-<!-- Popup Quyết Toán Lương cho Thợ khi CHECKOUT -->
+<!-- Popup Quyết Toán Lương cho Ứng viên khi CHECKOUT -->
 <div id="payment-sheet" class="result-sheet">
-    <div class="result-icon-wrapper" style="color: var(--success); border-color: #dcfce7;">
+    <div class="result-icon-wrapper" style="color: var(--primary-orange); border-color: #fed7aa; background: var(--primary-light);">
         <i class="ti ti-cash result-icon"></i>
     </div>
     <h3 class="result-title" style="margin-bottom: 4px;">Quyết toán ca làm</h3>
@@ -77,9 +111,9 @@
         <i class="ti ti-check"></i> Xác nhận đã nhận tiền
     </button>
 
-    <!-- Nút Báo Cáo (UI) -->
-    <button class="btn-action" style="background:#fee2e2; color:#b91c1c; border:none; margin-top:10px;" onclick="promptReport()">
-        <i class="ti ti-alert-triangle"></i> Báo cáo vấn đề
+    <!-- Nút Báo Cáo vấn đề (Màu chủ đạo Đen - Cam - Trắng) -->
+    <button class="btn-action btn-report-sheet" id="btn-open-report" onclick="openReportModal()">
+        <i class="ti ti-alert-triangle"></i> Báo cáo vấn đề ca làm
     </button>
 
     <button class="btn-action btn-secondary" onclick="goHome()">
@@ -87,11 +121,52 @@
     </button>
 </div>
 
+<!-- MODAL BÁO CÁO / KHIẾU NẠI CA LÀM (CHUẨN FORM CÓ BẰNG CHỨNG) -->
+<div id="reportModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="ti ti-alert-triangle" style="color: var(--primary-orange);"></i> Báo cáo / Khiếu nại ca làm</h3>
+            <button class="btn-close" onclick="closeReportModal()"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body">
+            <p style="margin: 0 0 14px; font-size: 13px; color: var(--text-sub);">
+                Vui lòng cung cấp chi tiết sự việc để Ban quản trị AntGo hỗ trợ xử lý và bảo vệ quyền lợi của bạn.
+            </p>
+            <div class="form-group" style="margin-bottom: 14px; text-align: left;">
+                <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px; color: var(--text-main);">Mô tả chi tiết sự việc:</label>
+                <textarea id="reportDetailText" class="form-control" rows="4" placeholder="VD: Nhà tuyển dụng không trả đúng số tiền công đã thỏa thuận, bị cắt xén giờ làm, mâu thuẫn trong thanh toán..."></textarea>
+            </div>
+            <div class="form-group" style="text-align: left;">
+                <label style="font-weight: 600; font-size: 13px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; color: var(--text-main);">
+                    <span>Bằng chứng đính kèm (Ảnh & Video):</span>
+                    <span style="font-size: 11px; font-weight: normal; color: var(--text-sub);">Tối đa 5 ảnh, 1 video (&le;50MB)</span>
+                </label>
+                
+                <input type="file" id="reportFileInput" multiple accept="image/*,video/*" style="display: none;" onchange="handleReportFilesSelected(event)">
+                
+                <div onclick="document.getElementById('reportFileInput').click()" style="border: 1.5px dashed #cbd5e1; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; background: #f8fafc; transition: all 0.2s;">
+                    <i class="ti ti-cloud-upload" style="font-size: 28px; color: var(--primary-orange); display: block; margin-bottom: 4px;"></i>
+                    <span style="font-size: 13px; color: var(--text-main); font-weight: 600;">Bấm vào đây để chọn ảnh hoặc video bằng chứng</span>
+                    <div style="font-size: 11px; color: var(--text-sub); margin-top: 3px;">Hỗ trợ ảnh chụp hóa đơn, tin nhắn, ảnh hiện trường...</div>
+                </div>
+
+                <!-- Khung xem trước các file đã chọn -->
+                <div id="reportMediaPreview" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-modal-cancel" onclick="closeReportModal()">Hủy</button>
+            <button class="btn-modal-submit" id="btnSubmitReport" onclick="submitReport()">Gửi báo cáo</button>
+        </div>
+    </div>
+</div>
+
 <!-- Thư viện WebSocket -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
-<script src="/asset/js/scanner.js"></script>
+<script src="/asset/js/avatar-util.js"></script>
+<script src="/asset/js/scanner.js?v=2.0"></script>
 <script src="/asset/js/notification.js"></script>
 <script src="/asset/js/chat.js"></script>
 </body>

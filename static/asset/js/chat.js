@@ -37,7 +37,7 @@
             .flashjob-chat-btn:active { cursor: grabbing; transform: scale(1.06); }
             .flashjob-chat-badge {
                 position: absolute; top: -3px; right: -3px;
-                background: #ef4444; color: white; font-size: 11px;
+                background: #FF6600; color: white; font-size: 11px;
                 font-weight: 700; padding: 2px 6px; border-radius: 10px;
                 border: 2px solid white; display: none; pointer-events: none;
             }
@@ -78,7 +78,7 @@
             .chat-item-job { font-size: 12px; color: #FF6600; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
             .chat-item-msg { font-size: 13px; color: #64748b; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .chat-item-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; font-size:11px; color:#94a3b8; }
-            .chat-item-unread { background: #ef4444; color: white; padding: 2px 6px; border-radius: 10px; font-weight: 700; }
+            .chat-item-unread { background: #FF6600; color: white; padding: 2px 6px; border-radius: 10px; font-weight: 700; }
 
             /* Chat Modal */
             .flashjob-chat-modal {
@@ -141,14 +141,14 @@
                 letter-spacing: 0.1px;
             }
             .chat-role-badge.badge-employer {
-                background: #eff6ff;
-                color: #1d4ed8;
-                border: 1px solid #bfdbfe;
+                background: #18181B;
+                color: #ffffff;
+                border: 1px solid #18181B;
             }
             .chat-role-badge.badge-worker {
-                background: #ecfdf5;
-                color: #047857;
-                border: 1px solid #a7f3d0;
+                background: #FFF0E6;
+                color: #FF6600;
+                border: 1px solid #FED7AA;
             }
             .chat-msg-header {
                 display: flex;
@@ -255,7 +255,7 @@
                 display: flex; align-items: center; justify-content: center; color: #FF6600;
             }
             .preview-media-item .item-remove-btn {
-                position: absolute; top: -6px; right: -6px; background: #ef4444; color: white;
+                position: absolute; top: -6px; right: -6px; background: #18181B; color: white;
                 border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 12px;
                 cursor: pointer; display: flex; align-items: center; justify-content: center;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.3); line-height: 1;
@@ -266,7 +266,7 @@
                 display: flex; align-items: center; justify-content: center; flex-shrink: 0;
                 transition: background 0.2s;
             }
-            .preview-clear-btn:hover { background: #ef4444; }
+            .preview-clear-btn:hover { background: #18181B; }
 
             .chat-msg-media-img {
                 max-width: 240px; max-height: 240px; border-radius: 10px;
@@ -316,12 +316,28 @@
                 max-width: 90vw; max-height: 85vh; object-fit: contain; border-radius: 8px;
                 box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             }
-            .lightbox-content iframe {
-                width: 80vw; height: 80vh; max-width: 800px; max-height: 480px;
-                border: none; border-radius: 8px; background: black;
-            }
-
             .chat-empty { text-align: center; color: #94a3b8; font-size: 14px; margin: auto; padding: 20px;}
+
+            @media (max-width: 480px) {
+                .flashjob-chat-dropdown {
+                    width: calc(100vw - 24px) !important;
+                    max-width: 360px !important;
+                    max-height: 70vh !important;
+                }
+                .chat-box {
+                    max-width: 100% !important;
+                    height: 100% !important;
+                    max-height: 100% !important;
+                    border-radius: 0 !important;
+                }
+                .chat-msg {
+                    max-width: 88%;
+                }
+                .chat-msg-media-img {
+                    max-width: 180px;
+                    max-height: 180px;
+                }
+            }
         `;
         const styleEl = document.createElement('style');
         styleEl.innerHTML = css;
@@ -355,7 +371,7 @@
                                 <h3 class="chat-box-header-name" id="chat-header-name">Tên người dùng</h3>
                                 <span id="chat-header-role" class="chat-role-badge" style="display:none;"></span>
                             </div>
-                            <p class="chat-box-header-job" id="chat-header-job">Tên công việc</p>
+                            <p class="chat-box-header-job" id="chat-header-job" style="display:none;"></p>
                         </div>
                         <button class="chat-box-close" id="chat-modal-close">&times;</button>
                     </div>
@@ -422,6 +438,7 @@
         let currentMyRole = null;
         const conversationsMap = {};
         const conversationsRoleMap = {};
+        const conversationsJobMap = {};
         let isDragging = false;
         let previousTotalUnread = -1;
         let lastRenderedDate = null;
@@ -513,7 +530,7 @@
         }
         
         // Fetch current user ID from /api/v1/messages/me
-        fetch('http://localhost:8083/api/v1/messages/me', { headers: { 'Authorization': 'Bearer ' + token }})
+        fetch('/api/v1/messages/me', { headers: { 'Authorization': 'Bearer ' + token }})
             .then(res => res.json())
             .then(data => {
                 if(data && data.data) {
@@ -525,7 +542,7 @@
 
         // Load conversations
         function loadConversations() {
-            fetch('http://localhost:8083/api/v1/messages/conversations', {
+            fetch('/api/v1/messages/conversations', {
                 headers: { 'Authorization': 'Bearer ' + token }
             })
             .then(r => r.json())
@@ -553,6 +570,9 @@
                 if (c.applicationId && c.counterpartyRole) {
                     conversationsRoleMap[c.applicationId] = c.counterpartyRole;
                 }
+                if (c.applicationId && c.jobTitle) {
+                    conversationsJobMap[c.applicationId] = c.jobTitle;
+                }
                 const li = document.createElement('li');
                 li.className = 'chat-item';
                 const timeStr = c.lastMessageTime ? new Date(c.lastMessageTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
@@ -564,8 +584,12 @@
                     roleBadgeHtml = '<span class="chat-role-badge badge-worker">Ứng viên</span>';
                 }
 
+                const cpAvatar = (typeof resolveAvatarUrl === 'function')
+                    ? resolveAvatarUrl(c.counterpartyAvatar, c.counterpartyName)
+                    : (c.counterpartyAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.counterpartyName)}&background=18181b&color=ff6600&size=128&bold=true`);
+
                 li.innerHTML = `
-                    <img src="${c.counterpartyAvatar || 'https://ui-avatars.com/api/?name='+encodeURIComponent(c.counterpartyName)+'&background=random'}" class="chat-item-avatar" onerror="this.src='https://ui-avatars.com/api/?name=U&background=random'">
+                    <img src="${cpAvatar}" class="chat-item-avatar" onerror="if(typeof handleAvatarError === 'function') handleAvatarError(this, '${escapeHtml(c.counterpartyName)}');">
                     <div class="chat-item-info">
                         <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
                             <p class="chat-item-name">${escapeHtml(c.counterpartyName)}</p>
@@ -630,9 +654,33 @@
                 currentMyRole = (currentCounterpartyRole === 'EMPLOYER') ? 'WORKER' : 'EMPLOYER';
             }
 
+            if (jobTitle) {
+                conversationsJobMap[appId] = jobTitle;
+            }
+            const activeJobTitle = jobTitle || conversationsJobMap[appId] || '';
+
             document.getElementById('chat-header-name').innerText = counterpartyName;
-            document.getElementById('chat-header-job').innerText = jobTitle;
-            document.getElementById('chat-header-avatar').src = counterpartyAvatar || 'https://ui-avatars.com/api/?name='+encodeURIComponent(counterpartyName)+'&background=random';
+            const headerJobEl = document.getElementById('chat-header-job');
+            if (headerJobEl) {
+                if (activeJobTitle) {
+                    headerJobEl.innerText = activeJobTitle;
+                    headerJobEl.title = activeJobTitle;
+                    headerJobEl.style.display = 'block';
+                } else {
+                    headerJobEl.innerText = '';
+                    headerJobEl.style.display = 'none';
+                }
+            }
+            const headerAvatarUrl = (typeof resolveAvatarUrl === 'function')
+                ? resolveAvatarUrl(counterpartyAvatar, counterpartyName)
+                : (counterpartyAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(counterpartyName)}&background=18181b&color=ff6600&size=128&bold=true`);
+            const headerAvatarEl = document.getElementById('chat-header-avatar');
+            if (headerAvatarEl) {
+                headerAvatarEl.src = headerAvatarUrl;
+                headerAvatarEl.onerror = function() {
+                    if (typeof handleAvatarError === 'function') handleAvatarError(this, counterpartyName);
+                };
+            }
             updateHeaderRoleBadge(currentCounterpartyRole);
             
             modal.classList.add('show');
@@ -641,13 +689,13 @@
             lastRenderedDate = null;
             
             // Mark as read
-            fetch('http://localhost:8083/api/v1/messages?applicationId=' + currentApplicationId, {
+            fetch('/api/v1/messages?applicationId=' + currentApplicationId, {
                 method: 'PATCH',
                 headers: { 'Authorization': 'Bearer ' + token }
             });
 
             // Fetch history
-            fetch('http://localhost:8083/api/v1/messages?applicationId=' + currentApplicationId, {
+            fetch('/api/v1/messages?applicationId=' + currentApplicationId, {
                 headers: { 'Authorization': 'Bearer ' + token }
             })
             .then(r => r.json())
@@ -904,7 +952,7 @@
 
             if (isImage && msg.mediaUrl) {
                 const fileId = extractDriveFileId(msg.mediaUrl);
-                const streamUrl = fileId ? `http://localhost:8083/api/v1/messages/media/${fileId}` : msg.mediaUrl;
+                const streamUrl = fileId ? `/api/v1/messages/media/${fileId}` : msg.mediaUrl;
                 const fallbackUrl = fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000` : '';
                 const captionText = (msg.content && msg.content !== '[Hình ảnh]') ? msg.content : '';
                 bodyHtml = `
@@ -988,7 +1036,7 @@
                 return;
             }
             ensureDependencies(() => {
-                const socket = new SockJS('http://localhost:8083/ws');
+                const socket = new SockJS('/ws');
                 stompClient = Stomp.over(socket);
                 stompClient.debug = null;
                 stompClient.connect({'Authorization': 'Bearer ' + token}, function(frame) {
@@ -1006,7 +1054,7 @@
                 // Mark read immediately if we are viewing
                 if(msg.senderId !== myUserId) {
                     playNotificationTone();
-                    fetch('http://localhost:8083/api/v1/messages?applicationId=' + currentApplicationId, {
+                    fetch('/api/v1/messages?applicationId=' + currentApplicationId, {
                         method: 'PATCH',
                         headers: { 'Authorization': 'Bearer ' + token }
                     });
@@ -1095,7 +1143,7 @@
                         formData.append('content', text);
                     }
 
-                    const res = await fetch('http://localhost:8083/api/v1/messages/attachment', {
+                    const res = await fetch('/api/v1/messages/attachment', {
                         method: 'POST',
                         headers: {
                             'Authorization': 'Bearer ' + token
@@ -1122,7 +1170,7 @@
                     alert('Lỗi tải tệp lên, vui lòng thử lại!');
                 }
             } else {
-                fetch('http://localhost:8083/api/v1/messages', {
+                fetch('/api/v1/messages', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

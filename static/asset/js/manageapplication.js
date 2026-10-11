@@ -117,7 +117,7 @@ const token = localStorage.getItem('accessToken');
         if (type) urlParams.append('type', type);
         if (kw) urlParams.append('keyword', kw);
 
-        const apiUrl = `http://localhost:8083/api/v1/application?${urlParams.toString()}`;
+        const apiUrl = `/api/v1/application?${urlParams.toString()}`;
 
         fetch(apiUrl, {
             method: 'GET',
@@ -178,12 +178,12 @@ const token = localStorage.getItem('accessToken');
             // LOGIC RENDER BADGE VÀ BUTTON TÙY THEO TAB
             if (isHistoryTab) {
                 if (job.status === 'COMPLETED') {
-                    badgeHtml = `<span class="badge completed"><i class="ti ti-check"></i> Đã hoàn thành</span>`;
+                    badgeHtml = `<span class="badge completed"><i class="ti ti-check" style="color:var(--primary-orange);"></i> Đã hoàn thành</span>`;
                     let reviewSection = "";
                     if (job.isReviewed === true) {
                         const starsStr = '★'.repeat(job.reviewRating || 5) + '☆'.repeat(5 - (job.reviewRating || 5));
                         reviewSection = `
-                            <button class="btn" style="background:#ecfdf5; color:#15803d; border:1px solid #a7f3d0; cursor:default; width:100%;" disabled>
+                            <button class="btn" style="background:var(--black-main); color:#ffffff; border:1px solid var(--black-main); cursor:default; width:100%;" disabled>
                                 <span style="color: #f59e0b; font-size:15px; margin-right:3px;">${starsStr}</span> (${job.reviewRating || 5}★) · Đã hoàn tất
                             </button>
                             ${job.reviewComment ? `<div style="font-size:12.5px; color:#475569; background:#f8fafc; border-left:3px solid #f59e0b; padding:6px 12px; border-radius:4px; font-style:italic; width:100%; box-sizing:border-box;">
@@ -198,7 +198,7 @@ const token = localStorage.getItem('accessToken');
                     actionButtons = `
                         <div class="job-actions">
                             <div class="job-actions-secondary">
-                                <button class="btn btn-secondary" onclick="openChatWithEmployer('${job.applicationId}', '${escapeQuote(job.employerName)}', '${escapeQuote(job.jobTitle)}')"><i class="ti ti-message-circle"></i> Nhắn tin</button>
+                                <button class="btn btn-secondary" onclick="openChatWithEmployer('${job.applicationId}', '${escapeQuote(job.employerName)}', '${escapeQuote(job.jobTitle)}', '${escapeQuote(job.employerAvatar || '')}')"><i class="ti ti-message-circle"></i> Nhắn tin</button>
                             </div>
                             <div class="job-actions-primary" style="flex-direction:column;">
                                 ${reviewSection}
@@ -209,15 +209,15 @@ const token = localStorage.getItem('accessToken');
                     actionButtons = `
                         <div class="job-actions">
                             <div class="job-actions-secondary">
-                                <button class="btn btn-secondary" onclick="openChatWithEmployer('${job.applicationId}', '${escapeQuote(job.employerName)}', '${escapeQuote(job.jobTitle)}')"><i class="ti ti-message-circle"></i> Nhắn tin</button>
+                                <button class="btn btn-secondary" onclick="openChatWithEmployer('${job.applicationId}', '${escapeQuote(job.employerName)}', '${escapeQuote(job.jobTitle)}', '${escapeQuote(job.employerAvatar || '')}')"><i class="ti ti-message-circle"></i> Nhắn tin</button>
                             </div>
                         </div>`;
                 } else if (job.status === 'NO_SHOW') {
-                    badgeHtml = `<span class="badge noshow"><i class="ti ti-alert-triangle"></i> Bỏ ca</span>`;
+                    badgeHtml = `<span class="badge noshow"><i class="ti ti-alert-triangle" style="color:var(--primary-orange);"></i> Bỏ ca</span>`;
                     actionButtons = `
                         <div class="job-actions">
                             <div class="job-actions-secondary">
-                                <button class="btn btn-secondary" onclick="openChatWithEmployer('${job.applicationId}', '${escapeQuote(job.employerName)}', '${escapeQuote(job.jobTitle)}')"><i class="ti ti-message-circle"></i> Nhắn tin</button>
+                                <button class="btn btn-secondary" onclick="openChatWithEmployer('${job.applicationId}', '${escapeQuote(job.employerName)}', '${escapeQuote(job.jobTitle)}', '${escapeQuote(job.employerAvatar || '')}')"><i class="ti ti-message-circle"></i> Nhắn tin</button>
                             </div>
                         </div>`;
                 }
@@ -242,10 +242,10 @@ const token = localStorage.getItem('accessToken');
                 actionButtons = `
                     <div class="job-actions">
                         <div class="job-actions-secondary">
-                            <button class="btn btn-secondary" onclick="openChatWithEmployer('${job.applicationId}', '${escapeQuote(job.employerName)}', '${escapeQuote(job.jobTitle)}')"><i class="ti ti-message-circle"></i> Nhắn tin cho chủ nhà</button>
+                            <button class="btn btn-secondary" onclick="openChatWithEmployer('${job.applicationId}', '${escapeQuote(job.employerName)}', '${escapeQuote(job.jobTitle)}', '${escapeQuote(job.employerAvatar || '')}')"><i class="ti ti-message-circle"></i> Nhắn tin cho nhà tuyển dụng</button>
                         </div>
                         <div class="job-actions-primary">
-                            <button class="btn btn-reject" style="flex: none; width: 100%; cursor:default;" disabled>Đang đợi phản hồi từ chủ nhà...</button>
+                            <button class="btn btn-reject" style="flex: none; width: 100%; cursor:default;" disabled>Đang đợi phản hồi từ nhà tuyển dụng...</button>
                         </div>
                     </div>`;
 
@@ -255,8 +255,8 @@ const token = localStorage.getItem('accessToken');
                 actionButtons = `
                     <div class="job-actions">
                         <div class="job-actions-secondary">
-                            ${job.employerPhone ? `<a href="tel:${job.employerPhone}" class="btn btn-secondary" title="Gọi trực tiếp cho chủ nhà"><i class="ti ti-phone"></i> Gọi Chủ nhà</a>` : ""}
-                            <button class="btn btn-secondary" onclick="openChatWithEmployer('${job.applicationId}', '${escapeQuote(job.employerName)}', '${escapeQuote(job.jobTitle)}')"><i class="ti ti-message-circle"></i> Nhắn tin</button>
+                            ${job.employerPhone ? `<a href="tel:${job.employerPhone}" class="btn btn-secondary" title="Gọi trực tiếp cho nhà tuyển dụng"><i class="ti ti-phone"></i> Gọi Nhà tuyển dụng</a>` : ""}
+                            <button class="btn btn-secondary" onclick="openChatWithEmployer('${job.applicationId}', '${escapeQuote(job.employerName)}', '${escapeQuote(job.jobTitle)}', '${escapeQuote(job.employerAvatar || '')}')"><i class="ti ti-message-circle"></i> Nhắn tin</button>
                             <button class="btn btn-secondary" onclick="openJobMap(${job.latitude}, ${job.longitude}, '${escapeQuote(job.jobTitle)}', '${escapeQuote(job.employerName)}')"><i class="ti ti-map"></i> Xem bản đồ</button>
                         </div>
                         <div class="job-actions-primary">
@@ -272,8 +272,8 @@ const token = localStorage.getItem('accessToken');
                         actionButtons = `
                             <div class="job-actions">
                                 <div class="job-actions-secondary">
-                                    ${job.employerPhone ? `<a href="tel:${job.employerPhone}" class="btn btn-secondary" title="Gọi trực tiếp cho chủ nhà"><i class="ti ti-phone"></i> Gọi Chủ nhà</a>` : ""}
-                                    <button class="btn btn-secondary" onclick="openChatWithEmployer('${job.applicationId}', '${escapeQuote(job.employerName)}', '${escapeQuote(job.jobTitle)}')"><i class="ti ti-message-circle"></i> Nhắn tin</button>
+                                    ${job.employerPhone ? `<a href="tel:${job.employerPhone}" class="btn btn-secondary" title="Gọi trực tiếp cho nhà tuyển dụng"><i class="ti ti-phone"></i> Gọi Nhà tuyển dụng</a>` : ""}
+                                    <button class="btn btn-secondary" onclick="openChatWithEmployer('${job.applicationId}', '${escapeQuote(job.employerName)}', '${escapeQuote(job.jobTitle)}', '${escapeQuote(job.employerAvatar || '')}')"><i class="ti ti-message-circle"></i> Nhắn tin</button>
                                 </div>
                                 <div class="job-actions-primary">
                                     <button class="btn btn-accept" style="width:100%; padding:11px 16px; font-weight:700;" onclick="confirmPaymentWorker('${job.applicationId}')">
@@ -286,12 +286,12 @@ const token = localStorage.getItem('accessToken');
                         actionButtons = `
                             <div class="job-actions">
                                 <div class="job-actions-secondary">
-                                    ${job.employerPhone ? `<a href="tel:${job.employerPhone}" class="btn btn-secondary" title="Gọi trực tiếp cho chủ nhà"><i class="ti ti-phone"></i> Gọi Chủ nhà</a>` : ""}
-                                    <button class="btn btn-secondary" onclick="openChatWithEmployer('${job.applicationId}', '${escapeQuote(job.employerName)}', '${escapeQuote(job.jobTitle)}')"><i class="ti ti-message-circle"></i> Nhắn tin</button>
+                                    ${job.employerPhone ? `<a href="tel:${job.employerPhone}" class="btn btn-secondary" title="Gọi trực tiếp cho nhà tuyển dụng"><i class="ti ti-phone"></i> Gọi Nhà tuyển dụng</a>` : ""}
+                                    <button class="btn btn-secondary" onclick="openChatWithEmployer('${job.applicationId}', '${escapeQuote(job.employerName)}', '${escapeQuote(job.jobTitle)}', '${escapeQuote(job.employerAvatar || '')}')"><i class="ti ti-message-circle"></i> Nhắn tin</button>
                                 </div>
                                 <div class="job-actions-primary">
                                     <button class="btn" style="background:#f4f4f5; color:#71717a; border:1px solid #e4e4e7; cursor:default; width:100%;" disabled>
-                                        <i class="ti ti-hourglass-empty"></i> Chờ chủ nhà xác nhận hài lòng
+                                        <i class="ti ti-hourglass-empty"></i> Chờ nhà tuyển dụng xác nhận hài lòng
                                     </button>
                                 </div>
                             </div>`;
@@ -302,8 +302,8 @@ const token = localStorage.getItem('accessToken');
                     actionButtons = `
                         <div class="job-actions">
                             <div class="job-actions-secondary">
-                                ${job.employerPhone ? `<a href="tel:${job.employerPhone}" class="btn btn-secondary" title="Gọi trực tiếp cho chủ nhà"><i class="ti ti-phone"></i> Gọi Chủ nhà</a>` : ""}
-                                <button class="btn btn-secondary" onclick="openChatWithEmployer('${job.applicationId}', '${escapeQuote(job.employerName)}', '${escapeQuote(job.jobTitle)}')"><i class="ti ti-message-circle"></i> Nhắn tin</button>
+                                ${job.employerPhone ? `<a href="tel:${job.employerPhone}" class="btn btn-secondary" title="Gọi trực tiếp cho nhà tuyển dụng"><i class="ti ti-phone"></i> Gọi Nhà tuyển dụng</a>` : ""}
+                                <button class="btn btn-secondary" onclick="openChatWithEmployer('${job.applicationId}', '${escapeQuote(job.employerName)}', '${escapeQuote(job.jobTitle)}', '${escapeQuote(job.employerAvatar || '')}')"><i class="ti ti-message-circle"></i> Nhắn tin</button>
                                 <button class="btn btn-secondary" onclick="openJobMap(${job.latitude}, ${job.longitude}, '${escapeQuote(job.jobTitle)}', '${escapeQuote(job.employerName)}')"><i class="ti ti-map"></i> Xem bản đồ</button>
                         </div>
                         <div class="job-actions-primary">
@@ -318,35 +318,43 @@ const token = localStorage.getItem('accessToken');
                 earnedRow = `
                     <div class="detail-row">
                         <i class="ti ti-coin"></i>
-                        <span>Tiền công thực nhận: <strong style="color: var(--success); font-size: 14px;">${earnedStr}</strong></span>
+                        <span>Tiền công thực nhận: <strong style="color: var(--primary-orange); font-size: 15px; font-weight: 800;">${earnedStr}</strong></span>
                     </div>`;
             }
 
             // NÚT FLAG KHIẾU NẠI Ở HEADER (PHƯƠNG ÁN 1)
             let reportFlagBtn = '';
-            if (job.isDisputed) {
-                reportFlagBtn = `<span class="badge dispute" title="Đã có khiếu nại phát sinh"><i class="ti ti-alert-triangle"></i> Khiếu nại</span>`;
+            if (job.hasReported) {
+                reportFlagBtn = `<span class="badge dispute" title="Bạn đã gửi khiếu nại cho ca làm này"><i class="ti ti-check"></i> Đã khiếu nại</span>`;
             } else if (['BOOKED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'NO_SHOW'].includes(job.status)) {
-                reportFlagBtn = `<button class="btn-report-flag" onclick="openReportModal('${job.applicationId}', '${escapeQuote(job.jobTitle)}')" title="Báo cáo / Khiếu nại sự cố"><i class="ti ti-flag"></i></button>`;
+                let disputeNote = job.isDisputed ? `<span class="badge dispute" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; margin-right:4px;" title="Nhà tuyển dụng đã gửi khiếu nại"><i class="ti ti-alert-triangle"></i> Đang tranh chấp</span>` : '';
+                reportFlagBtn = `${disputeNote}<button class="btn-report-flag" onclick="openReportModal('${job.applicationId}', '${escapeQuote(job.jobTitle)}')" title="Báo cáo / Khiếu nại sự cố"><i class="ti ti-flag"></i></button>`;
             }
 
             const employerPhoneRow = job.employerPhone ? `
                 <div class="detail-row">
                     <i class="ti ti-phone" style="color:var(--primary);"></i>
-                    <span>Liên hệ chủ nhà: <a href="tel:${job.employerPhone}" style="color:var(--primary); font-weight:600; text-decoration:none;"><i class="ti ti-phone-call"></i> ${job.employerPhone} (Bấm để gọi)</a></span>
+                    <span>Liên hệ nhà tuyển dụng: <a href="tel:${job.employerPhone}" style="color:var(--primary); font-weight:600; text-decoration:none;"><i class="ti ti-phone-call"></i> ${job.employerPhone} (Bấm để gọi)</a></span>
                 </div>` : '';
+
+            const empAvatar = (typeof resolveAvatarUrl === 'function') 
+                ? resolveAvatarUrl(job.employerAvatar, job.employerName) 
+                : (job.employerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(job.employerName || 'NTD')}&background=18181b&color=ff6600&size=128&bold=true`);
 
             html += `
                 <div class="job-card" id="app-${job.applicationId}">
                     <div class="job-header">
-                        <div>
-                            <h3 class="job-title">${job.jobTitle}</h3>
-                            <p class="employer-name">
-                                <i class="ti ti-user"></i> ${job.employerName}
-                                ${job.employerPhone ? ` · <a href="tel:${job.employerPhone}" style="color:var(--primary); text-decoration:none; font-weight:600;"><i class="ti ti-phone"></i> ${job.employerPhone}</a>` : ''}
-                            </p>
+                        <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+                            <img src="${empAvatar}" style="width:44px; height:44px; border-radius:50%; object-fit:cover; border:1.5px solid var(--border); flex-shrink:0;" onerror="if(typeof handleAvatarError === 'function') handleAvatarError(this, '${escapeQuote(job.employerName)}');">
+                            <div style="min-width:0;">
+                                <h3 class="job-title">${job.jobTitle}</h3>
+                                <p class="employer-name">
+                                    <i class="ti ti-user"></i> ${job.employerName}
+                                    ${job.employerPhone ? ` · <a href="tel:${job.employerPhone}" style="color:var(--primary); text-decoration:none; font-weight:600;"><i class="ti ti-phone"></i> ${job.employerPhone}</a>` : ''}
+                                </p>
+                            </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-shrink:0;">
                             ${badgeHtml}
                             ${reportFlagBtn}
                         </div>
@@ -373,9 +381,12 @@ const token = localStorage.getItem('accessToken');
         container.innerHTML = html;
     }
 
-    function openChatWithEmployer(appId, empName, jobTitle) {
+    function openChatWithEmployer(appId, empName, jobTitle, empAvatar) {
         if (window.openChatByAppId) {
-            window.openChatByAppId(appId, empName, jobTitle, '', null, 'EMPLOYER');
+            const avatarUrl = (typeof resolveAvatarUrl === 'function')
+                ? resolveAvatarUrl(empAvatar, empName)
+                : (empAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(empName || 'NTD')}&background=18181b&color=ff6600&size=128&bold=true`);
+            window.openChatByAppId(appId, empName, jobTitle, avatarUrl, null, 'EMPLOYER');
         } else {
             alert('Tính năng nhắn tin đang tải...');
         }
@@ -514,7 +525,7 @@ const token = localStorage.getItem('accessToken');
 
                 const popupHtml = isInaccurate 
                     ? `<b>Vị trí của bạn (Ước tính IP)</b><br><span style="color:#d97706; font-size:12px;"><i class="ti ti-alert-triangle"></i> Sai số ~${accFormatted} (chưa chuẩn)</span><br><button onclick="recalculateRoute()" style="margin-top:6px; background:#d97706; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;"><i class="ti ti-refresh"></i> Tính lại vị trí</button>`
-                    : `<b>Vị trí hiện tại của bạn</b><br><span style="color:#16a34a; font-size:12px;"><i class="ti ti-circle-check"></i> Độ chính xác cao (~${accFormatted})</span>`;
+                    : `<b>Vị trí hiện tại của bạn</b><br><span style="color:var(--primary-orange); font-size:12px; font-weight:600;"><i class="ti ti-circle-check"></i> Độ chính xác cao (~${accFormatted})</span>`;
 
                 if (mapUserMarker) {
                     mapUserMarker.setLatLng([userLat, userLng]);
@@ -567,7 +578,7 @@ const token = localStorage.getItem('accessToken');
 
                                 const accuracyBadge = isInaccurate
                                     ? `<span style="font-size:11.5px; color:#b45309; background:#fffbeb; border:1px solid #fde68a; padding:2px 8px; border-radius:12px; font-weight:600;"><i class="ti ti-alert-triangle"></i> Vị trí ước tính (~${accFormatted})</span>`
-                                    : `<span style="font-size:11.5px; color:#15803d; background:#ecfdf5; border:1px solid #a7f3d0; padding:2px 8px; border-radius:12px; font-weight:600;"><i class="ti ti-check"></i> Tuyến đường ngắn nhất (~${accFormatted})</span>`;
+                                    : `<span style="font-size:11.5px; color:var(--primary-orange); background:var(--primary-light); border:1px solid #fed7aa; padding:2px 8px; border-radius:12px; font-weight:600;"><i class="ti ti-check"></i> Tuyến đường ngắn nhất (~${accFormatted})</span>`;
 
                                 if (routeStats) {
                                     routeStats.innerHTML = `
@@ -659,10 +670,10 @@ const token = localStorage.getItem('accessToken');
             className: 'custom-dest-pin',
             html: `
                 <div style="position:relative; display:flex; flex-direction:column; align-items:center;">
-                    <div style="background:#ef4444; color:#fff; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(239,68,68,0.5); border:3px solid #fff;">
-                        <i class="ti ti-briefcase" style="font-size:18px;"></i>
+                    <div style="background:var(--black-main, #18181B); color:#fff; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(24,24,27,0.4); border:3px solid #fff;">
+                        <i class="ti ti-briefcase" style="font-size:18px; color:var(--primary-orange, #FF6600);"></i>
                     </div>
-                    <div style="width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:8px solid #ef4444;"></div>
+                    <div style="width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:8px solid var(--black-main, #18181B);"></div>
                 </div>
             `,
             iconSize: [36, 44],
@@ -692,7 +703,7 @@ const token = localStorage.getItem('accessToken');
 
         const accuracyBadge = isInaccurate
             ? `<span style="font-size:11.5px; color:#b45309; background:#fffbeb; border:1px solid #fde68a; padding:2px 8px; border-radius:12px; font-weight:600;"><i class="ti ti-alert-triangle"></i> GPS ước tính (~${accFormatted})</span>`
-            : `<span style="font-size:11.5px; color:#15803d; background:#ecfdf5; border:1px solid #a7f3d0; padding:2px 8px; border-radius:12px; font-weight:600;"><i class="ti ti-check"></i> GPS chuẩn (~${accFormatted})</span>`;
+            : `<span style="font-size:11.5px; color:var(--primary-orange); background:var(--primary-light); border:1px solid #fed7aa; padding:2px 8px; border-radius:12px; font-weight:600;"><i class="ti ti-check"></i> GPS chuẩn (~${accFormatted})</span>`;
 
         if (routeStats) {
             routeStats.innerHTML = `
@@ -723,7 +734,7 @@ const token = localStorage.getItem('accessToken');
     function confirmPaymentWorker(applicationId) {
         if (!confirm("Bạn xác nhận đã nhận đủ tiền lương cho công việc này?")) return;
 
-        fetch(`http://localhost:8083/api/v1/application/payment?applicationId=${applicationId}`, {
+        fetch(`/api/v1/application/payment?applicationId=${applicationId}`, {
             method: 'PUT',
             headers: { 'Authorization': 'Bearer ' + token }
         })
@@ -877,7 +888,7 @@ const token = localStorage.getItem('accessToken');
             formData.append('files', file);
         });
 
-        fetch(`http://localhost:8083/api/v1/report`, {
+        fetch(`/api/v1/report`, {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + token
@@ -975,7 +986,7 @@ const token = localStorage.getItem('accessToken');
 
         const comment = document.getElementById('reviewCommentText').value.trim();
 
-        fetch('http://localhost:8083/api/v1/review', {
+        fetch('/api/v1/review', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1011,7 +1022,7 @@ const token = localStorage.getItem('accessToken');
         let confirmMsg = isAccepted ? "Xác nhận NHẬN công việc này?" : "Bạn muốn TỪ CHỐI lời mời này?";
         if (!confirm(confirmMsg)) return;
 
-        const apiUrl = `http://localhost:8083/api/v1/application/isacceptinvitation`;
+        const apiUrl = `/api/v1/application/isacceptinvitation`;
 
         fetch(apiUrl, {
             method: 'PUT',

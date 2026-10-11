@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yêu Cầu Đăng Nhập - AntGo</title>
+    <link rel="icon" type="image/svg+xml" href="/asset/antgo-icon.svg">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Tabler Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.36.0/tabler-icons.min.css">
+
+    <style>
+        :root {
+            --primary: #FF6600;
+            --primary-hover: #E55C00;
+            --primary-glow: rgba(255, 102, 0, 0.4);
+            --bg-dark: #09090B;
+            --card-bg: rgba(18, 18, 24, 0.85);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Ambient glowing background */
+        .ambient-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 102, 0, 0.16) 0%, rgba(255, 85, 0, 0.05) 45%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .grid-pattern {
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+        }
+
+        /* Header Logo */
+        .top-brand {
+            position: absolute;
+            top: 32px;
+            left: 36px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #FFFFFF;
+            z-index: 2;
+        }
+
+        .top-brand img {
+            width: 32px;
+            height: 32px;
+            filter: drop-shadow(0 2px 8px rgba(255,102,0,0.4));
+        }
+
+        .top-brand span {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .top-brand span span {
+            color: var(--primary);
+        }
+
+        /* Center Card */
+        .error-card {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 540px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 48px 40px;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(255, 102, 0, 0.12);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(16px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Animated Lock Icon with Radar Pulse */
+        .icon-wrapper {
+            position: relative;
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255, 102, 0, 0.25) 0%, rgba(255, 85, 0, 0.1) 100%);
+            border: 1.5px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 32px;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 0 24px var(--primary-glow);
+        }
+
+        .pulse-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 1.5px solid var(--primary);
+            opacity: 0.8;
+            animation: pulseRing 2.4s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+
+        .pulse-ring:nth-child(2) {
+            animation-delay: 0.8s;
+        }
+
+        @keyframes pulseRing {
+            0% { transform: scale(0.7); opacity: 0.8; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            background: rgba(255, 102, 0, 0.12);
+            color: var(--primary);
+            border: 1px solid rgba(255, 102, 0, 0.3);
+            border-radius: 9999px;
+            font-size: 12.5px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .status-badge .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 6px var(--primary);
+        }
+
+        /* Headline & Description */
+        h1 {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+            color: #FFFFFF;
+        }
+
+        p.desc {
+            font-size: 14.5px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        /* Target Page Notice Box */
+        .target-box {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px dashed rgba(255, 255, 255, 0.14);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #E2E8F0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 28px;
+        }
+
+        .target-box strong {
+            color: var(--primary);
+        }
+
+        /* Action Buttons */
+        .actions-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 13px 24px;
+            border-radius: 9999px;
+            font-size: 14.5px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            font-family: inherit;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FF7A1A 0%, #FF5500 100%);
+            color: #FFFFFF;
+            box-shadow: 0 4px 18px rgba(255, 102, 0, 0.38);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 102, 0, 0.55);
+        }
+
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.06);
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+        }
+
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.28);
+            transform: translateY(-2px);
+        }
+
+        .btn-link {
+            background: none;
+            color: var(--text-muted);
+            font-size: 13.5px;
+            padding: 8px;
+        }
+
+        .btn-link:hover {
+            color: #FFFFFF;
+            text-decoration: underline;
+        }
+
+        /* Countdown Timer */
+        .timer-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 12.5px;
+            color: var(--text-muted);
+            padding-top: 18px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .timer-info strong {
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .timer-pause-btn {
+            background: none;
+            border: none;
+            color: #38bdf8;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+            font-family: inherit;
+        }
+
+        /* Trust Badges */
+        .benefits-row {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 24px;
+            font-size: 12px;
+            color: #64748B;
+            flex-wrap: wrap;
+        }
+
+        .benefits-row span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .error-card {
+                padding: 36px 20px;
+            }
+            .top-brand {
+                position: static;
+                margin-bottom: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+    <div class="grid-pattern"></div>
+
+    <!-- Brand Logo Top Link -->
+    <a href="/" class="top-brand" title="Về trang chủ AntGo">
+        <img src="/asset/antgo-icon.svg" alt="AntGo Logo">
+        <span>Ant<span>Go</span></span>
+    </a>
+
+    <!-- Main Card -->
+    <div class="error-card">
+        <!-- Glowing Lock Icon with Sonar Pulse -->
+        <div class="icon-wrapper">
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring"></div>
+            <div class="icon-circle">
+                <i class="ti ti-lock"></i>
+            </div>
+        </div>
+
+        <!-- Status Tag -->
+        <div class="status-badge">
+            <span class="dot"></span>
+            <span>401 · YÊU CẦU XÁC THỰC</span>
+        </div>
+
+        <!-- Title & Subtitle -->
+        <h1>Bạn Chưa Đăng Nhập</h1>
+        <p class="desc">
+            Trang bạn đang truy cập yêu cầu đăng nhập tài khoản thành viên AntGo để bảo mật thông tin và cá nhân hóa trải nghiệm.
+        </p>
+
+        <!-- Destination Notice Box -->
+        <div class="target-box" id="target-page-box">
+            <i class="ti ti-shield-lock" style="color:var(--primary); font-size:16px;"></i>
+            <span>Đích đến: <strong id="target-page-name">Khu vực thành viên</strong></span>
+        </div>
+
+        <!-- Call to Action Buttons -->
+        <div class="actions-group">
+            <a href="/interface/authentication" class="btn btn-primary" id="btn-login">
+                <i class="ti ti-login"></i>
+                <span>Đăng nhập ngay</span>
+                <i class="ti ti-arrow-right"></i>
+            </a>
+
+            <a href="/interface/authentication?mode=register" class="btn btn-glass" id="btn-register">
+                <i class="ti ti-user-plus"></i>
+                <span>Tạo tài khoản AntGo miễn phí</span>
+            </a>
+
+            <a href="/" class="btn btn-link">
+                <i class="ti ti-home"></i>
+                <span>Quay về trang chủ</span>
+            </a>
+        </div>
+
+        <!-- Countdown Redirect Timer -->
+        <div class="timer-info">
+            <i class="ti ti-clock"></i>
+            <span>Tự động chuyển đến trang Đăng nhập sau <strong id="countdown-num">5</strong>s</span>
+            <span>·</span>
+            <button class="timer-pause-btn" id="btn-toggle-timer">Tạm dừng</button>
+        </div>
+
+        <!-- Bottom Security Features -->
+        <div class="benefits-row">
+            <span><i class="ti ti-shield-check" style="color:#10B981;"></i> Bảo mật 100%</span>
+            <span><i class="ti ti-bolt" style="color:#F59E0B;"></i> Nhận việc tức thì</span>
+            <span><i class="ti ti-gift" style="color:#EC4899;"></i> Miễn phí 100%</span>
+        </div>
+    </div>
+
+    <!-- Script Handling Destination & Countdown -->
+    <script>
+        (function() {
+            // 1. Phân tích tham số URL đích cần truy cập (?redirect=...)
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get('redirect') || '';
+
+            // Từ điển tên trang thân thiện
+            const pageNames = {
+                '/interface/findjob': 'Khám phá việc làm quanh đây (GPS)',
+                '/interface/managejob': 'Quản lý tin đăng tuyển dụng',
+                '/interface/createjob': 'Đăng tin ca làm việc mới',
+                '/interface/profile': 'Hồ sơ cá nhân & Điểm uy tín',
+                '/interface/manageapplication': 'Quản lý đơn ứng tuyển & Lịch ca',
+                '/interface/findworker': 'Radar quét ứng viên quanh đây',
+                '/interface/scanner': 'Quét mã QR Check-in / Check-out',
+                '/interface/generateqr': 'Tạo mã QR điểm danh ca làm',
+                '/interface/checkapplication': 'Kiểm tra & Duyệt hồ sơ ứng tuyển',
+                '/interface/detailnotification': 'Chi tiết thông báo hệ thống',
+                '/interface/identify': 'Xác thực căn cước công dân (KYC)',
+                '/interface/admin': 'Bảng điều khiển Quản trị viên'
+            };
+
+            const targetPageNameEl = document.getElementById('target-page-name');
+            const btnLogin = document.getElementById('btn-login');
+            const btnRegister = document.getElementById('btn-register');
+
+            let matchedName = null;
+            for (let path in pageNames) {
+                if (redirectUrl.includes(path)) {
+                    matchedName = pageNames[path];
+                    break;
+                }
+            }
+
+            if (matchedName && targetPageNameEl) {
+                targetPageNameEl.innerText = matchedName;
+            } else if (redirectUrl && targetPageNameEl) {
+                targetPageNameEl.innerText = redirectUrl.split('?')[0];
+            }
+
+            // Gắn redirect url vào nút đăng nhập / đăng ký
+            if (redirectUrl) {
+                const encoded = encodeURIComponent(redirectUrl);
+                btnLogin.href = `/interface/authentication?redirect=${encoded}`;
+                btnRegister.href = `/interface/authentication?mode=register&redirect=${encoded}`;
+            }
+
+            // 2. Bộ đếm lùi tự động chuyển hướng
+            let countdown = 5;
+            let timerPaused = false;
+            const countdownEl = document.getElementById('countdown-num');
+            const toggleTimerBtn = document.getElementById('btn-toggle-timer');
+
+            const timerInterval = setInterval(() => {
+                if (timerPaused) return;
+                countdown--;
+                if (countdownEl) countdownEl.innerText = countdown;
+
+                if (countdown <= 0) {
+                    clearInterval(timerInterval);
+                    window.location.href = btnLogin.href;
+                }
+            }, 1000);
+
+            if (toggleTimerBtn) {
+                toggleTimerBtn.addEventListener('click', () => {
+                    timerPaused = !timerPaused;
+                    toggleTimerBtn.innerText = timerPaused ? 'Tiếp tục' : 'Tạm dừng';
+                });
+            }
+        })();
+    </script>
+</body>
+</html>

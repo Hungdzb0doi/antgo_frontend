@@ -11,10 +11,10 @@
 <body>
 <div class="page">
     <h2 class="sr-only" style="display:none;">Màn hình đăng nhập và đăng ký tài khoản AntGo trên desktop</h2>
-    <div style="display:flex;min-height:480px;border-radius:14px;overflow:hidden;border:1px solid var(--border-line); box-shadow: 0 8px 30px rgba(0,0,0,0.06);">
+    <div class="auth-card">
 
         <!-- Cột thông tin -->
-        <div style="width:40%;background:var(--black-main);padding:48px 40px;display:flex;flex-direction:column;justify-content:center;gap:28px;color:#ffffff;">
+        <div class="auth-info-col">
             <div>
                 <div style="font-size:24px;font-weight:800;color:#ffffff;display:flex;align-items:center;gap:12px;">
                     <img src="/asset/antgo-icon.svg" alt="AntGo" style="width:38px;height:38px;display:block;filter:drop-shadow(0 2px 8px rgba(255,102,0,0.5));">
@@ -22,10 +22,10 @@
                 </div>
                 <div style="font-size:14px;color:#A1A1AA;margin-top:10px">Nền tảng kết nối việc làm thời vụ siêu tốc</div>
             </div>
-            <div style="display:flex;flex-direction:column;gap:18px">
+            <div class="auth-benefits" style="display:flex;flex-direction:column;gap:18px">
                 <div style="display:flex;align-items:flex-start;gap:12px">
                     <span style="width:28px;height:28px;border-radius:50%;background:rgba(255,102,0,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ti-map-pin" style="font-size:16px;color:var(--primary-orange)" aria-hidden="true"></i></span>
-                    <div style="font-size:13px;color:#D4D4D8;line-height:1.4">Tìm việc hoặc thợ gần bạn với radar bản đồ</div>
+                    <div style="font-size:13px;color:#D4D4D8;line-height:1.4">Tìm việc hoặc ứng viên gần bạn với radar bản đồ</div>
                 </div>
                 <div style="display:flex;align-items:flex-start;gap:12px">
                     <span style="width:28px;height:28px;border-radius:50%;background:rgba(255,102,0,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ti-bolt" style="font-size:16px;color:var(--primary-orange)" aria-hidden="true"></i></span>
@@ -39,7 +39,7 @@
         </div>
 
         <!-- Cột Form Tabs -->
-        <div style="width:60%;background:var(--surface-2);padding:48px 56px;display:flex;flex-direction:column;justify-content:center">
+        <div class="auth-form-col">
 
             <div style="display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:28px">
                 <button id="tab-login" onclick="showTab('login')" style="flex:1;padding:10px 0;border:none;background:none;font-size:15px;font-weight:700;color:var(--primary-orange);border-bottom:2px solid var(--primary-orange);cursor:pointer;transition:all 0.2s">Đăng nhập</button>
@@ -92,7 +92,7 @@
                     <div id="err-reg-email" style="font-size:12px;color:var(--text-danger);margin-top:4px;display:none"></div>
                 </div>
 
-                <div style="display:flex;gap:12px">
+                <div class="auth-pwd-row">
                     <div style="flex:1">
                         <label style="font-size:13px;font-weight:500;color:var(--text-primary);display:block;margin-bottom:6px">Mật khẩu</label>
                         <div class="password-container">

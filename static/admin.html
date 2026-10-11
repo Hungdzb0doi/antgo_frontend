@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Quản trị · AntGo Admin</title>
+    <script src="/asset/js/auth-guard.js"></script>
+    <link rel="icon" type="image/svg+xml" href="/asset/antgo-icon.svg">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="/asset/css/admin.css?v=2.2">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-brand">
+                <a href="/interface/admin" class="brand-link">
+                    <img src="/asset/antgo-icon.svg" alt="AntGo" class="brand-icon">
+                    <div class="brand-text-group">
+                        <span class="brand-text">Ant<span class="brand-highlight">Go</span></span>
+                        <span class="admin-badge">PORTAL</span>
+                    </div>
+                </a>
+                <button type="button" class="sidebar-close-btn" id="sidebar-close" title="Đóng menu">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-tab="dashboard">
+                    <i class="ti ti-dashboard"></i>
+                    <span>Tổng quan</span>
+                </button>
+                <button class="nav-item" data-tab="users">
+                    <i class="ti ti-users"></i>
+                    <span>Người dùng</span>
+                </button>
+                <button class="nav-item" data-tab="ekyc">
+                    <i class="ti ti-id-badge-2"></i>
+                    <span>Duyệt eKYC</span>
+                    <span class="counter-badge" id="badge-pending-ekyc" style="display: none;">0</span>
+                </button>
+                <button class="nav-item" data-tab="reports">
+                    <i class="ti ti-alert-triangle"></i>
+                    <span>Báo cáo & Khiếu nại</span>
+                    <span class="counter-badge counter-danger" id="badge-pending-reports" style="display: none;">0</span>
+                </button>
+                <button class="nav-item" data-tab="categories">
+                    <i class="ti ti-category"></i>
+                    <span>Danh mục nghề</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="admin-profile">
+                    <div class="admin-avatar">
+                        <i class="ti ti-user-shield"></i>
+                    </div>
+                    <div class="admin-info">
+                        <div class="admin-name" id="sidebar-admin-name">Admin AntGo</div>
+                        <div class="admin-role">Super Admin</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logoutAdmin()" title="Đăng xuất">
+                    <i class="ti ti-logout"></i> Đăng xuất
+                </button>
+            </div>
+        </aside>
+
+        <!-- Sidebar Overlay Backdrop for Mobile -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <!-- Main Content Area -->
+        <main class="admin-main">
+            <!-- Header Bar -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <button class="menu-toggle-btn" id="sidebar-toggle" title="Menu">
+                        <i class="ti ti-menu-2"></i>
+                    </button>
+                    <h1 class="page-title" id="page-title">Tổng quan hệ thống</h1>
+                </div>
+                <div class="header-right">
+                    <a href="/interface/managejob" class="header-action-btn" target="_blank" title="Xem giao diện ứng dụng">
+                        <i class="ti ti-external-link"></i>
+                        <span>Vào ứng dụng</span>
+                    </a>
+                    <button class="header-action-btn btn-refresh" onclick="refreshCurrentTab()" title="Làm mới">
+                        <i class="ti ti-refresh"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Container for Tab Views -->
+            <div class="admin-content">
+
+                <!-- 1. DASHBOARD TAB -->
+                <section class="tab-pane active" id="tab-dashboard">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper">
+                                <i class="ti ti-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-label">Tổng người dùng</div>
+                                <div class="stat-value" id="kpi-total-users">-</div>
+                                <div class="stat-sub" id="kpi-user-distribution">...</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper">
+                                <i class="ti ti-circle-check"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-label">Đã định danh eKYC</div>
+                                <div class="stat-value" id="kpi-verified-users">-</div>
+                                <div class="stat-sub">Người dùng tích xanh</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper">
+                                <i class="ti ti-briefcase"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-label">Tổng bài đăng việc</div>
+                                <div class="stat-value" id="kpi-total-jobs">-</div>
+                                <div class="stat-sub" id="kpi-active-jobs">...</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper">
+                                <i class="ti ti-id-badge-2"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-label">Hồ sơ eKYC chờ duyệt</div>
+                                <div class="stat-value" id="kpi-pending-ekyc">-</div>
+                                <div class="stat-sub">Cần xử lý ngay</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper">
+                                <i class="ti ti-alert-triangle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-label">Báo cáo vi phạm chờ xử lý</div>
+                                <div class="stat-value" id="kpi-pending-reports">-</div>
+                                <div class="stat-sub">Khiếu nại từ thành viên</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Action Shortcuts -->
+                    <div class="dashboard-sections">
+                        <div class="panel-card">
+                            <div class="panel-header">
+                                <h3 class="panel-title"><i class="ti ti-bolt"></i> Thao tác nhanh</h3>
+                            </div>
+                            <div class="quick-actions">
+                                <button class="quick-action-btn" onclick="switchTab('ekyc')">
+                                    <i class="ti ti-user-check"></i>
+                                    <span>Duyệt eKYC ngay</span>
+                                </button>
+                                <button class="quick-action-btn" onclick="switchTab('reports')">
+                                    <i class="ti ti-gavel"></i>
+                                    <span>Xử lý khiếu nại</span>
+                                </button>
+                                <button class="quick-action-btn" onclick="switchTab('users')">
+                                    <i class="ti ti-search"></i>
+                                    <span>Tra cứu người dùng</span>
+                                </button>
+                                <button class="quick-action-btn" onclick="openAddCategoryModal()">
+                                    <i class="ti ti-plus"></i>
+                                    <span>Thêm danh mục nghề</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. USERS MANAGEMENT TAB -->
+                <section class="tab-pane" id="tab-users">
+                    <div class="filter-bar">
+                        <div class="search-input-wrapper">
+                            <i class="ti ti-search search-icon"></i>
+                            <input type="text" id="user-search-input" placeholder="Tìm kiếm theo Tên, Số điện thoại..." autocomplete="off">
+                            <button class="clear-search-btn" id="btn-clear-user-search" style="display: none;">
+                                <i class="ti ti-x"></i>
+                            </button>
+                        </div>
+                        <div class="filter-actions">
+                            <button class="btn-primary" onclick="searchUsers()">
+                                <i class="ti ti-search"></i> Tìm kiếm
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table" id="users-table">
+                            <thead>
+                                <tr>
+                                    <th>Người dùng</th>
+                                    <th>Số điện thoại / Email</th>
+                                    <th>Vai trò</th>
+                                    <th>Chế độ</th>
+                                    <th>Điểm uy tín</th>
+                                    <th>eKYC</th>
+                                    <th>Trạng thái</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">Đang tải danh sách người dùng...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 3. EKYC REVIEW TAB -->
+                <section class="tab-pane" id="tab-ekyc">
+                    <div class="tab-subnav">
+                        <button class="subnav-btn active" data-ekyc-status="PENDING" onclick="filterEkyc('PENDING')">
+                            Chờ duyệt
+                        </button>
+                        <button class="subnav-btn" data-ekyc-status="APPROVED" onclick="filterEkyc('APPROVED')">
+                            Đã duyệt
+                        </button>
+                        <button class="subnav-btn" data-ekyc-status="REJECTED" onclick="filterEkyc('REJECTED')">
+                            Từ chối
+                        </button>
+                        <button class="subnav-btn" data-ekyc-status="ALL" onclick="filterEkyc('ALL')">
+                            Tất cả
+                        </button>
+                    </div>
+
+                    <div class="cards-grid" id="ekyc-cards-container">
+                        <div class="empty-state">Đang tải hồ sơ eKYC...</div>
+                    </div>
+                </section>
+
+                <!-- 4. REPORTS TAB -->
+                <section class="tab-pane" id="tab-reports">
+                    <div class="tab-subnav">
+                        <button class="subnav-btn active" data-report-status="PENDING" onclick="filterReports('PENDING')">
+                            Chờ xử lý
+                        </button>
+                        <button class="subnav-btn" data-report-status="RESOLVED" onclick="filterReports('RESOLVED')">
+                            Đã xử lý
+                        </button>
+                        <button class="subnav-btn" data-report-status="REJECTED" onclick="filterReports('REJECTED')">
+                            Đã bác bỏ
+                        </button>
+                        <button class="subnav-btn" data-report-status="ALL" onclick="filterReports('ALL')">
+                            Tất cả
+                        </button>
+                    </div>
+
+                    <div class="cards-grid" id="reports-cards-container">
+                        <div class="empty-state">Đang tải danh sách báo cáo...</div>
+                    </div>
+                </section>
+
+                <!-- 5. JOB CATEGORIES TAB -->
+                <section class="tab-pane" id="tab-categories">
+                    <div class="filter-bar justify-between">
+                        <div class="section-desc">
+                            Quản lý các ngành nghề / danh mục việc làm hiển thị trên hệ thống AntGo.
+                        </div>
+                        <button class="btn-primary" onclick="openAddCategoryModal()">
+                            <i class="ti ti-plus"></i> Thêm danh mục mới
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table" id="categories-table">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên danh mục</th>
+                                    <th>Số lượng việc làm</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categories-table-body">
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">Đang tải danh mục...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: IMAGE PREVIEW / ZOOM -->
+    <div class="modal-overlay" id="modal-image-preview">
+        <div class="modal-dialog modal-dialog-img">
+            <div class="modal-header modal-header-dark" style="padding: 12px 18px; display: flex; align-items: center; justify-content: space-between;">
+                <h4 id="preview-image-title" style="color: #FFFFFF; margin: 0; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    <i class="ti ti-photo"></i> Chi tiết hình ảnh
+                </h4>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <a id="preview-image-drive-link" href="#" target="_blank" class="btn-primary" style="padding: 5px 12px; font-size: 12px; text-decoration: none; border-radius: 4px; display: none;">
+                        <i class="ti ti-external-link"></i> Mở trên Google Drive
+                    </a>
+                    <button class="modal-close" style="color: #FFFFFF; font-size: 24px; cursor: pointer; background: none; border: none;" onclick="closeModal('modal-image-preview')">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body text-center" style="padding: 16px; max-height: 80vh; overflow: auto; background: #09090B; border-radius: 0 0 10px 10px;">
+                <img id="preview-image-element" src="" alt="Ảnh phóng to" class="img-expanded" style="max-width: 100%; max-height: 75vh; object-fit: contain;">
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: REJECT EKYC REASON -->
+    <div class="modal-overlay" id="modal-reject-ekyc">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="ti ti-alert-triangle text-danger"></i> Từ chối duyệt eKYC</h3>
+                <button class="modal-close" onclick="closeModal('modal-reject-ekyc')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-desc">Vui lòng cung cấp lý do từ chối để thông báo cho người dùng chụp lại:</p>
+                <input type="hidden" id="reject-ekyc-id">
+                <div class="form-group">
+                    <label for="reject-ekyc-reason">Lý do từ chối:</label>
+                    <textarea id="reject-ekyc-reason" class="form-control" rows="3" placeholder="Ví dụ: Ảnh CMND/CCCD bị mờ, lóa sáng hoặc không khớp khuôn mặt..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-reject-ekyc')">Hủy bỏ</button>
+                <button class="btn-danger" id="btn-confirm-reject-ekyc" onclick="submitRejectEkyc()">Xác nhận từ chối</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: RESOLVE REPORT -->
+    <div class="modal-overlay" id="modal-resolve-report">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="ti ti-gavel text-warning"></i> Xử lý Báo cáo Vi phạm</h3>
+                <button class="modal-close" onclick="closeModal('modal-resolve-report')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="resolve-report-id">
+                <div class="report-summary-box mb-3" id="resolve-report-summary">
+                    <!-- Dynamic summary info -->
+                </div>
+                <div class="form-group mb-3">
+                    <label>Hình thức xử lý:</label>
+                    <div class="radio-options">
+                        <label class="radio-label">
+                            <input type="radio" name="report-decision" value="RESOLVED" checked onchange="togglePenaltyInput(true)">
+                            <span class="radio-custom"></span>
+                            <span><strong>Xác nhận vi phạm</strong> (Phạt điểm uy tín)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="report-decision" value="REJECTED" onchange="togglePenaltyInput(false)">
+                            <span class="radio-custom"></span>
+                            <span><strong>Bác bỏ báo cáo</strong> (Không có vi phạm)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3" id="penalty-group">
+                    <label for="penalty-points">Số điểm uy tín trừ (0 - 50 điểm):</label>
+                    <input type="number" id="penalty-points" class="form-control" value="10" min="0" max="50">
+                    <small class="form-text">Điểm uy tín mặc định là 100. Người dùng dưới 50 điểm sẽ bị hạn chế.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="resolve-report-note">Ghi chú giải quyết / Lý do:</label>
+                    <textarea id="resolve-report-note" class="form-control" rows="3" placeholder="Nhập căn cứ xử lý vi phạm hoặc lý do bác bỏ..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-resolve-report')">Đóng</button>
+                <button class="btn-primary" id="btn-confirm-resolve-report" onclick="submitResolveReport()">Thực thi phán quyết</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT CATEGORY -->
+    <div class="modal-overlay" id="modal-category">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-category-title"><i class="ti ti-category"></i> Thêm danh mục nghề</h3>
+                <button class="modal-close" onclick="closeModal('modal-category')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="category-id">
+                <div class="form-group">
+                    <label for="category-name-input">Tên danh mục <span class="text-danger">*</span>:</label>
+                    <input type="text" id="category-name-input" class="form-control" placeholder="Ví dụ: Phụ kho, Bốc xếp, Phục vụ tiệc...">
+                    <div class="form-error" id="err-category-name" style="display: none;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-category')">Hủy</button>
+                <button class="btn-primary" id="btn-save-category" onclick="submitSaveCategory()">Lưu danh mục</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="/asset/js/admin.js?v=2.3"></script>
+    <script src="/asset/js/fcm-push.js"></script>
+</body>
+</html>

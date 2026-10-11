@@ -1,6 +1,213 @@
 (function () {
+    // 0. Universal Avatar Utility (Đảm bảo chạy trên mọi trang có chuông thông báo)
+    if (typeof window.resolveAvatarUrl === 'undefined') {
+        window.extractDriveFileId = function(str) {
+            if (!str || typeof str !== 'string') return null;
+            str = str.trim();
+            if (/^[a-zA-Z0-9_-]{25,50}$/.test(str)) return str;
+            const match = str.match(/\/d\/([a-zA-Z0-9_-]{25,50})/) || str.match(/[?&]id=([a-zA-Z0-9_-]{25,50})/);
+            return match ? match[1] : null;
+        };
+        window.escapeQuote = function(str) {
+            if (!str) return '';
+            return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        };
+        window.resolveAvatarUrl = function(urlOrId, fallbackName) {
+            const safeName = fallbackName || 'U';
+            const defaultPlaceholder = `https://ui-avatars.com/api/?name=${encodeURIComponent(safeName)}&background=18181b&color=ff6600&size=128&bold=true`;
+            if (!urlOrId || typeof urlOrId !== 'string' || !urlOrId.trim()) return defaultPlaceholder;
+            const trimmed = urlOrId.trim();
+            const driveId = window.extractDriveFileId(trimmed);
+            if (driveId) return `/api/v1/messages/media/${driveId}`;
+            if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:image/') || trimmed.startsWith('/')) return trimmed;
+            return defaultPlaceholder;
+        };
+        window.handleAvatarError = function(img, fallbackName) {
+            if (!img) return;
+            const currentSrc = img.src || '';
+            const driveId = window.extractDriveFileId(currentSrc);
+            if (driveId && currentSrc.includes('/api/v1/messages/media/')) {
+                img.src = `https://lh3.googleusercontent.com/d/${driveId}`;
+                return;
+            }
+            if (driveId && currentSrc.includes('lh3.googleusercontent.com')) {
+                img.src = `https://drive.google.com/thumbnail?id=${driveId}&sz=w400`;
+                return;
+            }
+            img.onerror = null;
+            img.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(fallbackName || 'U')}&background=18181b&color=ff6600&size=128&bold=true`;
+        };
+    }
+    if (typeof window.syncHeaderUserAvatar === 'undefined') {
+        window.syncHeaderUserAvatar = function() {
+            const token = localStorage.getItem('accessToken');
+            if (!token) return;
+            function updateProfileNav(avatarUrl, fullName) {
+                if (!avatarUrl) return;
+                const profileLinks = document.querySelectorAll('.header-nav a[href*="profile"], .nav-btn[href*="profile"], a.nav-btn[href*="profile"]');
+                profileLinks.forEach(link => {
+                    if (link.dataset.avatarUpdated) return;
+                    const userIcon = link.querySelector('i.ti-user');
+                    if (userIcon) {
+                        const resolved = window.resolveAvatarUrl(avatarUrl, fullName);
+                        const img = document.createElement('img');
+                        img.className = 'nav-user-avatar';
+                        img.src = resolved;
+                        img.alt = fullName || 'Hồ sơ';
+                        img.style.cssText = 'width: 22px; height: 22px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--primary-orange, #FF6600); vertical-align: middle; margin-right: 4px; display: inline-block;';
+                        img.onerror = function() { this.outerHTML = '<i class="ti ti-user"></i>'; };
+                        userIcon.replaceWith(img);
+                        link.dataset.avatarUpdated = 'true';
+                    }
+                });
+            }
+            const cachedAvatar = localStorage.getItem('userAvatar');
+            const cachedName = localStorage.getItem('userFullName');
+            if (cachedAvatar) {
+                updateProfileNav(cachedAvatar, cachedName);
+            } else {
+                fetch('/api/v1/profile', { headers: { 'Authorization': 'Bearer ' + token } })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.code === 200 && res.data) {
+                        const p = res.data;
+                        const fullName = p.fullName || (p.firstName ? `${p.lastName || ''} ${p.firstName}`.trim() : '');
+                        if (p.avatarUrl) localStorage.setItem('userAvatar', p.avatarUrl);
+                        if (fullName) localStorage.setItem('userFullName', fullName);
+                        updateProfileNav(p.avatarUrl, fullName);
+                    }
+                }).catch(() => {});
+            }
+        };
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', window.syncHeaderUserAvatar);
+        } else {
+            window.syncHeaderUserAvatar();
+        }
+    }
+
+    // ==============================================================
+    // TOÀN CỤC: THEO DÕI VỊ TRÍ ỨNG VIÊN XUYÊN SUỐT MỌI TRANG (GPS TRACKING)
+    // ==============================================================
+    let globalGpsWatchId = null;
+    let lastSentGpsCoords = { lat: null, lng: null, time: 0 };
+    window.latestGpsCoords = { lat: null, lng: null };
+
+    window.updateGpsDotStatus = function(isActive) {
+        const dot = document.getElementById('notif-gps-dot');
+        if (dot) {
+            dot.style.display = isActive ? 'block' : 'none';
+        }
+    };
+
+    window.sendWorkerLocationPayload = function(lat, lng) {
+        if (!lat || !lng) return;
+        window.latestGpsCoords = { lat, lng };
+
+        // Phát sự kiện toàn cục để trang profile (nếu đang mở) cập nhật ngay tọa độ lên giao diện
+        try {
+            window.dispatchEvent(new CustomEvent('antgo:gps-updated', { detail: { latitude: lat, longitude: lng } }));
+        } catch (e) {}
+
+        const client = window.globalStompClient;
+        if (!client || !client.connected) {
+            return;
+        }
+
+        const now = Date.now();
+        if (lastSentGpsCoords.lat && Math.abs(lastSentGpsCoords.lat - lat) < 0.00005 &&
+            Math.abs(lastSentGpsCoords.lng - lng) < 0.00005 && (now - lastSentGpsCoords.time < 10000)) {
+            return;
+        }
+
+        const payload = JSON.stringify({ 'longitude': lng, 'latitude': lat });
+        try {
+            client.send("/app/locationworker", {}, payload);
+            lastSentGpsCoords = { lat, lng, time: now };
+            console.log(`[AntGo GPS Xuyên Trang] Đã gửi vị trí: [Kinh độ: ${lng.toFixed(4)}, Vĩ độ: ${lat.toFixed(4)}]`);
+            window.updateGpsDotStatus(true);
+        } catch (e) {
+            console.warn('[AntGo GPS] Lỗi gửi WebSocket:', e);
+        }
+    };
+
+    window.startGlobalWorkerLocationTracking = function(customClient) {
+        if (customClient) {
+            window.globalStompClient = customClient;
+        }
+        const currentMode = (localStorage.getItem('currentMode') || 'WORKER').toUpperCase();
+        if (currentMode === 'EMPLOYER') {
+            window.updateGpsDotStatus(false);
+            return;
+        }
+        if (!navigator.geolocation) return;
+
+        window.updateGpsDotStatus(true);
+        localStorage.setItem('workerLocationTracking', 'true');
+
+        // Định vị nhanh ngay lập tức
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                window.sendWorkerLocationPayload(pos.coords.latitude, pos.coords.longitude);
+            },
+            (err) => {},
+            { enableHighAccuracy: false, timeout: 8000, maximumAge: 30000 }
+        );
+
+        if (globalGpsWatchId === null) {
+            globalGpsWatchId = navigator.geolocation.watchPosition(
+                (pos) => {
+                    window.sendWorkerLocationPayload(pos.coords.latitude, pos.coords.longitude);
+                },
+                (err) => {
+                    console.warn('[AntGo GPS] Lỗi định vị GPS:', err.message);
+                    navigator.geolocation.getCurrentPosition(
+                        (p) => window.sendWorkerLocationPayload(p.coords.latitude, p.coords.longitude),
+                        () => {},
+                        { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+                    );
+                },
+                { enableHighAccuracy: false, timeout: 15000, maximumAge: 30000 }
+            );
+            console.log('[AntGo GPS] Đã kích hoạt theo dõi vị trí toàn cục (xuyên trang).');
+        }
+    };
+
+    window.stopGlobalWorkerLocationTracking = function() {
+        if (globalGpsWatchId !== null) {
+            navigator.geolocation.clearWatch(globalGpsWatchId);
+            globalGpsWatchId = null;
+        }
+        localStorage.setItem('workerLocationTracking', 'false');
+        window.updateGpsDotStatus(false);
+        console.log('[AntGo GPS] Đã dừng theo dõi vị trí toàn cục.');
+    };
+
     function initNotificationUI() {
         const token = localStorage.getItem('accessToken');
+        const publicPages = [
+            '/', '/index', '/index.html', '/interface/landing',
+            '/interface/authentication', '/authentication.html',
+            '/interface/forgotpassword', '/forgot_password.html',
+            '/interface/unauthorized', '/unauthorized.html',
+            '/interface/401'
+        ];
+        const currentPath = window.location.pathname.toLowerCase();
+        const isPublic = publicPages.some(p => currentPath === p || currentPath.endsWith(p));
+
+        if (!token) {
+            if (!isPublic) {
+                window.location.replace('/interface/unauthorized?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
+            }
+            return;
+        }
+
+        // Tự động tải FCM Web Push Notification module nếu trang chưa có
+        if (!document.querySelector('script[src*="fcm-push.js"]')) {
+            const fcmScript = document.createElement('script');
+            fcmScript.src = '/asset/js/fcm-push.js';
+            document.head.appendChild(fcmScript);
+        }
 
         // 1. Tự động tải SockJS và Stomp nếu trang chưa có
         function ensureSockJsAndStomp(callback) {
@@ -40,7 +247,7 @@
             }
             .flashjob-notif-badge {
                 position: absolute; top: -3px; right: -3px;
-                background: #ef4444; color: white; font-size: 11px;
+                background: var(--primary-orange, #FF6600); color: white; font-size: 11px;
                 font-weight: 700; padding: 2px 6px; border-radius: 10px;
                 border: 2px solid white; display: none; pointer-events: none;
             }
@@ -110,6 +317,21 @@
                 display: flex; flex-direction: column; gap: 4px; cursor: pointer; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;
             }
             .notif-toast.show { transform: translateX(0); }
+
+            /* Chấm xanh biểu thị đang bật vị trí tìm việc toàn cục */
+            .notif-gps-dot {
+                position: absolute; bottom: -2px; left: -2px;
+                width: 12px; height: 12px; border-radius: 50%;
+                background: #22c55e; border: 2px solid #ffffff;
+                box-shadow: 0 0 6px rgba(34, 197, 94, 0.9);
+                display: none; pointer-events: none;
+                animation: gpsPulse 2s infinite ease-in-out;
+            }
+            @keyframes gpsPulse {
+                0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+                70% { transform: scale(1.15); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+                100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+            }
         `;
         const styleEl = document.createElement('style');
         styleEl.innerHTML = css;
@@ -122,6 +344,7 @@
             <div class="flashjob-notif-btn" id="notif-bell-btn" title="Kéo để di chuyển · Bấm để xem thông báo">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg>
                 <span class="flashjob-notif-badge" id="notif-badge-count">0</span>
+                <span class="notif-gps-dot" id="notif-gps-dot" title="Vị trí tìm việc đang bật"></span>
             </div>
 
             <!-- Menu Dropdown -->
@@ -170,6 +393,33 @@
             bellBtn.style.top = '80px';
             bellBtn.style.left = (window.innerWidth - 60) + 'px';
             bellBtn.style.right = 'auto';
+        }
+
+        // Tự động kiểm tra và hiển thị ngay trạng thái chấm xanh GPS nếu đang bật
+        const isTrackingInit = localStorage.getItem('workerLocationTracking') === 'true';
+        const currentModeInit = (localStorage.getItem('currentMode') || 'WORKER').toUpperCase();
+        if (isTrackingInit && currentModeInit !== 'EMPLOYER') {
+            window.updateGpsDotStatus(true);
+            window.startGlobalWorkerLocationTracking();
+        }
+
+        // Nếu chưa lưu cờ trong localStorage, kiểm tra nhẹ API profile để đồng bộ ban đầu
+        if (token && localStorage.getItem('workerLocationTracking') === null) {
+            fetch('/api/v1/profile', { headers: { 'Authorization': 'Bearer ' + token } })
+                .then(r => r.json())
+                .then(r => {
+                    if (r.code === 200 && r.data) {
+                        const isAvail = r.data.isAvailable === true;
+                        localStorage.setItem('workerLocationTracking', isAvail ? 'true' : 'false');
+                        if (r.data.currentMode) {
+                            localStorage.setItem('currentMode', r.data.currentMode.toUpperCase());
+                        }
+                        if (isAvail && (r.data.currentMode || 'WORKER').toUpperCase() !== 'EMPLOYER') {
+                            window.updateGpsDotStatus(true);
+                            window.startGlobalWorkerLocationTracking();
+                        }
+                    }
+                }).catch(() => {});
         }
 
         // 5. Logic Kéo Thả Phím Trợ Năng (AssistiveTouch)
@@ -270,6 +520,11 @@
                 return;
             }
 
+            // Kích hoạt xin quyền thông báo trình duyệt nếu chưa cấp
+            if (window.requestFcmPermission && typeof Notification !== 'undefined' && Notification.permission === 'default') {
+                window.requestFcmPermission();
+            }
+
             const isHidden = dropdown.style.display === 'none' || dropdown.style.display === '';
             if (isHidden) {
                 const rect = bellBtn.getBoundingClientRect();
@@ -320,7 +575,7 @@
 
             // Đánh dấu đã đọc trong nền
             if (id && token) {
-                fetch(`http://localhost:8083/api/v1/notification/${id}`, {
+                fetch(`/api/v1/notification/${id}`, {
                     method: 'PUT',
                     headers: { 'Authorization': 'Bearer ' + token }
                 }).catch(() => {});
@@ -358,7 +613,7 @@
 
         // Đánh dấu tất cả đã đọc
         readAllBtn.addEventListener('click', () => {
-            fetch('http://localhost:8083/api/v1/notification', {
+            fetch('/api/v1/notification', {
                 method: 'PUT',
                 headers: { 'Authorization': 'Bearer ' + token }
             }).then(() => {
@@ -368,7 +623,7 @@
         });
 
         // 6. Tải danh sách thông báo ban đầu
-        fetch('http://localhost:8083/api/v1/notification', {
+        fetch('/api/v1/notification', {
             headers: { 'Authorization': 'Bearer ' + token }
         })
         .then(res => res.json())
@@ -438,10 +693,24 @@
         // 7. Lắng nghe WebSocket thời gian thực & Kích hoạt Sự kiện
         function initNotificationSocket(userId) {
             if (typeof SockJS === 'undefined' || typeof Stomp === 'undefined') return;
-            const socket = new SockJS('http://localhost:8083/ws');
+            const socket = new SockJS('/ws');
             const stompClient = Stomp.over(socket);
             stompClient.debug = null;
             stompClient.connect({ 'Authorization': 'Bearer ' + token }, () => {
+                window.globalStompClient = stompClient;
+
+                // Tự động duy trì truyền vị trí GPS nếu tìm việc đang bật và ở chế độ WORKER
+                const isTracking = localStorage.getItem('workerLocationTracking') === 'true';
+                const currentMode = (localStorage.getItem('currentMode') || 'WORKER').toUpperCase();
+                if (isTracking && currentMode !== 'EMPLOYER') {
+                    window.startGlobalWorkerLocationTracking(stompClient);
+                    if (window.latestGpsCoords && window.latestGpsCoords.lat && window.latestGpsCoords.lng) {
+                        window.sendWorkerLocationPayload(window.latestGpsCoords.lat, window.latestGpsCoords.lng);
+                    }
+                } else if (isTracking && currentMode === 'EMPLOYER') {
+                    window.updateGpsDotStatus(false);
+                }
+
                 stompClient.subscribe('/topic/notifications/' + userId, (msg) => {
                     const data = JSON.parse(msg.body);
 

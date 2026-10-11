@@ -61,8 +61,9 @@ let map = null;
     // 0. HÀM TẢI DANH MỤC TỪ BACKEND ĐỔ VÀO DROPDOWN
     function loadCategories() {
         const token = localStorage.getItem('accessToken');
+        const select = document.getElementById('categoryId');
 
-        fetch('http://localhost:8083/api/v1/category', {
+        fetch('/api/v1/category', {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + token
@@ -71,10 +72,14 @@ let map = null;
             .then(res => res.json())
             .then(res => {
                 const categories = res.data || res;
-                const select = document.getElementById('categoryId');
                 select.innerHTML = '';
 
                 if (Array.isArray(categories) && categories.length > 0) {
+                    var defaultOpt = document.createElement('option');
+                    defaultOpt.value = "";
+                    defaultOpt.textContent = "-- Chọn danh mục ngành nghề --";
+                    select.appendChild(defaultOpt);
+
                     categories.forEach(cat => {
                         var option = document.createElement('option');
                         option.value = cat.id;
@@ -84,7 +89,7 @@ let map = null;
                 } else {
                     var option = document.createElement('option');
                     option.value = "";
-                    option.textContent = "-- Không có danh mục --";
+                    option.textContent = "-- Chưa có danh mục nào (Vui lòng tạo ở Admin) --";
                     select.appendChild(option);
                 }
             })
@@ -172,7 +177,7 @@ let map = null;
     // 4. NÚT LẤY VỊ TRÍ HIỆN TẠI (Đảm bảo chính xác ngay từ lần click đầu tiên)
     function goToMyLocation() {
         if (!navigator.geolocation) {
-            document.getElementById('loc-text').innerHTML = `<span style="color:#ef4444;"><i class="ti ti-alert-circle"></i> Trình duyệt không hỗ trợ định vị GPS. Vui lòng bấm chọn vị trí trên bản đồ.</span>`;
+            document.getElementById('loc-text').innerHTML = `<span style="color:var(--black-sub);"><i class="ti ti-alert-circle"></i> Trình duyệt không hỗ trợ định vị GPS. Vui lòng bấm chọn vị trí trên bản đồ.</span>`;
             return;
         }
 
@@ -202,7 +207,7 @@ let map = null;
 
                 document.getElementById('lat').value = lat;
                 document.getElementById('lng').value = lng;
-                document.getElementById('loc-text').innerHTML = `<b>Vị trí chính xác:</b> ${lat.toFixed(5)}, ${lng.toFixed(5)} <span style="color: green;">(Sai số: ${Math.round(accuracy)}m)</span>`;
+                document.getElementById('loc-text').innerHTML = `<b>Vị trí chính xác:</b> ${lat.toFixed(5)}, ${lng.toFixed(5)} <span style="color: var(--primary-orange); font-weight:600;">(Sai số: ${Math.round(accuracy)}m)</span>`;
             } else {
                 document.getElementById('loc-text').innerHTML = `<i>Đang tinh chỉnh GPS (Sai số hiện tại: ${Math.round(accuracy)}m)...</i>`;
             }
@@ -223,8 +228,17 @@ let map = null;
         }, 10000);
     }
 
-    // 5. GỬI DATA ĐĂNG TIN LÊN BACKEND
+    // 5. GỬI DATA ĐĂNG TIN LÊN BACKEND (CHỐNG BẤM LIÊN TỤC / SPAM CLICK)
+    let isSubmittingJob = false;
+    let lastSubmitTime = 0;
+
     function submitJob() {
+        const now = Date.now();
+        // Chặn bấm liên tục (ít nhất 2 giây giữa các lần bấm) hoặc khi đang gửi request
+        if (isSubmittingJob || (now - lastSubmitTime < 2000)) {
+            return;
+        }
+
         const title = document.getElementById('title').value;
         const hourlyRate = document.getElementById('hourlyRate').value;
         const requiredWorkers = document.getElementById('requiredWorkers').value;
@@ -241,9 +255,9 @@ let map = null;
 
         const startDate = new Date(startTime);
         const endDate = new Date(endTime);
-        const now = new Date();
+        const currentDate = new Date();
 
-        if (startDate < now) {
+        if (startDate < currentDate) {
             alert("Thời gian bắt đầu làm việc phải từ thời điểm hiện tại trở đi!");
             return;
         }
@@ -265,7 +279,31 @@ let map = null;
         };
 
         const token = localStorage.getItem('accessToken');
-        fetch('http://localhost:8083/api/v1/job', {
+        const btn = document.getElementById('btn-submit-job');
+
+        // Khóa nút ngay lập tức và hiển thị trạng thái đang xử lý
+        isSubmittingJob = true;
+        lastSubmitTime = now;
+        if (btn) {
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.style.cursor = 'not-allowed';
+            btn.innerHTML = `<i class="ti ti-loader ti-spin"></i> Đang đăng việc...`;
+        }
+
+        function unlockSubmitButton() {
+            setTimeout(() => {
+                isSubmittingJob = false;
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                    btn.innerHTML = `<i class="ti ti-plus"></i> Đăng việc làm`;
+                }
+            }, 1000);
+        }
+
+        fetch('/api/v1/job', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
             body: JSON.stringify(payload)
@@ -284,10 +322,11 @@ let map = null;
             })
             .then(data => {
                 if (data.code === 201 || data.code === 200 || data.success === true) {
-                    alert("Đăng tin thành công!");
+                    alert("Đăng tin việc làm thành công!");
                     window.location.href = "/interface/managejob";
                 } else {
                     alert("Lỗi: " + (data.message || "Không thể đăng tin"));
+                    unlockSubmitButton();
                 }
             })
             .catch(err => {
@@ -295,6 +334,7 @@ let map = null;
                 if (err.message !== "403 Forbidden" && err.message !== "401 Unauthorized") {
                     alert("Lỗi kết nối tới máy chủ khi đăng tin!");
                 }
+                unlockSubmitButton();
             });
     }
 

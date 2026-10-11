@@ -1,11 +1,22 @@
-const API_BASE_URL = 'http://localhost:8083/api/v1/auth';
+const API_BASE_URL = (window.location.protocol.startsWith('http')) 
+    ? '/api/v1/auth' 
+    : 'http://localhost:8083/api/v1/auth';
 
-    // Nếu đã đăng nhập, tự động chuyển vào trang Quản lý tương ứng
+    // Nếu đã đăng nhập, tự động chuyển vào trang Quản lý tương ứng hoặc trang redirect
     document.addEventListener('DOMContentLoaded', function() {
         const token = localStorage.getItem('accessToken');
+        const role = localStorage.getItem('userRole');
         const mode = localStorage.getItem('currentMode') || 'WORKER';
         if (token) {
-            window.location.href = (mode === 'EMPLOYER') ? '/interface/managejob' : '/interface/manageapplication';
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectParam = urlParams.get('redirect');
+            if (role === 'ROLE_ADMIN') {
+                window.location.href = '/interface/admin';
+            } else if (redirectParam && !redirectParam.includes('/interface/unauthorized') && !redirectParam.includes('401')) {
+                window.location.href = redirectParam;
+            } else {
+                window.location.href = (mode === 'EMPLOYER') ? '/interface/managejob' : '/interface/manageapplication';
+            }
         }
     });
 
@@ -104,18 +115,36 @@ const API_BASE_URL = 'http://localhost:8083/api/v1/auth';
 
                     // 2. LƯU ROLE (Vai trò) và CURRENT MODE để các trang khác nhận diện được vai trò
                     const roles = data.data.roles || [];
-                    if (roles.length > 0) {
+                    let isAdmin = false;
+                    if (roles.includes('ROLE_ADMIN')) {
+                        isAdmin = true;
+                        localStorage.setItem('userRole', 'ROLE_ADMIN');
+                        localStorage.setItem('isAdmin', 'true');
+                    } else if (roles.length > 0) {
                         const rawRole = roles[0];
                         localStorage.setItem('userRole', rawRole);
                         const cleanRole = rawRole.replace('ROLE_', '');
                         localStorage.setItem('currentMode', cleanRole);
                     }
 
-                    // 3. Điều hướng thông minh dựa trên Role: Cả 2 vai trò đều vào trang Manage tương ứng
+                    // 3. Điều hướng thông minh dựa trên Redirect URL hoặc Role:
                     setTimeout(function() {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const redirectParam = urlParams.get('redirect');
+
+                        if (isAdmin) {
+                            window.location.href = '/interface/admin';
+                            return;
+                        }
+
+                        if (redirectParam && !redirectParam.includes('/interface/unauthorized') && !redirectParam.includes('401')) {
+                            window.location.href = redirectParam;
+                            return;
+                        }
+
                         const rolesStr = roles.join(',');
                         if (rolesStr.includes('WORKER')) {
-                            // Người lao động -> Đẩy sang trang Quản lý đơn ứng tuyển
+                            // Ứng viên -> Đẩy sang trang Quản lý đơn ứng tuyển
                             window.location.href = '/interface/manageapplication';
                         } else {
                             // Nhà tuyển dụng -> Đẩy sang trang Quản lý việc làm

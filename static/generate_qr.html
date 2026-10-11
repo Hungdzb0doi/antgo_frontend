@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Quản lý Ca làm · AntGo</title>
 
+    <script src="/asset/js/auth-guard.js"></script>
     <!-- Tabler Icons & QRCode.js -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -27,6 +28,9 @@
         </h1>
     </div>
     <div class="header-nav">
+        <a href="/interface/managejob" onclick="if(document.referrer && document.referrer.includes('/interface/managejob')){history.back(); return false;}" class="nav-btn" style="background: rgba(255, 102, 0, 0.15); border-color: rgba(255, 102, 0, 0.4); color: #ff8533;">
+            <i class="ti ti-arrow-left"></i> Quay lại
+        </a>
         <a href="/interface/managejob" class="nav-btn"><i class="ti ti-briefcase"></i> Quản lý việc làm</a>
         <a href="/interface/createjob" class="nav-btn"><i class="ti ti-plus"></i> Đăng tin việc</a>
         <a href="/interface/profile" class="nav-btn"><i class="ti ti-user"></i> Hồ sơ</a>
@@ -35,6 +39,11 @@
 </header>
 
 <div class="container">
+    <div style="margin-bottom: 16px;">
+        <a href="/interface/managejob" onclick="if(document.referrer && document.referrer.includes('/interface/managejob')){history.back(); return false;}" style="display: inline-flex; align-items: center; gap: 6px; color: var(--text-sub); font-size: 13px; font-weight: 600; text-decoration: none; padding: 6px 12px; border-radius: 8px; background: #ffffff; border: 1px solid var(--border); transition: all 0.2s;">
+            <i class="ti ti-arrow-left"></i> Quay lại Quản lý việc làm
+        </a>
+    </div>
 
     <!-- Toggle Chế độ VÀO CA / RA CA -->
     <div class="toggle-group">
@@ -48,8 +57,8 @@
 
     <!-- Khung QR Code -->
     <div class="qr-card">
-        <h2 class="qr-title" id="qr-display-title" style="color: var(--success);">Quét mã để Bắt đầu làm</h2>
-        <p class="qr-subtitle">Yêu cầu thợ vào web để quét mã</p>
+        <h2 class="qr-title" id="qr-display-title" style="color: var(--primary-orange);">Quét mã để Bắt đầu làm</h2>
+        <p class="qr-subtitle">Yêu cầu ứng viên vào web để quét mã</p>
 
         <div class="qr-frame">
             <div id="qrcode"></div>
@@ -58,7 +67,7 @@
 
         <div class="timer-box">
             <div style="display: flex; align-items: center; gap: 4px;">
-                <i class="ti ti-refresh"></i> Tự động làm mới mã bảo mật sau <span id="time-text" style="color: var(--primary); font-weight: 700;">30</span>s
+                <i class="ti ti-refresh"></i> Tự động làm mới mã bảo mật sau <span id="time-text" style="color: var(--primary-orange); font-weight: 700;">30</span>s
             </div>
             <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
         </div>
@@ -66,21 +75,22 @@
 
 </div>
 
-<script src="/asset/js/generate_qr.js"></script>
-
-<!-- Modal Popup Thanh toán cho Chủ khi Thợ Checkout -->
+<!-- Modal Popup Thanh toán cho Nhà tuyển dụng khi Ứng viên Checkout -->
 <div id="employer-payment-modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(15,23,42,0.6); z-index:999; justify-content:center; align-items:center;">
     <div style="background:white; padding:24px; border-radius:20px; max-width:420px; width:90%; box-shadow:0 10px 25px rgba(0,0,0,0.2); animation:slideDown 0.3s ease;">
         <div style="text-align:center; margin-bottom:16px;">
-            <div style="width:60px; height:60px; background:#dcfce7; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:var(--success); font-size:32px;">
-                <i class="ti ti-cash"></i>
+            <div style="position:relative; width:68px; height:68px; margin:0 auto 12px;">
+                <img id="emp-worker-avatar" src="https://ui-avatars.com/api/?name=U&background=18181b&color=ff6600&size=128&bold=true" style="width:68px; height:68px; border-radius:50%; object-fit:cover; border:2px solid var(--primary-orange); box-shadow:0 4px 12px rgba(255,102,0,0.2);">
+                <div style="position:absolute; bottom:-2px; right:-2px; width:22px; height:22px; background:var(--primary-orange); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:12px; border:2px solid white;">
+                    <i class="ti ti-cash"></i>
+                </div>
             </div>
-            <h3 style="margin:0 0 6px;">Thanh toán cho Thợ</h3>
+            <h3 style="margin:0 0 6px; font-weight:800; color:var(--black-main);">Thanh toán cho Ứng viên</h3>
             <p style="margin:0; font-size:14px; color:var(--text-sub);">
-                Thợ <strong id="emp-worker-name">...</strong> vừa hoàn thành ca
+                Ứng viên <strong id="emp-worker-name" style="color:var(--black-main);">...</strong> vừa hoàn thành ca
             </p>
-            <span id="emp-worker-paid-badge" style="display:none; margin-top:6px; font-size:12px; font-weight:600; background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:12px;">
-                <i class="ti ti-check"></i> Thợ đã xác nhận nhận tiền
+            <span id="emp-worker-paid-badge" style="display:none; margin-top:8px; font-size:12px; font-weight:600; background:var(--primary-light); color:var(--primary-orange); border:1px solid #FED7AA; padding:3px 10px; border-radius:12px; align-items:center; gap:4px;">
+                <i class="ti ti-check"></i> Ứng viên đã xác nhận nhận tiền
             </span>
         </div>
         
@@ -91,28 +101,71 @@
             </div>
             <div style="display:flex; justify-content:space-between; font-size:16px; border-top:1px dashed var(--border); padding-top:8px;">
                 <span style="font-weight:700;">Số tiền cần thanh toán:</span>
-                <strong id="emp-total" style="color:var(--primary); font-size:22px;">0 VNĐ</strong>
+                <strong id="emp-total" style="color:var(--primary-orange); font-size:22px; font-weight:800;">0 VNĐ</strong>
             </div>
         </div>
         <p style="font-size:13px; color:var(--text-sub); text-align:center; margin-bottom:20px;">
-            <i class="ti ti-info-circle"></i> Vui lòng thanh toán số tiền trên cho thợ qua tiền mặt hoặc chuyển khoản.
+            <i class="ti ti-info-circle"></i> Vui lòng thanh toán số tiền trên cho ứng viên qua tiền mặt hoặc chuyển khoản.
         </p>
         
-        <!-- Nút xác nhận hài lòng -->
-        <button id="btn-emp-confirm" class="btn" style="width:100%; padding:14px; background:var(--success); color:white; border-radius:12px; font-weight:700; border:none; cursor:pointer; font-size:15px; margin-bottom:8px;" onclick="confirmSatisfactionAction()">
+        <!-- Nút xác nhận hài lòng (Cam chủ đạo) -->
+        <button id="btn-emp-confirm" class="btn" style="width:100%; padding:14px; background:var(--primary-orange); color:white; border-radius:12px; font-weight:700; border:none; cursor:pointer; font-size:15px; margin-bottom:10px; box-shadow:0 4px 14px rgba(255,102,0,0.3); transition:all 0.2s;" onclick="confirmSatisfactionAction()">
             <i class="ti ti-thumb-up"></i> Xác nhận hài lòng
         </button>
 
-        <!-- Nút Báo Cáo (UI) -->
-        <button class="btn" style="width:100%; padding:12px; background:#fee2e2; color:#b91c1c; border-radius:12px; font-weight:600; border:none; cursor:pointer; margin-bottom:8px; font-size:14px;" onclick="promptReport()">
-            <i class="ti ti-alert-triangle"></i> Báo cáo
+        <!-- Nút Báo Cáo vấn đề (Màu chủ đạo Đen - Cam - Trắng) -->
+        <button class="btn btn-report-sheet" id="btn-open-emp-report" onclick="openEmployerReportModal()">
+            <i class="ti ti-alert-triangle"></i> Báo cáo vấn đề ca làm
         </button>
 
-        <button class="btn" style="width:100%; padding:10px; background:transparent; color:var(--text-sub); border:none; cursor:pointer;" onclick="closeEmployerModal()">
+        <button class="btn" style="width:100%; padding:11px; background:#ffffff; color:var(--black-main); border:1px solid var(--border); border-radius:12px; font-weight:600; cursor:pointer; margin-top:10px;" onclick="closeEmployerModal()">
             Đóng
         </button>
     </div>
 </div>
+
+<!-- MODAL BÁO CÁO / KHIẾU NẠI CA LÀM (CHUẨN FORM CÓ BẰNG CHỨNG) -->
+<div id="employerReportModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="ti ti-alert-triangle" style="color: var(--primary-orange);"></i> Báo cáo / Khiếu nại ca làm</h3>
+            <button class="btn-close" onclick="closeEmployerReportModal()"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body">
+            <p style="margin: 0 0 14px; font-size: 13px; color: var(--text-sub);">
+                Ứng viên bị báo cáo: <strong id="employerReportWorkerName" style="color: var(--black-main);">...</strong>
+            </p>
+            <div class="form-group" style="margin-bottom: 14px; text-align: left;">
+                <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px; color: var(--text-main);">Mô tả chi tiết sự việc:</label>
+                <textarea id="employerReportDetailText" class="form-control" rows="4" placeholder="VD: Ứng viên đi trễ, không hoàn thành khối lượng công việc theo thỏa thuận, có thái độ không phù hợp, tranh chấp tiền công..."></textarea>
+            </div>
+            <div class="form-group" style="text-align: left;">
+                <label style="font-weight: 600; font-size: 13px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; color: var(--text-main);">
+                    <span>Bằng chứng đính kèm (Ảnh & Video):</span>
+                    <span style="font-size: 11px; font-weight: normal; color: var(--text-sub);">Tối đa 5 ảnh, 1 video (&le;50MB)</span>
+                </label>
+                
+                <input type="file" id="employerReportFileInput" multiple accept="image/*,video/*" style="display: none;" onchange="handleEmployerReportFilesSelected(event)">
+                
+                <div onclick="document.getElementById('employerReportFileInput').click()" style="border: 1.5px dashed #cbd5e1; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; background: #f8fafc; transition: all 0.2s;">
+                    <i class="ti ti-cloud-upload" style="font-size: 28px; color: var(--primary-orange); display: block; margin-bottom: 4px;"></i>
+                    <span style="font-size: 13px; color: var(--text-main); font-weight: 600;">Bấm vào đây để chọn ảnh hoặc video bằng chứng</span>
+                    <div style="font-size: 11px; color: var(--text-sub); margin-top: 3px;">Hỗ trợ ảnh chụp hiện trường, tin nhắn thỏa thuận, biên nhận...</div>
+                </div>
+
+                <!-- Khung xem trước các file đã chọn -->
+                <div id="employerReportMediaPreview" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-modal-cancel" onclick="closeEmployerReportModal()">Hủy</button>
+            <button class="btn-modal-submit" id="btnSubmitEmployerReport" onclick="submitEmployerReport()">Gửi báo cáo</button>
+        </div>
+    </div>
+</div>
+
+<script src="/asset/js/avatar-util.js"></script>
+<script src="/asset/js/generate_qr.js?v=2.0"></script>
 <script src="/asset/js/notification.js"></script>
 <script src="/asset/js/chat.js"></script>
 </body>

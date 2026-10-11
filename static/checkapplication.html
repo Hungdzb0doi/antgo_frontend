@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Duyệt Đơn Ứng Tuyển · AntGo</title>
 
+    <script src="/asset/js/auth-guard.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 
     <link rel="stylesheet" href="/asset/css/checkapplication.css">
@@ -21,6 +22,9 @@
         <h1 id="page-job-title" style="margin: 0; font-size: 16px; font-weight: 700; color: #ffffff; max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Đang tải...</h1>
     </div>
     <div class="header-nav">
+        <a href="/interface/managejob" onclick="if(document.referrer && document.referrer.includes('/interface/managejob')){history.back(); return false;}" class="nav-btn" style="background: rgba(255, 102, 0, 0.15); border-color: rgba(255, 102, 0, 0.4); color: #ff8533;">
+            <i class="ti ti-arrow-left"></i> Quay lại
+        </a>
         <a href="/interface/managejob" class="nav-btn"><i class="ti ti-briefcase"></i> Quản lý việc làm</a>
         <a href="/interface/createjob" class="nav-btn"><i class="ti ti-plus"></i> Đăng tin việc</a>
         <a href="/interface/profile" class="nav-btn"><i class="ti ti-user"></i> Hồ sơ</a>
@@ -29,13 +33,31 @@
 </header>
 
 <div class="container">
+    <div style="margin-bottom: 14px;">
+        <a href="/interface/managejob" onclick="if(document.referrer && document.referrer.includes('/interface/managejob')){history.back(); return false;}" class="btn-back-link">
+            <i class="ti ti-arrow-left"></i> Quay lại Quản lý việc làm
+        </a>
+    </div>
+
     <div class="section-header">
-        <h2 class="section-title">Danh sách ứng viên</h2>
-        <div class="section-subtitle" id="app-count">0 hồ sơ</div>
+        <div>
+            <h2 class="section-title">Danh sách ứng viên</h2>
+            <div class="section-subtitle" id="app-count">0 hồ sơ</div>
+        </div>
     </div>
 
     <!-- Cảnh báo khi công việc đã bắt đầu/kết thúc -->
     <div id="job-status-alert" style="display: none; margin-bottom: 20px; padding: 14px 18px; border-radius: 10px; font-size: 13.5px; font-weight: 500; align-items: center; gap: 10px;"></div>
+
+    <!-- Tabs chuyển đổi khi công việc đang tuyển (OPEN) -->
+    <div class="app-tabs" id="app-tabs-container" style="display: none; margin-bottom: 20px;">
+        <button class="tab-btn active" id="tab-btn-applications" onclick="switchAppTab('APPLICATION')">
+            <i class="ti ti-file-text"></i> Đơn ứng tuyển <span id="badge-tab-app" class="tab-badge">0</span>
+        </button>
+        <button class="tab-btn" id="tab-btn-invitations" onclick="switchAppTab('INVITATION')">
+            <i class="ti ti-radar"></i> Lời mời đã gửi (Radar) <span id="badge-tab-inv" class="tab-badge">0</span>
+        </button>
+    </div>
 
     <div class="app-list" id="app-list-container">
         <div style="text-align: center; color: #94a3b8; margin-top: 40px;">
@@ -61,16 +83,16 @@
     </div>
 </div>
 
-<!-- MODAL ĐÁNH GIÁ THỢ (DÀNH CHO CHỦ NHÀ) -->
+<!-- MODAL ĐÁNH GIÁ ỨNG VIÊN (DÀNH CHO NHÀ TUYỂN DỤNG) -->
 <div id="employerReviewModal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
-            <h3><i class="ti ti-star" style="color: #f59e0b;"></i> Đánh giá Thợ làm việc</h3>
+            <h3><i class="ti ti-star" style="color: #f59e0b;"></i> Đánh giá Ứng viên làm việc</h3>
             <button class="btn-close" onclick="closeEmployerReviewModal()"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
             <p style="margin: 0 0 16px; font-size: 13.5px; color: var(--text-sub);">
-                Thợ: <strong id="employerReviewWorkerName" style="color: var(--text-main); font-size: 15px;"></strong>
+                Ứng viên: <strong id="employerReviewWorkerName" style="color: var(--text-main); font-size: 15px;"></strong>
             </p>
 
             <div style="text-align: center; margin-bottom: 8px;">
@@ -87,27 +109,27 @@
 
             <div class="form-group" style="margin-top: 14px;">
                 <label>Nhận xét / Góp ý (tùy chọn):</label>
-                <textarea id="employerReviewCommentText" class="form-control" rows="3" placeholder="Đánh giá tác phong, tay nghề, sự nhiệt tình của thợ..."></textarea>
+                <textarea id="employerReviewCommentText" class="form-control" rows="3" placeholder="Đánh giá tác phong, tay nghề, sự nhiệt tình của ứng viên..."></textarea>
             </div>
         </div>
         <div style="padding: 14px 20px; background: var(--bg-body); display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid var(--border);">
             <button class="btn btn-outline" style="padding: 8px 16px;" onclick="closeEmployerReviewModal()">Hủy</button>
-            <button class="btn btn-primary" id="btnSubmitEmployerReview" style="padding: 8px 20px; background: #f59e0b; border: none;" onclick="submitEmployerReview()">Gửi đánh giá</button>
+            <button class="btn btn-primary" id="btnSubmitEmployerReview" style="padding: 8px 20px;" onclick="submitEmployerReview()">Gửi đánh giá</button>
         </div>
     </div>
 </div>
 
-<!-- MODAL KHIẾU NẠI THỢ (DÀNH CHO CHỦ NHÀ) -->
-<!-- MODAL KHIẾU NẠI THỢ (DÀNH CHO CHỦ NHÀ) -->
+
+<!-- MODAL KHIẾU NẠI ỨNG VIÊN (DÀNH CHO NHÀ TUYỂN DỤNG) -->
 <div id="employerReportModal" class="modal-overlay">
     <div class="modal-content" style="max-width: 520px; width: 95%;">
         <div class="modal-header">
-            <h3><i class="ti ti-alert-triangle" ></i> Báo cáo / Khiếu nại thợ</h3>
+            <h3><i class="ti ti-alert-triangle" style="color: var(--primary-orange);"></i> Báo cáo / Khiếu nại ứng viên</h3>
             <button class="btn-close" onclick="closeEmployerReportModal()"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
             <p style="margin: 0 0 14px; font-size: 13.5px; color: var(--text-sub);">
-                Thợ bị báo cáo: <strong id="employerReportWorkerName" style="color: var(--text-main);"></strong>
+                Ứng viên bị báo cáo: <strong id="employerReportWorkerName" style="color: var(--text-main);"></strong>
             </p>
             <div class="form-group" style="margin-bottom: 14px;">
                 <label style="font-weight: 600; font-size: 13px;">Mô tả chi tiết sự việc:</label>
@@ -122,7 +144,7 @@
                 <input type="file" id="employerReportFileInput" multiple accept="image/*,video/*" style="display: none;" onchange="handleEmployerReportFilesSelected(event)">
                 
                 <div onclick="document.getElementById('employerReportFileInput').click()" style="border: 1.5px dashed #cbd5e1; border-radius: 8px; padding: 14px; text-align: center; cursor: pointer; background: #f8fafc; transition: all 0.2s;">
-                    <i class="ti ti-cloud-upload" ></i>
+                    <i class="ti ti-cloud-upload" style="font-size: 26px; color: var(--primary-orange); display: block; margin-bottom: 4px;"></i>
                     <span style="font-size: 13px; color: var(--text-main); font-weight: 500;">Bấm vào đây để chọn ảnh hoặc video bằng chứng</span>
                     <div style="font-size: 11px; color: var(--text-sub); margin-top: 2px;">Hỗ trợ ảnh (JPG, PNG) và video (MP4, MOV...)</div>
                 </div>
@@ -133,12 +155,13 @@
         </div>
         <div style="padding: 14px 20px; background: var(--bg-body); display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid var(--border);">
             <button class="btn btn-outline" style="padding: 8px 16px;" onclick="closeEmployerReportModal()">Hủy</button>
-            <button class="btn btn-primary" id="btnSubmitEmployerReport"  onclick="submitEmployerReport()">Gửi khiếu nại</button>
+            <button class="btn btn-primary" id="btnSubmitEmployerReport" onclick="submitEmployerReport()">Gửi khiếu nại</button>
         </div>
     </div>
 </div>
 
-<script src="/asset/js/checkapplication.js"></script>
+<script src="/asset/js/avatar-util.js"></script>
+<script src="/asset/js/checkapplication.js?v=4.0"></script>
 <script src="/asset/js/notification.js"></script>
 <script src="/asset/js/chat.js"></script>
 </body>

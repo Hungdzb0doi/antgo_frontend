@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Radar Tìm Việc · AntGo</title>
 
+    <script src="/asset/js/auth-guard.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -40,7 +41,7 @@
         <div class="sidebar-header">
             <div class="sidebar-header-top">
                 <span>Việc làm quanh đây (<span id="job-count">0</span>)</span>
-                <span id="gps-status" style="font-size:12px; color:var(--success); font-weight:normal;">
+                <span id="gps-status" style="font-size:12px; color:var(--primary-orange); font-weight:600;">
                     <i class="ti ti-map-pin"></i> Đang bật GPS
                 </span>
             </div>
@@ -69,13 +70,14 @@
         <div class="modal-body" id="modal-body-content"></div>
         <div class="modal-footer">
             <button class="btn-action" style="background:#64748b;" onclick="closeModal()">Đóng</button>
-            <button class="btn-action" id="btn-apply-modal"  onclick="applyJobFromModal()">
+            <button class="btn-action" id="btn-apply-modal" style="background:var(--primary-orange); color:#ffffff;" onclick="applyJobFromModal()">
                 <i class="ti ti-send"></i> Ứng tuyển ngay
             </button>
         </div>
     </div>
 </div>
 
+<script src="/asset/js/avatar-util.js"></script>
 <script src="/asset/js/findjob.js"></script>
 <script src="/asset/js/notification.js"></script>
 <script src="/asset/js/chat.js"></script>

@@ -43,10 +43,10 @@ const token = localStorage.getItem('accessToken');
                 console.warn("Không thể truy cập Camera:", err);
                 const kycHeader = document.getElementById('kyc-header');
                 if (kycHeader) {
-                    kycHeader.style.background = '#fef2f2';
-                    kycHeader.style.borderColor = '#fecaca';
-                    kycHeader.style.color = '#b91c1c';
-                    kycHeader.innerHTML = `<i class="ti ti-alert-circle"></i> <strong>Chưa cấp quyền Camera:</strong> Vui lòng cho phép quyền Camera trên thanh địa chỉ trình duyệt rồi bấm vào khung để chụp lại.`;
+                    kycHeader.style.background = '#f4f4f5';
+                    kycHeader.style.borderColor = '#e4e4e7';
+                    kycHeader.style.color = 'var(--black-main)';
+                    kycHeader.innerHTML = `<i class="ti ti-alert-circle" style="color:var(--primary-orange);"></i> <strong>Chưa cấp quyền Camera:</strong> Vui lòng cho phép quyền Camera trên thanh địa chỉ trình duyệt rồi bấm vào khung để chụp lại.`;
                 }
                 updateBoxUI(step, 'IDLE', 'Chưa cấp quyền Camera · Bấm thử lại');
             });
@@ -156,7 +156,7 @@ const token = localStorage.getItem('accessToken');
         formData.append('back', capturedFiles[2], 'back.jpg');
         formData.append('face', capturedFiles[3], 'face.jpg');
 
-        fetch('http://localhost:8083/api/v1/identify', {
+        fetch('/api/v1/identify', {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + token },
             body: formData
